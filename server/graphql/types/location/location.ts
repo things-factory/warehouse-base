@@ -6,6 +6,5 @@ export const Location = gql`
     name: String
     domain: Domain
     description: String
-    commonCodeDetails: CommonCodeDetail
   }
 `

@@ -6,6 +6,5 @@ export const Warehouse = gql`
     name: String
     domain: Domain
     description: String
-    commonCodeDetails: CommonCodeDetail
   }
 `
