@@ -8,7 +8,7 @@ export const locationResolver = {
     return await repository.findOne(
       { id },
       {
-        relations: ['locationDetails']
+        relations: ['inventories']
       }
     )
   }

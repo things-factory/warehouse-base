@@ -1,7 +1,6 @@
 import { Entity, Index, Column, OneToMany, ManyToOne, PrimaryGeneratedColumn, OneToOne } from 'typeorm'
 import { Domain, DomainBaseEntity } from '@things-factory/shell'
 import { Warehouse } from './warehouse'
-import { ProductBatch, Lot } from '@things-factory/product-base'
 
 @Entity('locations')
 @Index('ix_location_0', (location: Location) => [location.domain, location.name], { unique: true })
@@ -15,17 +14,20 @@ export class Location extends DomainBaseEntity {
   @ManyToOne(type => Warehouse, warehouse => warehouse.locations)
   warehouse: Warehouse
 
-  @ManyToOne(type => ProductBatch)
-  productBatch: ProductBatch
-
-  @OneToOne(type => Lot)
-  lot: Lot
-
-  @Column('float')
-  qty: number
-
   @Column('text')
   name: string
+
+  @Column('text')
+  zone: string
+
+  @Column('text')
+  section: string
+
+  @Column('text')
+  unit: string
+
+  @Column('text')
+  shelf: string
 
   @Column({ type: 'text', comment: 'occupied, hold, empty' })
   state: string
