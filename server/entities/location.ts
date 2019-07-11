@@ -14,25 +14,25 @@ export class Location extends DomainBaseEntity {
   @ManyToOne(type => Warehouse, warehouse => warehouse.locations)
   warehouse: Warehouse
 
-  @Column('text')
+  @Column()
   name: string
 
-  @Column('text')
+  @Column()
   zone: string
 
-  @Column('text')
+  @Column()
   section: string
 
-  @Column('text')
+  @Column()
   unit: string
 
-  @Column('text')
+  @Column()
   shelf: string
 
   @Column({ type: 'text', comment: 'occupied, hold, empty' })
   state: string
 
-  @Column('text', {
+  @Column({
     nullable: true
   })
   description: string

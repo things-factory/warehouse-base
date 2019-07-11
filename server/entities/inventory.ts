@@ -13,7 +13,7 @@ export class Inventory extends DomainBaseEntity {
   @ManyToOne(type => Domain)
   domain: Domain
 
-  @Column('text')
+  @Column()
   name: string
 
   @ManyToOne(type => ProductBatch)
@@ -25,7 +25,7 @@ export class Inventory extends DomainBaseEntity {
   @Column('float')
   qty: number
 
-  @Column('text', {
+  @Column({
     nullable: true
   })
   description: string

@@ -37,7 +37,7 @@ export class Movement extends DomainBaseEntity {
   @Column('float')
   endQty: number
 
-  @Column('text', {
+  @Column({
     nullable: true
   })
   description: string

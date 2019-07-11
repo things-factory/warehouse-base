@@ -11,13 +11,13 @@ export class Warehouse extends DomainBaseEntity {
   @ManyToOne(type => Domain)
   domain: Domain
 
-  @Column('text')
+  @Column()
   name: string
 
   @OneToMany(type => Location, location => location.warehouse)
   locations: Location[]
 
-  @Column('text', {
+  @Column({
     nullable: true
   })
   description: string
