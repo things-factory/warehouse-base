@@ -4,13 +4,12 @@ import { getRepository } from 'typeorm'
 import { Warehouse } from '../../../entities'
 
 export const createWarehouse = {
-  async createWarehouse(_, { warehouse: attrs }) {
-    const repository = getRepository(Warehouse)
-    const newWarehouse = {
-      id: uuid(),
-      ...attrs
-    }
-
-    return await repository.save(newWarehouse)
+  async createWarehouse(_: any, { warehouse }, context: any) {
+    return await getRepository(Warehouse).save({
+      domain: context.domain,
+      creatorId: context.state.user.id,
+      updaterId: context.state.user.id,
+      ...warehouse
+    })
   }
 }

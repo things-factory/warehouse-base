@@ -1,6 +1,8 @@
+import { Filter, Pagination, Sorting } from '@things-factory/shell'
 import { Inventory } from './inventory'
-import { NewInventory } from './new-inventory'
+import { InventoryList } from './inventory-list'
 import { InventoryPatch } from './inventory-patch'
+import { NewInventory } from './new-inventory'
 
 export const Mutation = `
   createInventory (
@@ -8,22 +10,18 @@ export const Mutation = `
   ): Inventory
 
   updateInventory (
-    id: String!
+    name: String!
     patch: InventoryPatch!
   ): Inventory
 
   deleteInventory (
-    id: String!
-  ): Inventory
-
-  publishInventory (
-    id: String!
+    name: String!
   ): Inventory
 `
 
 export const Query = `
-  inventories: [Inventory]
-  inventory(id: String!): Inventory
+  inventories(filters: [Filter], pagination: Pagination, sortings: [Sorting]): InventoryList
+  inventory(name: String!): Inventory
 `
 
-export const Types = [Inventory, NewInventory, InventoryPatch]
+export const Types = [Filter, Pagination, Sorting, Inventory, NewInventory, InventoryPatch, InventoryList]

@@ -1,10 +1,20 @@
-import { Entity, Index, Column, OneToMany, ManyToOne, PrimaryGeneratedColumn } from 'typeorm'
-import { Domain, DomainBaseEntity } from '@things-factory/shell'
+import { User } from '@things-factory/auth-base'
+import { Domain } from '@things-factory/shell'
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  Index,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn
+} from 'typeorm'
 import { Location } from './location'
 
 @Entity('warehouses')
 @Index('ix_warehouse_0', (warehouse: Warehouse) => [warehouse.domain, warehouse.name], { unique: true })
-export class Warehouse extends DomainBaseEntity {
+export class Warehouse {
   @PrimaryGeneratedColumn('uuid')
   id: string
 
@@ -21,4 +31,20 @@ export class Warehouse extends DomainBaseEntity {
     nullable: true
   })
   description: string
+
+  @ManyToOne(type => User, {
+    nullable: true
+  })
+  creator: User
+
+  @ManyToOne(type => User, {
+    nullable: true
+  })
+  updater: User
+
+  @CreateDateColumn()
+  createdAt: Date
+
+  @UpdateDateColumn()
+  updatedAt: Date
 }

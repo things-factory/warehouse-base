@@ -1,5 +1,7 @@
-import { Warehouse } from './warehouse'
+import { Filter, Pagination, Sorting } from '@things-factory/shell'
 import { NewWarehouse } from './new-warehouse'
+import { Warehouse } from './warehouse'
+import { WarehouseList } from './warehouse-list'
 import { WarehousePatch } from './warehouse-patch'
 
 export const Mutation = `
@@ -8,22 +10,18 @@ export const Mutation = `
   ): Warehouse
 
   updateWarehouse (
-    id: String!
+    name: String!
     patch: WarehousePatch!
   ): Warehouse
 
   deleteWarehouse (
-    id: String!
-  ): Warehouse
-
-  publishWarehouse (
-    id: String!
+    name: String!
   ): Warehouse
 `
 
 export const Query = `
-  warehouses: [Warehouse]
+  warehouses: (filters: [Filter], pagination: Pagination, sortings: [Sorting]): WarehouseList
   warehouse(id: String!): Warehouse
 `
 
-export const Types = [Warehouse, NewWarehouse, WarehousePatch]
+export const Types = [Filter, Pagination, Sorting, Warehouse, NewWarehouse, WarehousePatch, WarehouseList]

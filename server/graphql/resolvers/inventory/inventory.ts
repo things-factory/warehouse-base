@@ -2,14 +2,10 @@ import { getRepository } from 'typeorm'
 import { Inventory } from '../../../entities'
 
 export const inventoryResolver = {
-  async inventory(_, { id }, context, info) {
-    const repository = getRepository(Inventory)
-
-    return await repository.findOne(
-      { id },
-      {
-        relations: ['inventoryDetails']
-      }
-    )
+  async inventory(_: any, { name }, context: any) {
+    return await getRepository(Inventory).findOne({
+      where: { domain: context.domain, name },
+      relations: ['domain', 'creator', 'updater']
+    })
   }
 }

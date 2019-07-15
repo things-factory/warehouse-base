@@ -3,8 +3,12 @@ import { gql } from 'apollo-server-koa'
 export const Container = gql`
   type Container {
     id: String
-    name: String
     domain: Domain
+    name: String
     description: String
+    creator: User
+    updater: User
+    createdAt: Date
+    updatedAt: Date
   }
 `

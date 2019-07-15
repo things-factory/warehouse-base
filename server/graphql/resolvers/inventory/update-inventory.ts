@@ -2,14 +2,14 @@ import { getRepository } from 'typeorm'
 import { Inventory } from '../../../entities'
 
 export const updateInventory = {
-  async updateInventory(_, { id, patch }) {
+  async updateInventory(_: any, { name, patch }, context: any) {
     const repository = getRepository(Inventory)
-
-    const commonCode = await repository.findOne({ id })
+    const inventory = await repository.findOne({ where: { domain: context.domain, name } })
 
     return await repository.save({
-      ...commonCode,
-      ...patch
+      ...inventory,
+      ...patch,
+      updaterId: context.state.user.id
     })
   }
 }

@@ -10,22 +10,18 @@ export const Mutation = `
   ): Container
 
   updateContainer (
-    id: String!
+    name: String!
     patch: ContainerPatch!
   ): Container
 
   deleteContainer (
-    id: String!
-  ): Container
-
-  publishContainer (
-    id: String!
+    name: String!
   ): Container
 `
 
 export const Query = `
   containers(filters: [Filter], pagination: Pagination, sortings: [Sorting]): ContainerList
-  container(id: String!): Container
+  container(name: String!): Container
 `
 
 export const Types = [Filter, Pagination, Sorting, Container, NewContainer, ContainerPatch, ContainerList]

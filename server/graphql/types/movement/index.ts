@@ -1,6 +1,8 @@
+import { Filter, Pagination, Sorting } from '@things-factory/shell'
 import { Movement } from './movement'
-import { NewMovement } from './new-movement'
+import { MovementList } from './movement-list'
 import { MovementPatch } from './movement-patch'
+import { NewMovement } from './new-movement'
 
 export const Mutation = `
   createMovement (
@@ -15,15 +17,11 @@ export const Mutation = `
   deleteMovement (
     id: String!
   ): Movement
-
-  publishMovement (
-    id: String!
-  ): Movement
 `
 
 export const Query = `
-  movements: [Movement]
+  movements: (filters: [Filter], pagination: Pagination, sortings: [Sorting]): MovementList
   movement(id: String!): Movement
 `
 
-export const Types = [Movement, NewMovement, MovementPatch]
+export const Types = [Filter, Pagination, Sorting, Movement, NewMovement, MovementPatch, MovementList]

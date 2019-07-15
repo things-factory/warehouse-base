@@ -2,11 +2,10 @@ import { getRepository } from 'typeorm'
 import { Container } from '../../../entities'
 
 export const containerResolver = {
-  async container(_, { id }, context, info) {
-    const repository = getRepository(Container)
-
-    return await repository.findOne(
-      { id }
-    )
+  async container(_: any, { name }, context: any) {
+    return await getRepository(Container).findOne({
+      where: { domain: context.domain, name },
+      relations: ['domain', 'creator', 'updater']
+    })
   }
 }

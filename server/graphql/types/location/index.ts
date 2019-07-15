@@ -1,6 +1,8 @@
+import { Filter, Pagination, Sorting } from '@things-factory/shell'
 import { Location } from './location'
-import { NewLocation } from './new-location'
+import { LocationList } from './location-list'
 import { LocationPatch } from './location-patch'
+import { NewLocation } from './new-location'
 
 export const Mutation = `
   createLocation (
@@ -8,22 +10,18 @@ export const Mutation = `
   ): Location
 
   updateLocation (
-    id: String!
+    name: String!
     patch: LocationPatch!
   ): Location
 
   deleteLocation (
-    id: String!
-  ): Location
-
-  publishLocation (
-    id: String!
+    name: String!
   ): Location
 `
 
 export const Query = `
-  locations: [Location]
-  location(id: String!): Location
+  locations: (filters: [Filter], pagination: Pagination, sortings: [Sorting]): LocationList
+  location(name: String!): Location
 `
 
-export const Types = [Location, NewLocation, LocationPatch]
+export const Types = [Filter, Pagination, Sorting, Location, NewLocation, LocationPatch, LocationList]

@@ -1,16 +1,13 @@
-import uuid from 'uuid/v4'
-
 import { getRepository } from 'typeorm'
 import { Inventory } from '../../../entities'
 
 export const createInventory = {
-  async createInventory(_, { inventory: attrs }) {
-    const repository = getRepository(Inventory)
-    const newInventory = {
-      id: uuid(),
-      ...attrs
-    }
-
-    return await repository.save(newInventory)
+  async createInventory(_: any, { inventory }, context: any) {
+    return await getRepository(Inventory).save({
+      domain: context.domain,
+      creatorId: context.state.user.id,
+      updaterId: context.state.user.id,
+      ...inventory
+    })
   }
 }
