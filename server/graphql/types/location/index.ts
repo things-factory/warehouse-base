@@ -20,7 +20,7 @@ export const Mutation = `
 `
 
 export const Query = `
-  locations: (filters: [Filter], pagination: Pagination, sortings: [Sorting]): LocationList
+  locations(filters: [Filter], pagination: Pagination, sortings: [Sorting]): LocationList
   location(name: String!): Location
 `
 

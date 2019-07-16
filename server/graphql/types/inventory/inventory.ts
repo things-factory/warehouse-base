@@ -7,11 +7,11 @@ export const Inventory = gql`
     name: String
     productBatch: ProductBatch
     lot: Lot
-    qty: number
+    qty: Int
     description: String
     creator: User
     updater: User
-    createdAt: Date
-    updatedAt: Date
+    createdAt: String
+    updatedAt: String
   }
 `

@@ -20,7 +20,7 @@ export const Mutation = `
 `
 
 export const Query = `
-  movements: (filters: [Filter], pagination: Pagination, sortings: [Sorting]): MovementList
+  movements(filters: [Filter], pagination: Pagination, sortings: [Sorting]): MovementList
   movement(id: String!): Movement
 `
 

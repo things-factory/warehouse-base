@@ -1,8 +1,8 @@
-import { Container } from './container'
-import { NewContainer } from './new-container'
-import { ContainerPatch } from './container-patch'
-import { ContainerList } from './container-list'
 import { Filter, Pagination, Sorting } from '@things-factory/shell'
+import { Container } from './container'
+import { ContainerList } from './container-list'
+import { ContainerPatch } from './container-patch'
+import { NewContainer } from './new-container'
 
 export const Mutation = `
   createContainer (

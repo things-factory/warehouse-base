@@ -20,7 +20,7 @@ export const Mutation = `
 `
 
 export const Query = `
-  warehouses: (filters: [Filter], pagination: Pagination, sortings: [Sorting]): WarehouseList
+  warehouses(filters: [Filter], pagination: Pagination, sortings: [Sorting]): WarehouseList
   warehouse(id: String!): Warehouse
 `
 

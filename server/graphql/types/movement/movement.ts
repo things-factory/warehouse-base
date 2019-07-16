@@ -4,18 +4,18 @@ export const Movement = gql`
   type Movement {
     id: String
     domain: Domain
-    date: Date
+    date: String
     warehouse: Warehouse
     bizplace: Bizplace
     product: Product
-    startQty: number
-    inQty: number
-    outQty: number
-    endQty: number
+    startQty: Int
+    inQty: Int
+    outQty: Int
+    endQty: Int
     description: String
     creator: User
     updater: User
-    createdAt: Date
-    updatedAt: Date
+    createdAt: String
+    updatedAt: String
   }
 `
