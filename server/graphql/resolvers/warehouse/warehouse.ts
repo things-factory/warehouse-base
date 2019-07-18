@@ -5,7 +5,7 @@ export const warehouseResolver = {
   async warehouse(_: any, { name }, context: any) {
     return await getRepository(Warehouse).findOne({
       where: { domain: context.domain, name },
-      relations: ['domain', 'creator', 'updater']
+      relations: ['domain', 'locations', 'creator', 'updater']
     })
   }
 }
