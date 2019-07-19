@@ -1,5 +1,5 @@
 import { User } from '@things-factory/auth-base'
-import { Location, Lot, Product, ProductBatch } from '@things-factory/product-base'
+import { Lot, Product, ProductBatch } from '@things-factory/product-base'
 import { Domain } from '@things-factory/shell'
 import {
   Column,
@@ -11,6 +11,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn
 } from 'typeorm'
+import { Location } from '../entities/location'
 
 @Entity('inventories')
 @Index('ix_inventory_0', (inventory: Inventory) => [inventory.domain, inventory.name], {
