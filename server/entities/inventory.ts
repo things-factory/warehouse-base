@@ -1,5 +1,5 @@
 import { User } from '@things-factory/auth-base'
-import { Lot, ProductBatch } from '@things-factory/product-base'
+import { Location, Lot, Product, ProductBatch } from '@things-factory/product-base'
 import { Domain } from '@things-factory/shell'
 import {
   Column,
@@ -26,6 +26,12 @@ export class Inventory {
   @Column()
   name: string
 
+  @ManyToOne(type => Product)
+  product: Product
+
+  @OneToOne(type => Location)
+  location: Location
+
   @ManyToOne(type => ProductBatch)
   productBatch: ProductBatch
 
@@ -39,6 +45,9 @@ export class Inventory {
     nullable: true
   })
   description: string
+
+  @Column()
+  state: string
 
   @ManyToOne(type => User, {
     nullable: true
