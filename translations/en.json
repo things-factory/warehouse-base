@@ -1,0 +1,20 @@
+{
+  "field.location": "location",
+  "field.product_batch": "product batch",
+  "field.lot": "lot",
+  "field.warehouse": "warehouse",
+  "field.zone": "zone",
+  "field.section": "section",
+  "field.unit": "unit",
+  "field.shelf": "shelf",
+  "field.bizplace": "bizplace",
+  "field.start_qty": "start qty",
+  "field.in_qty": "in qty",
+  "field.out_qty": "out qty",
+  "field.end_qty": "end qty",
+  "field.product": "product",
+  "field.qty": "qty",
+  "field.state": "state",
+  "field.date": "date",
+  "field.type": "type"
+}

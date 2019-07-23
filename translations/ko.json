@@ -1,0 +1,20 @@
+{
+  "field.location": "로케이션",
+  "field.product_batch": "제품 배치",
+  "field.lot": "롯트",
+  "field.warehouse": "공장",
+  "field.zone": "존",
+  "field.section": "구획",
+  "field.unit": "유닛",
+  "field.shelf": "선반",
+  "field.bizplace": "작업 공간",
+  "field.start_qty": "시작 수량",
+  "field.in_qty": "입고 수량",
+  "field.out_qty": "출고 수량",
+  "field.end_qty": "완료 수량",
+  "field.product": "상품",
+  "field.qty": "수량",
+  "field.state": "국가",
+  "field.date": "날짜",
+  "field.type": "유형"
+}
