@@ -1,5 +1,3 @@
-import uuid from 'uuid/v4'
-
 import { getRepository } from 'typeorm'
 import { Warehouse } from '../../../entities'
 import { Bizplace } from '@things-factory/biz-base'

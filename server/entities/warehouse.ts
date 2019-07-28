@@ -31,6 +31,9 @@ export class Warehouse {
   @OneToMany(type => Location, location => location.warehouse)
   locations: Location[]
 
+  @Column()
+  type: string
+
   @Column({
     nullable: true
   })

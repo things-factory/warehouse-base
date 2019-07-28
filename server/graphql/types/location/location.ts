@@ -5,6 +5,7 @@ export const Location = gql`
     id: String
     domain: Domain
     warehouse: Warehouse
+    product: Product
     name: String
     zone: String
     section: String
