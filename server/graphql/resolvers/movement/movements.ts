@@ -3,9 +3,9 @@ import { getRepository } from 'typeorm'
 import { Movement } from '../../../entities'
 
 export const movementsResolver = {
-  async movements(_: any, params: ListParam) {
+  async movements(_: any, params: ListParam, context: any) {
     const queryBuilder = getRepository(Movement).createQueryBuilder()
-    buildQuery(queryBuilder, params)
+    buildQuery(queryBuilder, params, context)
     const [items, total] = await queryBuilder
       .leftJoinAndSelect('Movement.domain', 'Domain')
       .leftJoinAndSelect('Movement.creator', 'Creator')

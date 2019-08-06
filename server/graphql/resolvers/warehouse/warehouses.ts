@@ -3,9 +3,9 @@ import { getRepository } from 'typeorm'
 import { Warehouse } from '../../../entities'
 
 export const warehousesResolver = {
-  async warehouses(_: any, params: ListParam) {
+  async warehouses(_: any, params: ListParam, context: any) {
     const queryBuilder = getRepository(Warehouse).createQueryBuilder()
-    buildQuery(queryBuilder, params)
+    buildQuery(queryBuilder, params, context)
     const [items, total] = await queryBuilder
       .leftJoinAndSelect('Warehouse.domain', 'Domain')
       .leftJoinAndSelect('Warehouse.bizplace', 'Bizplace')

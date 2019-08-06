@@ -3,9 +3,9 @@ import { buildQuery, ListParam } from '@things-factory/shell'
 import { Location } from '../../../entities'
 
 export const locationsResolver = {
-  async locations(_: any, params: ListParam) {
+  async locations(_: any, params: ListParam, context: any) {
     const queryBuilder = getRepository(Location).createQueryBuilder()
-    buildQuery(queryBuilder, params)
+    buildQuery(queryBuilder, params, context)
     const [items, total] = await queryBuilder
       .leftJoinAndSelect('Location.domain', 'Domain')
       .leftJoinAndSelect('Location.warehouse', 'Warehouse')
