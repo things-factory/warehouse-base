@@ -1,6 +1,6 @@
 import { User } from '@things-factory/auth-base'
 import { Bizplace } from '@things-factory/biz-base'
-import { Product } from '@things-factory/product-base'
+import { Product } from '@things-factory/sales-base'
 import { Domain } from '@things-factory/shell'
 import { Column, CreateDateColumn, Entity, Index, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm'
 import { Warehouse } from './warehouse'

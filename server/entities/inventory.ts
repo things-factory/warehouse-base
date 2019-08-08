@@ -1,5 +1,5 @@
 import { User } from '@things-factory/auth-base'
-import { Lot, Product, ProductBatch } from '@things-factory/product-base'
+import { Product, ProductBatch } from '@things-factory/sales-base'
 import { Domain } from '@things-factory/shell'
 import {
   Column,
@@ -35,9 +35,6 @@ export class Inventory {
 
   @ManyToOne(type => ProductBatch)
   productBatch: ProductBatch
-
-  @OneToOne(type => Lot)
-  lot: Lot
 
   @Column('float')
   qty: number
