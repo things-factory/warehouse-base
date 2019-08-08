@@ -1,15 +1,6 @@
 import { User } from '@things-factory/auth-base'
 import { Domain } from '@things-factory/shell'
-import {
-  Column,
-  CreateDateColumn,
-  Entity,
-  Index,
-  ManyToOne,
-  OneToOne,
-  PrimaryGeneratedColumn,
-  UpdateDateColumn
-} from 'typeorm'
+import { Column, CreateDateColumn, Entity, Index, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm'
 
 @Entity('containers')
 @Index('ix_container_0', (container: Container) => [container.domain, container.name], { unique: true })

@@ -4,7 +4,6 @@ export const NewInventory = gql`
   input NewInventory {
     name: String!
     productBatch: [String]!
-    lot: [String]!
     qty: Int!
     description: String
   }

@@ -6,7 +6,6 @@ export const Inventory = gql`
     domain: Domain
     name: String
     productBatch: ProductBatch
-    lot: Lot
     qty: Int
     description: String
     creator: User
