@@ -14,6 +14,9 @@ export class Container {
   @Column()
   name: string
 
+  @Column({ comment: 'good condition, damage, under repair' })
+  status: string
+
   @Column({
     nullable: true
   })

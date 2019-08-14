@@ -26,16 +26,16 @@ export class Location {
   zone: string
 
   @Column()
-  section: string
+  row: string
 
   @Column()
-  unit: string
+  column: string
 
   @Column()
   shelf: string
 
   @Column({ type: 'text', comment: 'occupied, hold, empty' })
-  state: string
+  status: string
 
   @Column({
     nullable: true

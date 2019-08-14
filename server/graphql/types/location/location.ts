@@ -8,10 +8,10 @@ export const Location = gql`
     product: Product
     name: String
     zone: String
-    section: String
-    unit: String
+    row: String
+    column: String
     shelf: String
-    state: String
+    status: String
     description: String
     creator: User
     updater: User

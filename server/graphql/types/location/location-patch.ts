@@ -5,10 +5,10 @@ export const LocationPatch = gql`
     warehouse: [String]
     name: String
     zone: String
-    section: String
-    unit: String
+    row: String
+    column: String
     shelf: String
-    state: String
+    status: String
     description: String
   }
 `

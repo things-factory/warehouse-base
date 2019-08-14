@@ -20,9 +20,6 @@ export class Movement {
   @ManyToOne(type => Warehouse)
   warehouse: Warehouse
 
-  @ManyToOne(type => Bizplace)
-  bizplace: Bizplace
-
   @ManyToOne(type => Product)
   product: Product
 
