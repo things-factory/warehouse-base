@@ -45,7 +45,7 @@ export class Inventory {
   description: string
 
   @Column()
-  state: string
+  status: string
 
   @ManyToOne(type => User, {
     nullable: true

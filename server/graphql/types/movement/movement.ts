@@ -6,7 +6,6 @@ export const Movement = gql`
     domain: Domain
     date: String
     warehouse: Warehouse
-    bizplace: Bizplace
     product: Product
     startQty: Int
     inQty: Int

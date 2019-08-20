@@ -5,8 +5,8 @@ export const createContainer = {
   async createContainer(_: any, { container }, context: any) {
     return await getRepository(Container).save({
       domain: context.domain,
-      creatorId: context.state.user.id,
-      updaterId: context.state.user.id,
+      creator: context.state.user,
+      updater: context.state.user,
       ...container
     })
   }

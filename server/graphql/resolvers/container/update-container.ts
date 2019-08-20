@@ -8,7 +8,7 @@ export const updateContainer = {
     return await repository.save({
       ...container,
       ...patch,
-      updaterId: context.state.user.id
+      updater: context.state.user
     })
   }
 }

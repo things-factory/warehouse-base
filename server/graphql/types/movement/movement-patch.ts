@@ -2,10 +2,10 @@ import { gql } from 'apollo-server-koa'
 
 export const MovementPatch = gql`
   input MovementPatch {
+    id: String
     date: String
-    warehouse: String
-    bizplace: String
-    product: String
+    warehouse: WarehousePatch
+    product: ProductPatch
     startQty: Int
     inQty: Int
     outQty: Int

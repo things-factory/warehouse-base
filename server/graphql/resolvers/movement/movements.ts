@@ -8,6 +8,8 @@ export const movementsResolver = {
     buildQuery(queryBuilder, params, context)
     const [items, total] = await queryBuilder
       .leftJoinAndSelect('Movement.domain', 'Domain')
+      .leftJoinAndSelect('Movement.warehouse', 'Warehouse')
+      .leftJoinAndSelect('Movement.product', 'Product')
       .leftJoinAndSelect('Movement.creator', 'Creator')
       .leftJoinAndSelect('Movement.updater', 'Updater')
       .getManyAndCount()

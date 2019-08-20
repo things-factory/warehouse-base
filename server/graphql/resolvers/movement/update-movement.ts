@@ -10,7 +10,7 @@ export const updateMovement = {
     return await repository.save({
       ...movement,
       ...patch,
-      updaterId: context.state.user.id
+      updater: context.state.user
     })
   }
 }
