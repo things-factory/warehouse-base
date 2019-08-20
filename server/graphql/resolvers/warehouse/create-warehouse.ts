@@ -7,9 +7,9 @@ export const createWarehouse = {
     return await getRepository(Warehouse).save({
       domain: context.domain,
       bizplace: await getRepository(Bizplace).findOne({ where: { name: warehouse.bizplace } }),
-      creatorId: context.state.user.id,
-      updaterId: context.state.user.id,
-      ...warehouse
+      ...warehouse,
+      creator: context.state.user,
+      updater: context.state.user
     })
   }
 }

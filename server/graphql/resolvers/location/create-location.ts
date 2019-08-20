@@ -6,8 +6,8 @@ export const createLocation = {
     return await getRepository(Location).save({
       domain: context.domain,
       warehouse: await getRepository(Warehouse).findOne({ where: { name: location.warehouse } }),
-      creatorId: context.state.user.id,
-      updaterId: context.state.user.id,
+      creator: context.state.user,
+      updater: context.state.user,
       ...location
     })
   }

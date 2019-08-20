@@ -9,7 +9,7 @@ export const updateLocation = {
     return await repository.save({
       ...location,
       ...patch,
-      updaterId: context.state.user.id
+      updater: context.state.user
     })
   }
 }

@@ -2,7 +2,8 @@ import { gql } from 'apollo-server-koa'
 
 export const LocationPatch = gql`
   input LocationPatch {
-    warehouse: [String]
+    id: String
+    warehouse: WarehousePatch
     name: String
     zone: String
     row: String

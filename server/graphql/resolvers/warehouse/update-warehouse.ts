@@ -10,7 +10,7 @@ export const updateWarehouse = {
     return await repository.save({
       ...warehouse,
       ...patch,
-      updaterId: context.state.user.id
+      updater: context.state.user
     })
   }
 }
