@@ -22,7 +22,9 @@ export class Warehouse {
   @ManyToOne(type => Domain)
   domain: Domain
 
-  @ManyToOne(type => Bizplace)
+  @ManyToOne(type => Bizplace, {
+    nullable: true
+  })
   bizplace: Bizplace
 
   @Column()
