@@ -16,7 +16,7 @@ export const Mutation = `
 
   updateMultipleWarehouse (
     patches: [WarehousePatch]!
-  ): Warehouse
+  ): [Warehouse]
 
   deleteWarehouse (
     name: String!
