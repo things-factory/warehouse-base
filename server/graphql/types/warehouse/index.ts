@@ -15,7 +15,7 @@ export const Mutation = `
   ): Warehouse
 
   updateMultipleWarehouse (
-    patch: [WarehousePatch]!
+    patches: [WarehousePatch]!
   ): Warehouse
 
   deleteWarehouse (
