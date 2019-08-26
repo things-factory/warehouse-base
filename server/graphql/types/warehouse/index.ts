@@ -14,9 +14,17 @@ export const Mutation = `
     patch: WarehousePatch!
   ): Warehouse
 
+  updateMultipleWarehouse (
+    patch: [WarehousePatch]!
+  ): Warehouse
+
   deleteWarehouse (
     name: String!
   ): Warehouse
+
+  deleteWarehouses (
+    names: [String]!
+  ): Boolean
 `
 
 export const Query = `

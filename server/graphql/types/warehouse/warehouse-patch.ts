@@ -7,5 +7,6 @@ export const WarehousePatch = gql`
     bizplace: BizplacePatch
     locations: [LocationPatch]
     description: String
+    cuFlag: String
   }
 `
