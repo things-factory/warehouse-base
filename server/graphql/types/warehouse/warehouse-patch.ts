@@ -4,8 +4,8 @@ export const WarehousePatch = gql`
   input WarehousePatch {
     id: String
     name: String
-    bizplace: BizplacePatch
-    locations: [LocationPatch]
+    bizplace: ObjectRef
+    locations: [ObjectRef]
     description: String
     cuFlag: String
   }

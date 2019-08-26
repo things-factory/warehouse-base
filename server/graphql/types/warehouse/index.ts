@@ -1,4 +1,3 @@
-import { Filter, Pagination, Sorting } from '@things-factory/shell'
 import { NewWarehouse } from './new-warehouse'
 import { Warehouse } from './warehouse'
 import { WarehouseList } from './warehouse-list'
@@ -20,7 +19,7 @@ export const Mutation = `
 
   deleteWarehouse (
     name: String!
-  ): Warehouse
+  ): Boolean
 
   deleteWarehouses (
     names: [String]!
@@ -32,4 +31,4 @@ export const Query = `
   warehouse(id: String!): Warehouse
 `
 
-export const Types = [Filter, Pagination, Sorting, Warehouse, NewWarehouse, WarehousePatch, WarehouseList]
+export const Types = [Warehouse, NewWarehouse, WarehousePatch, WarehouseList]
