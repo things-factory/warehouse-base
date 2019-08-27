@@ -8,6 +8,7 @@ export const locationsResolver = {
     buildQuery(queryBuilder, params, context)
     const [items, total] = await queryBuilder
       .leftJoinAndSelect('Location.domain', 'Domain')
+      .leftJoinAndSelect('Location.product', 'Product')
       .leftJoinAndSelect('Location.warehouse', 'Warehouse')
       .leftJoinAndSelect('Location.creator', 'Creator')
       .leftJoinAndSelect('Location.updater', 'Updater')

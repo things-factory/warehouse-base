@@ -1,4 +1,3 @@
-import { Filter, Pagination, Sorting } from '@things-factory/shell'
 import { Inventory } from './inventory'
 import { InventoryList } from './inventory-list'
 import { InventoryPatch } from './inventory-patch'
@@ -24,4 +23,4 @@ export const Query = `
   inventory(name: String!): Inventory
 `
 
-export const Types = [Filter, Pagination, Sorting, Inventory, NewInventory, InventoryPatch, InventoryList]
+export const Types = [Inventory, NewInventory, InventoryPatch, InventoryList]

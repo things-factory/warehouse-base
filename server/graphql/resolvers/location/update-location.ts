@@ -1,12 +1,15 @@
 import { getRepository } from 'typeorm'
-import { Location } from '../../../entities'
+import { Location, Warehouse } from '../../../entities'
 
 export const updateLocation = {
   async updateLocation(_: any, { name, patch }, context: any) {
-    const repository = getRepository(Location)
-    const location = await repository.findOne({ where: { domain: context.domain, name } })
+    const location = await getRepository(Location).findOne({ domain: context.domain, name })
 
-    return await repository.save({
+    if (patch.warehouse && patch.warehouse.id) {
+      patch.warehouse = await getRepository(Warehouse).findOne(patch.warehouse.id)
+    }
+
+    return await getRepository(Location).save({
       ...location,
       ...patch,
       updater: context.state.user

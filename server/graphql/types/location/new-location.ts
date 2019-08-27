@@ -2,8 +2,8 @@ import { gql } from 'apollo-server-koa'
 
 export const NewLocation = gql`
   input NewLocation {
-    warehouse: WarehousePatch!
-    product: ProductPatch
+    warehouse: ObjectRef!
+    product: ObjectRef
     name: String!
     zone: String!
     row: String!

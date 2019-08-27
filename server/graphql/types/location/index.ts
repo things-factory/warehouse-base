@@ -1,27 +1,35 @@
-import { Filter, Pagination, Sorting } from '@things-factory/shell'
 import { Location } from './location'
 import { LocationList } from './location-list'
 import { LocationPatch } from './location-patch'
 import { NewLocation } from './new-location'
+import { directivePriviledge } from '@things-factory/auth-base'
 
 export const Mutation = `
   createLocation (
     location: NewLocation!
-  ): Location
+  ): Location @priviledge(category: "warehouse", priviledge: "mutation")
 
   updateLocation (
     name: String!
     patch: LocationPatch!
-  ): Location
+  ): Location @priviledge(category: "warehouse", priviledge: "mutation")
+
+  updateMultipleLocation (
+    patches: [LocationPatch]!
+  ): [Location] @priviledge(category: "warehouse", priviledge: "mutation")
 
   deleteLocation (
     name: String!
-  ): Location
+  ): Boolean @priviledge(category: "warehouse", priviledge: "mutation")
+
+  deleteLocations (
+    names: [String]!
+  ): Boolean @priviledge(category: "warehouse", priviledge: "mutation")
 `
 
 export const Query = `
-  locations(filters: [Filter], pagination: Pagination, sortings: [Sorting]): LocationList
-  location(name: String!): Location
+  locations(filters: [Filter], pagination: Pagination, sortings: [Sorting]): LocationList @priviledge(category: "warehouse", priviledge: "query")
+  location(name: String!): Location @priviledge(category: "warehouse", priviledge: "query")
 `
 
-export const Types = [Filter, Pagination, Sorting, Location, NewLocation, LocationPatch, LocationList]
+export const Types = [Location, NewLocation, LocationPatch, LocationList]

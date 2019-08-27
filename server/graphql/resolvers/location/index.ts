@@ -2,8 +2,10 @@ import { locationResolver } from './location'
 import { locationsResolver } from './locations'
 
 import { updateLocation } from './update-location'
+import { updateMultipleLocation } from './update-multiple-location'
 import { createLocation } from './create-location'
 import { deleteLocation } from './delete-location'
+import { deleteLocations } from './delete-locations'
 
 export const Query = {
   ...locationsResolver,
@@ -13,5 +15,7 @@ export const Query = {
 export const Mutation = {
   ...updateLocation,
   ...createLocation,
-  ...deleteLocation
+  ...deleteLocation,
+  ...deleteLocations,
+  ...updateMultipleLocation
 }

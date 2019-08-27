@@ -3,12 +3,15 @@ import { Location, Warehouse } from '../../../entities'
 
 export const createLocation = {
   async createLocation(_: any, { location }, context: any) {
+    if (location.warehouse && location.warehouse.id) {
+      location.warehouse = await getRepository(Warehouse).findOne(location.warehouse.id)
+    }
+
     return await getRepository(Location).save({
+      ...location,
       domain: context.domain,
-      warehouse: await getRepository(Warehouse).findOne({ where: { name: location.warehouse } }),
       creator: context.state.user,
-      updater: context.state.user,
-      ...location
+      updater: context.state.user
     })
   }
 }

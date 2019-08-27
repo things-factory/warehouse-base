@@ -1,4 +1,3 @@
-import { Filter, Pagination, Sorting } from '@things-factory/shell'
 import { Movement } from './movement'
 import { MovementList } from './movement-list'
 import { MovementPatch } from './movement-patch'
@@ -24,4 +23,4 @@ export const Query = `
   movement(id: String!): Movement
 `
 
-export const Types = [Filter, Pagination, Sorting, Movement, NewMovement, MovementPatch, MovementList]
+export const Types = [Movement, NewMovement, MovementPatch, MovementList]

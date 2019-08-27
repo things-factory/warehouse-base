@@ -1,4 +1,3 @@
-import { Filter, Pagination, Sorting } from '@things-factory/shell'
 import { Container } from './container'
 import { ContainerList } from './container-list'
 import { ContainerPatch } from './container-patch'
@@ -24,4 +23,4 @@ export const Query = `
   container(name: String!): Container
 `
 
-export const Types = [Filter, Pagination, Sorting, Container, NewContainer, ContainerPatch, ContainerList]
+export const Types = [Container, NewContainer, ContainerPatch, ContainerList]
