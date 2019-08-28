@@ -20,6 +20,7 @@ export const updateMultipleWarehouse = {
 
         const result = await warehouseRepo.save({
           domain: context.domain,
+          bizplace: context.bizplace,
           creator: context.state.user,
           updater: context.state.user,
           ...newRecord
