@@ -13,7 +13,9 @@ export class Location {
   @ManyToOne(type => Domain)
   domain: Domain
 
-  @ManyToOne(type => Warehouse, warehouse => warehouse.locations)
+  @ManyToOne(type => Warehouse, warehouse => warehouse.locations, {
+    nullable: false
+  })
   warehouse: Warehouse
 
   @ManyToOne(type => Product)

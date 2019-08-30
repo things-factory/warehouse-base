@@ -23,7 +23,7 @@ export class Warehouse {
   domain: Domain
 
   @ManyToOne(type => Bizplace, {
-    nullable: true
+    nullable: false
   })
   bizplace: Bizplace
 
