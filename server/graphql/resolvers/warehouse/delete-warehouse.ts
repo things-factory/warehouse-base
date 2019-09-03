@@ -3,7 +3,7 @@ import { Warehouse } from '../../../entities'
 
 export const deleteWarehouse = {
   async deleteWarehouse(_: any, { name }, context: any) {
-    await getRepository(Warehouse).delete({ domain: context.domain, name })
+    await getRepository(Warehouse).delete({ domain: context.state.domain, name })
     return true
   }
 }

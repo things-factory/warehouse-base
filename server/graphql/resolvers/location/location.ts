@@ -4,7 +4,7 @@ import { Location } from '../../../entities'
 export const locationResolver = {
   async location(_: any, { name }, context: any) {
     return await getRepository(Location).findOne({
-      where: { domain: context.domain, name },
+      where: { domain: context.state.domain, name },
       relations: ['domain', 'product', 'warehouse', 'creator', 'updater']
     })
   }

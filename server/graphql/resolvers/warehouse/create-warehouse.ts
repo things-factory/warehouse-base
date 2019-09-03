@@ -13,7 +13,7 @@ export const createWarehouse = {
 
     return await getRepository(Warehouse).save({
       ...warehouse,
-      domain: context.domain,
+      domain: context.state.domain,
       creator: context.state.user,
       updater: context.state.user
     })

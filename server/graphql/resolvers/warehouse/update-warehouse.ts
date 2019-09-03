@@ -5,7 +5,7 @@ import { Bizplace } from '@things-factory/biz-base'
 export const updateWarehouse = {
   async updateWarehouse(_: any, { name, patch }, context: any) {
     const warehouse = await getRepository(Warehouse).findOne({
-      domain: context.domain,
+      domain: context.state.domain,
       name,
       bizplace: context.bizplace
     })

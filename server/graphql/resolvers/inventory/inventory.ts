@@ -4,7 +4,7 @@ import { Inventory } from '../../../entities'
 export const inventoryResolver = {
   async inventory(_: any, { name }, context: any) {
     return await getRepository(Inventory).findOne({
-      where: { domain: context.domain, name },
+      where: { domain: context.state.domain, name },
       relations: ['domain', 'product', 'location', 'productBatch', 'creator', 'updater']
     })
   }
