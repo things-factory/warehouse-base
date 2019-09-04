@@ -1,4 +1,4 @@
-import { getUserBizplaces } from '@things-factory/biz-base'
+import { Bizplace } from '@things-factory/biz-base'
 import { convertListParams, ListParam } from '@things-factory/shell'
 import { getRepository, In } from 'typeorm'
 import { Warehouse } from '../../../entities'
@@ -6,8 +6,7 @@ import { Warehouse } from '../../../entities'
 export const warehousesResolver = {
   async warehouses(_: any, params: ListParam, context: any) {
     const convertedParams = convertListParams(params)
-    const userBizplaces = await getUserBizplaces(context)
-    convertedParams.where.bizplace = In(userBizplaces.map(userBizplace => userBizplace.id))
+    convertedParams.where.bizplace = In(context.state.bizplaces.map((bizplace: Bizplace) => bizplace.id))
 
     const [items, total] = await getRepository(Warehouse).findAndCount({
       ...convertedParams,
