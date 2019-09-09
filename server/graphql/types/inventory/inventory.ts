@@ -7,7 +7,6 @@ export const Inventory = gql`
     name: String
     product: Product
     location: Location
-    productBatch: ProductBatch
     qty: Int
     status: String
     description: String

@@ -10,7 +10,6 @@ export const inventoriesResolver = {
       .leftJoinAndSelect('Inventory.domain', 'Domain')
       .leftJoinAndSelect('Inventory.product', 'Product')
       .leftJoinAndSelect('Inventory.location', 'Location')
-      .leftJoinAndSelect('Inventory.productBatch', 'ProductBatch')
       .leftJoinAndSelect('Inventory.creator', 'Creator')
       .leftJoinAndSelect('Inventory.updater', 'Updater')
       .getManyAndCount()
