@@ -5,7 +5,6 @@ export const NewInventory = gql`
     name: String!
     product: ProductPatch
     location: LocationPatch
-    productBatch: ProductBatchPatch!
     qty: Int!
     description: String
     status: String
