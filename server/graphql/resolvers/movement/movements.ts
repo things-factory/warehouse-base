@@ -1,19 +1,17 @@
-import { buildQuery, ListParam } from '@things-factory/shell'
-import { getRepository } from 'typeorm'
+import { Bizplace } from '@things-factory/biz-base'
+import { convertListParams, ListParam } from '@things-factory/shell'
+import { getRepository, In } from 'typeorm'
 import { Movement } from '../../../entities'
 
 export const movementsResolver = {
   async movements(_: any, params: ListParam, context: any) {
-    const queryBuilder = getRepository(Movement).createQueryBuilder()
-    buildQuery(queryBuilder, params, context)
-    const [items, total] = await queryBuilder
-      .leftJoinAndSelect('Movement.domain', 'Domain')
-      .leftJoinAndSelect('Movement.warehouse', 'Warehouse')
-      .leftJoinAndSelect('Movement.product', 'Product')
-      .leftJoinAndSelect('Movement.creator', 'Creator')
-      .leftJoinAndSelect('Movement.updater', 'Updater')
-      .getManyAndCount()
+    const convertedParams = convertListParams(params)
+    convertedParams.where.bizplace = In(context.state.bizplaces.map((bizplace: Bizplace) => bizplace.id))
 
+    const [items, total] = await getRepository(Movement).findAndCount({
+      ...convertedParams,
+      relations: ['domain', 'bizplace', 'inventory', 'creator', 'updater']
+    })
     return { items, total }
   }
 }

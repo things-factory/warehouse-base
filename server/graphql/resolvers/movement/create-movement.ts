@@ -4,10 +4,11 @@ import { Movement } from '../../../entities'
 export const createMovement = {
   async createMovement(_: any, { movement }, context: any) {
     return await getRepository(Movement).save({
+      ...movement,
       domain: context.state.domain,
+      bizplace: context.state.bizplaces[0],
       creator: context.state.user,
-      updater: context.state.user,
-      ...movement
+      updater: context.state.user
     })
   }
 }

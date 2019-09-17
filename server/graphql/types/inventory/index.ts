@@ -6,21 +6,21 @@ import { NewInventory } from './new-inventory'
 export const Mutation = `
   createInventory (
     inventory: NewInventory!
-  ): Inventory
+  ): Inventory @priviledge(category: "warehouse", priviledge: "mutation")
 
   updateInventory (
     name: String!
     patch: InventoryPatch!
-  ): Inventory
+  ): Inventory @priviledge(category: "warehouse", priviledge: "mutation")
 
   deleteInventory (
     name: String!
-  ): Inventory
-`
+  ): Boolean @priviledge(category: "warehouse", priviledge: "mutation")
+    `
 
 export const Query = `
-  inventories(filters: [Filter], pagination: Pagination, sortings: [Sorting]): InventoryList
-  inventory(name: String!): Inventory
+inventories(filters: [Filter], pagination: Pagination, sortings: [Sorting]): InventoryList @priviledge(category: "warehouse", priviledge: "query")
+inventory(id: String!): Inventory @priviledge(category: "warehouse", priviledge: "query")
 `
 
 export const Types = [Inventory, NewInventory, InventoryPatch, InventoryList]

@@ -2,7 +2,7 @@ import { User } from '@things-factory/auth-base'
 import { Inventory } from './inventory'
 import { Domain } from '@things-factory/shell'
 import { Column, CreateDateColumn, Entity, Index, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm'
-import { Warehouse } from './warehouse'
+import { Bizplace } from '@things-factory/biz-base'
 
 @Entity('movements')
 @Index('ix_movement_0', (movement: Movement) => [movement.domain], { unique: true })
@@ -12,6 +12,9 @@ export class Movement {
 
   @ManyToOne(type => Domain)
   domain: Domain
+
+  @ManyToOne(type => Bizplace)
+  bizplace: Bizplace
 
   @ManyToOne(type => Inventory)
   inventory: Inventory

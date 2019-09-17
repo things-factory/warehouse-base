@@ -2,25 +2,26 @@ import { Movement } from './movement'
 import { MovementList } from './movement-list'
 import { MovementPatch } from './movement-patch'
 import { NewMovement } from './new-movement'
+import { directivePriviledge } from '@things-factory/auth-base'
 
 export const Mutation = `
   createMovement (
     movement: NewMovement!
-  ): Movement
+  ): Movement @priviledge(category: "warehouse", priviledge: "mutation")
 
   updateMovement (
-    id: String!
+    name: String!
     patch: MovementPatch!
-  ): Movement
+  ): Movement @priviledge(category: "warehouse", priviledge: "mutation")
 
   deleteMovement (
-    id: String!
-  ): Movement
-`
+    name: String!
+  ): Boolean @priviledge(category: "warehouse", priviledge: "mutation")
+    `
 
 export const Query = `
-  movements(filters: [Filter], pagination: Pagination, sortings: [Sorting]): MovementList
-  movement(id: String!): Movement
+  movements(filters: [Filter], pagination: Pagination, sortings: [Sorting]): MovementList @priviledge(category: "warehouse", priviledge: "query")
+  movement(id: String!): Movement @priviledge(category: "warehouse", priviledge: "query")
 `
 
 export const Types = [Movement, NewMovement, MovementPatch, MovementList]

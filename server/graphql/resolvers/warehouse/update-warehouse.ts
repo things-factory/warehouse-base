@@ -1,18 +1,16 @@
-import { getRepository } from 'typeorm'
+import { getRepository, In } from 'typeorm'
 import { Warehouse } from '../../../entities'
 import { Bizplace } from '@things-factory/biz-base'
 
 export const updateWarehouse = {
   async updateWarehouse(_: any, { name, patch }, context: any) {
     const warehouse = await getRepository(Warehouse).findOne({
-      domain: context.state.domain,
-      name,
-      bizplace: context.bizplace
+      where: {
+        domain: context.state.domain,
+        name,
+        bizplace: In(context.state.bizplaces.map((bizplace: Bizplace) => bizplace.id))
+      }
     })
-
-    if (patch.bizplace && patch.bizplace.id) {
-      patch.bizplace = await getRepository(Bizplace).findOne(patch.bizplace.id)
-    }
 
     return await getRepository(Warehouse).save({
       ...warehouse,
