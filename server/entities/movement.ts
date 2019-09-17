@@ -1,5 +1,5 @@
 import { User } from '@things-factory/auth-base'
-import { Product } from '@things-factory/sales-base'
+import { Inventory } from './inventory'
 import { Domain } from '@things-factory/shell'
 import { Column, CreateDateColumn, Entity, Index, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm'
 import { Warehouse } from './warehouse'
@@ -13,26 +13,14 @@ export class Movement {
   @ManyToOne(type => Domain)
   domain: Domain
 
-  @Column('date')
-  date: Date
-
-  @ManyToOne(type => Warehouse)
-  warehouse: Warehouse
-
-  @ManyToOne(type => Product)
-  product: Product
-
-  @Column('float')
-  startQty: number
+  @ManyToOne(type => Inventory)
+  inventory: Inventory
 
   @Column('float')
   inQty: number
 
   @Column('float')
   outQty: number
-
-  @Column('float')
-  endQty: number
 
   @Column({
     nullable: true

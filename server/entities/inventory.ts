@@ -1,5 +1,5 @@
 import { User } from '@things-factory/auth-base'
-import { Product } from '@things-factory/sales-base'
+import { OrderProduct } from '@things-factory/sales-base'
 import { Domain } from '@things-factory/shell'
 import {
   Column,
@@ -7,11 +7,12 @@ import {
   Entity,
   Index,
   ManyToOne,
-  OneToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn
 } from 'typeorm'
-import { Location } from '../entities/location'
+import { Location } from './location'
+import { Movement } from './movement'
 
 @Entity('inventories')
 @Index('ix_inventory_0', (inventory: Inventory) => [inventory.domain, inventory.name], {
@@ -27,14 +28,20 @@ export class Inventory {
   @Column()
   name: string
 
-  @ManyToOne(type => Product)
-  product: Product
+  @ManyToOne(type => OrderProduct)
+  orderProduct: OrderProduct
 
-  @OneToOne(type => Location)
-  location: Location
+  @OneToMany(type => Location, location => location.inventory)
+  locations: Location[]
+
+  @OneToMany(type => Movement, movement => movement.inventory)
+  movements: Movement[]
 
   @Column('float')
-  qty: number
+  startQty: number
+
+  @Column('float')
+  endQty: number
 
   @Column({
     nullable: true

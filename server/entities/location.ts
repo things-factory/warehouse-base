@@ -1,7 +1,7 @@
 import { User } from '@things-factory/auth-base'
-import { Product } from '@things-factory/sales-base'
 import { Domain } from '@things-factory/shell'
 import { Column, CreateDateColumn, Entity, Index, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm'
+import { Inventory } from './inventory'
 import { Warehouse } from './warehouse'
 
 @Entity('locations')
@@ -18,8 +18,8 @@ export class Location {
   })
   warehouse: Warehouse
 
-  @ManyToOne(type => Product)
-  product: Product
+  @ManyToOne(type => Inventory, inventory => inventory.locations)
+  inventory: Inventory[]
 
   @Column()
   name: string
