@@ -5,14 +5,15 @@ export const Location = gql`
     id: String
     domain: Domain
     warehouse: Warehouse
-    product: Product
+    inventory: Inventory
     name: String
+    description: String
+    type: String
     zone: String
     row: String
     column: String
     shelf: String
     status: String
-    description: String
     creator: User
     updater: User
     createdAt: String

@@ -19,10 +19,18 @@ export class Location {
   warehouse: Warehouse
 
   @ManyToOne(type => Inventory, inventory => inventory.locations)
-  inventory: Inventory[]
+  inventory: Inventory
 
   @Column()
   name: string
+
+  @Column({
+    nullable: true
+  })
+  description: string
+
+  @Column()
+  type: string
 
   @Column()
   zone: string
@@ -38,11 +46,6 @@ export class Location {
 
   @Column({ type: 'text', comment: 'occupied, hold, empty' })
   status: string
-
-  @Column({
-    nullable: true
-  })
-  description: string
 
   @ManyToOne(type => User, {
     nullable: true

@@ -1,5 +1,5 @@
 import { User } from '@things-factory/auth-base'
-import { OrderProduct } from '@things-factory/sales-base'
+import { Product } from '@things-factory/sales-base'
 import { Domain } from '@things-factory/shell'
 import {
   Column,
@@ -28,8 +28,8 @@ export class Inventory {
   @Column()
   name: string
 
-  @ManyToOne(type => OrderProduct)
-  orderProduct: OrderProduct
+  @ManyToOne(type => Product)
+  product: Product
 
   @OneToMany(type => Location, location => location.inventory)
   locations: Location[]

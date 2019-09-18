@@ -4,14 +4,15 @@ export const LocationPatch = gql`
   input LocationPatch {
     id: String
     warehouse: ObjectRef
-    product: ObjectRef
+    inventory: ObjectRef
     name: String
+    description: String
+    type: String
     zone: String
     row: String
     column: String
     shelf: String
     status: String
-    description: String
     cuFlag: String
   }
 `
