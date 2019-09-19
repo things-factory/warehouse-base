@@ -3,12 +3,12 @@ import { getRepository } from 'typeorm'
 import { Inventory } from '../../../entities'
 
 export const inventoriesResolver = {
-  async vass(_: any, params: ListParam, context: any) {
+  async inventories(_: any, params: ListParam, context: any) {
     const convertedParams = convertListParams(params)
 
     const [items, total] = await getRepository(Inventory).findAndCount({
       ...convertedParams,
-      relations: ['domain', 'product', 'location', 'movement', 'creator', 'updater']
+      relations: ['domain', 'product', 'locations', 'movements', 'creator', 'updater']
     })
 
     return { items, total }
