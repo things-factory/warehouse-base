@@ -18,9 +18,6 @@ export class Location {
   })
   warehouse: Warehouse
 
-  @ManyToOne(type => Inventory, inventory => inventory.locations)
-  inventory: Inventory
-
   @Column()
   name: string
 

@@ -9,7 +9,6 @@ export const locationsResolver = {
     const [items, total] = await queryBuilder
       .leftJoinAndSelect('Location.domain', 'Domain')
       .leftJoinAndSelect('Location.warehouse', 'Warehouse')
-      .leftJoinAndSelect('Location.inventory', 'Inventory')
       .leftJoinAndSelect('Location.creator', 'Creator')
       .leftJoinAndSelect('Location.updater', 'Updater')
       .getManyAndCount()

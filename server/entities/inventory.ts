@@ -31,8 +31,8 @@ export class Inventory {
   @ManyToOne(type => Product)
   product: Product
 
-  @OneToMany(type => Location, location => location.inventory)
-  locations: Location[]
+  @ManyToOne(type => Location)
+  location: Location
 
   @OneToMany(type => Movement, movement => movement.inventory)
   movements: Movement[]

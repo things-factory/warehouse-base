@@ -5,7 +5,7 @@ export const locationResolver = {
   async location(_: any, { name }, context: any) {
     return await getRepository(Location).findOne({
       where: { domain: context.state.domain, name },
-      relations: ['domain', 'warehouse', 'inventory', 'creator', 'updater']
+      relations: ['domain', 'warehouse', 'creator', 'updater']
     })
   }
 }

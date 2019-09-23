@@ -6,7 +6,7 @@ export const Inventory = gql`
     domain: Domain
     name: String
     product: Product
-    locations: [Location]
+    location: Location
     movements: [Movement]
     startQty: Int
     endQty: Int
