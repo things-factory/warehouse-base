@@ -8,7 +8,7 @@ export const inventoriesResolver = {
 
     const [items, total] = await getRepository(Inventory).findAndCount({
       ...convertedParams,
-      relations: ['domain', 'product', 'location', 'movements', 'creator', 'updater']
+      relations: ['domain', 'bizplace', 'product', 'location', 'movements', 'creator', 'updater']
     })
 
     return { items, total }

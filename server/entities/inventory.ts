@@ -1,5 +1,6 @@
 import { User } from '@things-factory/auth-base'
-import { Product, Bizplace } from '@things-factory/sales-base'
+import { Product } from '@things-factory/sales-base'
+import { Bizplace } from '@things-factory/biz-base'
 import { Domain } from '@things-factory/shell'
 import {
   Column,

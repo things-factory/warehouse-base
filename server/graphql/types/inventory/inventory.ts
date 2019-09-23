@@ -4,6 +4,7 @@ export const Inventory = gql`
   type Inventory {
     id: String
     domain: Domain
+    bizplace: Bizplace
     name: String
     product: Product
     location: Location
