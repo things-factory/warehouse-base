@@ -29,7 +29,9 @@ export class Location {
   })
   description: string
 
-  @Column()
+  @Column({
+    nullable: true
+  })
   type: string
 
   @Column()
