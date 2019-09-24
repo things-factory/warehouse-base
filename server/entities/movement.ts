@@ -1,8 +1,8 @@
 import { User } from '@things-factory/auth-base'
-import { Inventory } from './inventory'
+import { Bizplace } from '@things-factory/biz-base'
 import { Domain } from '@things-factory/shell'
 import { Column, CreateDateColumn, Entity, Index, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm'
-import { Bizplace } from '@things-factory/biz-base'
+import { Inventory } from './inventory'
 
 @Entity('movements')
 @Index('ix_movement_0', (movement: Movement) => [movement.domain], { unique: true })

@@ -4,7 +4,7 @@ export const NewInventory = gql`
   input NewInventory {
     id: String
     name: String!
-    product: ObjectRef
+    productId: String
     location: ObjectRef
     movements: [ObjectRef]
     startQty: Int!

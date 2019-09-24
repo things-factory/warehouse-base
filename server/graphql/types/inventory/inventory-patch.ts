@@ -4,7 +4,7 @@ export const InventoryPatch = gql`
   input InventoryPatch {
     id: String
     name: String
-    product: ObjectRef
+    productId: String
     location: ObjectRef
     movements: [ObjectRef]
     startQty: Int

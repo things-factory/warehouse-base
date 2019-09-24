@@ -2,7 +2,6 @@ import { Location } from './location'
 import { LocationList } from './location-list'
 import { LocationPatch } from './location-patch'
 import { NewLocation } from './new-location'
-import { directivePriviledge } from '@things-factory/auth-base'
 
 export const Mutation = `
   createLocation (

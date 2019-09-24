@@ -1,5 +1,4 @@
 import { User } from '@things-factory/auth-base'
-import { Product } from '@things-factory/sales-base'
 import { Bizplace } from '@things-factory/biz-base'
 import { Domain } from '@things-factory/shell'
 import {
@@ -32,8 +31,10 @@ export class Inventory {
   @Column()
   name: string
 
-  @ManyToOne(type => Product)
-  product: Product
+  @Column({
+    nullable: true
+  })
+  productId: string
 
   @ManyToOne(type => Location)
   location: Location
