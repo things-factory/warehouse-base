@@ -24,6 +24,10 @@ export const Mutation = `
   deleteLocations (
     names: [String]!
   ): Boolean @priviledge(category: "warehouse", priviledge: "mutation")
+
+  deleteAllLocations (
+    name: String!
+  ): Boolean @priviledge(category: "warehouse", priviledge: "mutation")
 `
 
 export const Query = `
