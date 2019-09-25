@@ -5,6 +5,16 @@ import { Domain } from '@things-factory/shell'
 const SEEDS_PRIVILEDGES = [
   {
     name: 'query',
+    category: 'movement',
+    description: 'to read movement data'
+  },
+  {
+    name: 'mutation',
+    category: 'movement',
+    description: 'to edit movement data'
+  },
+  {
+    name: 'query',
     category: 'warehouse',
     description: 'to read warehouse data'
   },
