@@ -8,9 +8,7 @@ export const NewInventory = gql`
     product: ObjectRef
     location: ObjectRef
     movements: [ObjectRef]
-    startQty: Int
     qty: Int
-    endQty: Int
     status: String
     description: String
   }

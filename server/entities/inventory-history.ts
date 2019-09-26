@@ -5,13 +5,20 @@ import { Domain } from '@things-factory/shell'
 import { Column, CreateDateColumn, Entity, Index, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm'
 import { Location } from './location'
 
-@Entity('inventories')
-@Index('ix_inventory_0', (inventory: Inventory) => [inventory.domain, inventory.name], {
-  unique: true
-})
-export class Inventory {
+@Entity()
+@Index(
+  'ix_inventory-history_0',
+  (inventoryHistory: InventoryHistory) => [inventoryHistory.domain, inventoryHistory.name],
+  { unique: true }
+)
+export class InventoryHistory {
   @PrimaryGeneratedColumn('uuid')
   id: string
+
+  @Column({
+    nullable: false
+  })
+  seq: number
 
   @ManyToOne(type => Domain)
   domain: Domain
@@ -40,9 +47,6 @@ export class Inventory {
 
   @Column('float')
   qty: number
-
-  @Column({ default: 0 })
-  lastSeq: number
 
   @Column({
     nullable: true
