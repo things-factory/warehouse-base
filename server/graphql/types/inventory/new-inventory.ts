@@ -2,14 +2,16 @@ import { gql } from 'apollo-server-koa'
 
 export const NewInventory = gql`
   input NewInventory {
-    id: String
-    name: String!
+    name: String
+    palletId: String
+    batchId: String
     productId: String
     location: ObjectRef
     movements: [ObjectRef]
-    startQty: Int!
-    endQty: Int!
-    description: String
+    startQty: Int
+    qty: Int
+    endQty: Int
     status: String
+    description: String
   }
 `

@@ -34,6 +34,16 @@ export class Inventory {
   @Column({
     nullable: true
   })
+  palletId: string
+
+  @Column({
+    nullable: true
+  })
+  batchId: string
+
+  @Column({
+    nullable: true
+  })
   productId: string
 
   @ManyToOne(type => Location)
@@ -44,6 +54,9 @@ export class Inventory {
 
   @Column('float')
   startQty: number
+
+  @Column('float')
+  qty: number
 
   @Column('float')
   endQty: number

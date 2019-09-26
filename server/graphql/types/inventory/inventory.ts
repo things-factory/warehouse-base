@@ -6,10 +6,13 @@ export const Inventory = gql`
     domain: Domain
     bizplace: Bizplace
     name: String
+    palletId: String
+    batchId: String
     productId: String
     location: Location
     movements: [Movement]
     startQty: Int
+    qty: Int
     endQty: Int
     status: String
     description: String
