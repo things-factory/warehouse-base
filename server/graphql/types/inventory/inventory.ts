@@ -10,6 +10,7 @@ export const Inventory = gql`
     batchId: String
     product: Product
     location: Location
+    warehouse: Warehouse
     qty: Int
     lastSeq: Int
     status: String

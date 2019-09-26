@@ -4,6 +4,7 @@ import { Product } from '@things-factory/product-base'
 import { Domain } from '@things-factory/shell'
 import { Column, CreateDateColumn, Entity, Index, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm'
 import { Location } from './location'
+import { Warehouse } from './warehouse'
 
 @Entity('inventories')
 @Index('ix_inventory_0', (inventory: Inventory) => [inventory.domain, inventory.name], {
@@ -37,6 +38,9 @@ export class Inventory {
 
   @ManyToOne(type => Location)
   location: Location
+
+  @ManyToOne(type => Warehouse)
+  warehouse: Warehouse
 
   @Column('float')
   qty: number

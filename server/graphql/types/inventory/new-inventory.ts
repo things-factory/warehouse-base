@@ -7,7 +7,7 @@ export const NewInventory = gql`
     batchId: String
     product: ObjectRef
     location: ObjectRef
-    movements: [ObjectRef]
+    warehouse: ObjectRef
     qty: Int
     status: String
     description: String
