@@ -1,5 +1,6 @@
 import { User } from '@things-factory/auth-base'
 import { Bizplace } from '@things-factory/biz-base'
+import { Product } from '@things-factory/product-base'
 import { Domain } from '@things-factory/shell'
 import {
   Column,
@@ -41,10 +42,8 @@ export class Inventory {
   })
   batchId: string
 
-  @Column({
-    nullable: true
-  })
-  productId: string
+  @ManyToOne(type => Product)
+  product: Product
 
   @ManyToOne(type => Location)
   location: Location

@@ -5,7 +5,7 @@ export const NewInventory = gql`
     name: String
     palletId: String
     batchId: String
-    productId: String
+    product: ObjectRef
     location: ObjectRef
     movements: [ObjectRef]
     startQty: Int

@@ -8,7 +8,7 @@ export const Inventory = gql`
     name: String
     palletId: String
     batchId: String
-    productId: String
+    product: Product
     location: Location
     movements: [Movement]
     startQty: Int
