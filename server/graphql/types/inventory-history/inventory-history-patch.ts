@@ -6,8 +6,10 @@ export const InventoryHistoryPatch = gql`
     name: String
     palletId: String
     batchId: String
-    product: ObjectRef
-    location: ObjectRef
+    productId: String
+    locationId: String
+    warehouseId: String
+    zone: String
     qty: Int
     status: String
     description: String

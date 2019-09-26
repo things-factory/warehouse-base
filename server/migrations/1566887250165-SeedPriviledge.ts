@@ -22,6 +22,16 @@ const SEEDS_PRIVILEDGES = [
     name: 'mutation',
     category: 'warehouse',
     description: 'to edit warehouse data'
+  },
+  {
+    name: 'query',
+    category: 'inventory',
+    description: 'to read inventory data'
+  },
+  {
+    name: 'mutation',
+    category: 'inventory',
+    description: 'to edit inventory data'
   }
 ]
 

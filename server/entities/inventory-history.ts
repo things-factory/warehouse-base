@@ -1,9 +1,7 @@
 import { User } from '@things-factory/auth-base'
 import { Bizplace } from '@things-factory/biz-base'
-import { Product } from '@things-factory/product-base'
 import { Domain } from '@things-factory/shell'
 import { Column, CreateDateColumn, Entity, Index, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm'
-import { Location } from './location'
 
 @Entity()
 @Index(
@@ -37,11 +35,19 @@ export class InventoryHistory {
   })
   batchId: string
 
-  @ManyToOne(type => Product)
-  product: Product
+  @Column()
+  productId: string
 
-  @ManyToOne(type => Location)
-  location: Location
+  @Column()
+  warehouseId: string
+
+  @Column()
+  locationId: string
+
+  @Column({
+    nullable: true
+  })
+  zone: string
 
   @Column('float')
   qty: number

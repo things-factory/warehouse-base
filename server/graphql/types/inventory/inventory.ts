@@ -11,6 +11,7 @@ export const Inventory = gql`
     product: Product
     location: Location
     warehouse: Warehouse
+    zone: string
     qty: Int
     lastSeq: Int
     status: String

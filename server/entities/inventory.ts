@@ -36,11 +36,18 @@ export class Inventory {
   @ManyToOne(type => Product)
   product: Product
 
+  @ManyToOne(type => Warehouse, {
+    nullable: true
+  })
+  warehouse: Warehouse
+
   @ManyToOne(type => Location)
   location: Location
 
-  @ManyToOne(type => Warehouse)
-  warehouse: Warehouse
+  @Column({
+    nullable: true
+  })
+  zone: string
 
   @Column('float')
   qty: number
