@@ -15,9 +15,7 @@ export class InventoryHistory {
   @PrimaryGeneratedColumn('uuid')
   id: string
 
-  @Column({
-    nullable: false
-  })
+  @Column({ default: 0 })
   seq: number
 
   @ManyToOne(type => Domain)
