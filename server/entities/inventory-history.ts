@@ -49,6 +49,9 @@ export class InventoryHistory {
   })
   zone: string
 
+  @Column()
+  packingType: string
+
   @Column('float')
   qty: number
 

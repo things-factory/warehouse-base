@@ -48,6 +48,9 @@ export class Inventory {
   })
   zone: string
 
+  @Column()
+  packingType: string
+
   @Column('float')
   qty: number
 

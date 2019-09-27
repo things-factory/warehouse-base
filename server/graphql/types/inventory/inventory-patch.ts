@@ -9,6 +9,7 @@ export const InventoryPatch = gql`
     product: ObjectRef
     location: ObjectRef
     warehouse: ObjectRef
+    packingType: String
     qty: Int
     status: String
     description: String
