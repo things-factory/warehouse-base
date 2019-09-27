@@ -7,7 +7,7 @@ export const createWarehouse = {
     if (warehouse.bizplace && warehouse.bizplace.id) {
       warehouse.bizplace = await getRepository(Bizplace).findOne(warehouse.bizplace.id)
     } else {
-      warehouse.bizplace = context.stats.bizplaces[0]
+      warehouse.bizplace = context.state.bizplaces[0]
     }
 
     return await getRepository(Warehouse).save({
