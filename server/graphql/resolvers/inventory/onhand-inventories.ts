@@ -15,19 +15,19 @@ export const onhandInventories = {
     }
     let where = { ...commonCondition }
 
-    if (inventory.product)
+    if (inventory && inventory.productName)
       where['product'] = await getRepository(Product).findOne({
-        where: { ...commonCondition, name: Like(`%${inventory.product}%`) }
+        where: { ...commonCondition, name: Like(`%${inventory.productName}%`) }
       })
 
-    if (inventory.warehouse)
+    if (inventory && inventory.warehouseName)
       where['warehouse'] = await getRepository(Warehouse).findOne({
-        where: { ...commonCondition, name: Like(`%${inventory.warehouse}%`) }
+        where: { ...commonCondition, name: Like(`%${inventory.warehouseName}%`) }
       })
 
-    if (inventory.location)
+    if (inventory && inventory.locationName)
       where['location'] = await getRepository(Location).findOne({
-        where: { ...commonCondition, name: Like(`%${inventory.location}%`) }
+        where: { ...commonCondition, name: Like(`%${inventory.locationName}%`) }
       })
 
     const [items, total] = await getRepository(Inventory).findAndCount({
