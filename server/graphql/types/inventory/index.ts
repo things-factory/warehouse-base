@@ -21,6 +21,8 @@ export const Mutation = `
 export const Query = `
 inventories(filters: [Filter], pagination: Pagination, sortings: [Sorting]): InventoryList @priviledge(category: "inventory", priviledge: "query")
 inventory(id: String!): Inventory @priviledge(category: "inventory", priviledge: "query")
+onhandInventories(filters: [Filter], pagination: Pagination, sortings: [Sorting]): InventoryList
+intransitInventories(inventory: InventoryPatch, pagination: Pagination, sortings: [Sorting]): InventoryList
 `
 
 export const Types = [Inventory, NewInventory, InventoryPatch, InventoryList]
