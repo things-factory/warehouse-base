@@ -18,6 +18,9 @@ export class Inventory {
   @ManyToOne(type => Bizplace)
   bizplace: Bizplace
 
+  @ManyToOne(type => Inventory)
+  refInventory: Inventory
+
   @Column()
   name: string
 

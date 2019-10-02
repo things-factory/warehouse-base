@@ -5,6 +5,7 @@ export const Inventory = gql`
     id: String
     domain: Domain
     bizplace: Bizplace
+    refInventory: Inventory
     name: String
     palletId: String
     batchId: String

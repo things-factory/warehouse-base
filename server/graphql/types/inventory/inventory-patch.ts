@@ -5,6 +5,7 @@ export const InventoryPatch = gql`
     id: String
     name: String
     bizplace: ObjectRef
+    refInventory: ObjectRef
     bizplaceName: String
     palletId: String
     batchId: String
