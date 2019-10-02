@@ -8,7 +8,6 @@ import { Warehouse } from './warehouse'
 
 @Entity('inventories')
 @Index('ix_inventory_0', (inventory: Inventory) => [inventory.domain, inventory.name], { unique: true })
-@Index('ix_inventory_1', (inventory: Inventory) => [inventory.domain, inventory.palletId], { unique: true })
 export class Inventory {
   @PrimaryGeneratedColumn('uuid')
   id: string
