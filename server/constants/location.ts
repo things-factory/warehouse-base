@@ -1,0 +1,5 @@
+export const LOCATION_STATUS = {
+  EMPTY: 'EMPTY',
+  OCCUPIED: 'OCCUPIED',
+  FULL: 'FULL'
+}
