@@ -20,5 +20,6 @@ export const InventoryPatch = gql`
     qty: Int
     status: String
     description: String
+    updatedAt: String
   }
 `
