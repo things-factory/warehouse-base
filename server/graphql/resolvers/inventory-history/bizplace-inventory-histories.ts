@@ -42,15 +42,18 @@ export const bizplaceInventoryHistories = {
       where['locationId'] = In(_locations.map((location: Location) => location.id))
     }
 
-    where['updatedAt'] = Between(fromDate.toISOString, toDate.toISOString)
+    where['updatedAt'] = Between(fromDate.toISOString(), toDate.toISOString())
 
-    let [items, total] = await getRepository(InventoryHistory).findAndCount({
+    const result = await getRepository(InventoryHistory).findAndCount({
       ...convertedParams,
       where,
       relations: ['domain', 'bizplace', 'updater']
     })
 
-    const inventoryList: any[] = items.map(async (item: InventoryHistory) => {
+    let items = result[0] as any
+    let total = result[1]
+
+    items = items.map(async (item: InventoryHistory) => {
       return {
         palletId: item.palletId,
         batchId: item.batchId,
@@ -61,9 +64,9 @@ export const bizplaceInventoryHistories = {
         location: await getRepository(Warehouse).findOne({ ...commonCondition, id: item.locationId }),
         updatedAt: item.updatedAt,
         updater: item.updater
-      }
+      } as any
     })
 
-    return { inventoryList, total }
+    return { items, total }
   }
 }
