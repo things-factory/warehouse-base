@@ -1,9 +1,8 @@
 import { Bizplace } from '@things-factory/biz-base'
 import { Product } from '@things-factory/product-base'
 import { convertListParams } from '@things-factory/shell'
-import { getRepository, In, Like, Between } from 'typeorm'
-import { Inventory, Location, Warehouse, InventoryHistory } from '../../../entities'
-import { INVENTORY_STATUS } from '../../../constants'
+import { Between, getRepository, In, Like } from 'typeorm'
+import { InventoryHistory, Location, Warehouse } from '../../../entities'
 
 export const bizplaceInventoryHistories = {
   async bizplaceInventoryHistories(_: any, { inventoryHistory, pagination, sortings }, context: any) {
