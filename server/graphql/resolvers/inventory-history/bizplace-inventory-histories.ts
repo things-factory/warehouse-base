@@ -53,19 +53,23 @@ export const bizplaceInventoryHistories = {
     let items = result[0] as any
     let total = result[1]
 
-    items = items.map(async (item: InventoryHistory) => {
-      return {
-        palletId: item.palletId,
-        batchId: item.batchId,
-        bizplace: item.bizplace,
-        qty: item.qty,
-        product: await getRepository(Product).findOne({ ...commonCondition, id: item.productId }),
-        warehouse: await getRepository(Warehouse).findOne({ ...commonCondition, id: item.warehouseId }),
-        location: await getRepository(Warehouse).findOne({ ...commonCondition, id: item.locationId }),
-        updatedAt: item.updatedAt,
-        updater: item.updater
-      } as any
-    })
+    items = await Promise.all(
+      items.map(async (item: InventoryHistory) => {
+        return {
+          sqe: item.seq,
+          palletId: item.palletId,
+          batchId: item.batchId,
+          bizplace: item.bizplace,
+          qty: item.qty,
+          product: await getRepository(Product).findOne({ ...commonCondition, id: item.productId }),
+          warehouse: await getRepository(Warehouse).findOne({ ...commonCondition, id: item.warehouseId }),
+          location: await getRepository(Location).findOne({ ...commonCondition, id: item.locationId }),
+          zone: item.zone,
+          updatedAt: item.updatedAt,
+          updater: item.updater
+        } as any
+      })
+    )
 
     return { items, total }
   }
