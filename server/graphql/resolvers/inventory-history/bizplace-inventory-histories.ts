@@ -48,8 +48,11 @@ export const bizplaceInventoryHistories = {
     }
 
     where['updatedAt'] = Between(fromDate.toISOString(), toDate.toISOString())
+    where = {
+      ...where,
+      ...convertedParams.where
+    }
     const result = await getRepository(InventoryHistory).findAndCount({
-      ...convertedParams,
       where,
       relations: ['domain', 'bizplace', 'updater']
     })
@@ -60,7 +63,7 @@ export const bizplaceInventoryHistories = {
     items = await Promise.all(
       items.map(async (item: InventoryHistory) => {
         return {
-          sqe: item.seq,
+          seq: item.seq,
           palletId: item.palletId,
           batchId: item.batchId,
           bizplace: item.bizplace,
