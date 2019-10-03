@@ -4,7 +4,7 @@ export const InventoryHistoryPatch = gql`
   input InventoryHistoryPatch {
     seq: Int
     name: String
-    bizplace: ObjeRef
+    bizplace: ObjectRef
     palletId: String
     batchId: String
     productId: String
