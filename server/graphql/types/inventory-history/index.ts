@@ -29,7 +29,7 @@ export const Mutation = `
 export const Query = `
   inventoryHistories(filters: [Filter], pagination: Pagination, sortings: [Sorting]): InventoryHistoryList
   inventoryHistory(name: String!): InventoryHistory
-  bizplaceInventoryHistories(inventoryHistory: InventoryHistoryPatch, filters: [Filter], pagination: Pagination, sortings: [Sorting]): InventoryList
+  bizplaceInventoryHistories(inventoryHistory: InventoryHistoryPatch, filters: [Filter], pagination: Pagination, sortings: [Sorting]): InventoryHistoryList
 `
 
 export const Types = [InventoryHistory, NewInventoryHistory, InventoryHistoryPatch, InventoryHistoryList]

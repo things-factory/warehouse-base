@@ -6,20 +6,22 @@ import { InventoryHistory, Location, Warehouse } from '../../../entities'
 
 export const bizplaceInventoryHistories = {
   async bizplaceInventoryHistories(_: any, { inventoryHistory, filters, pagination, sortings }, context: any) {
-    const bizplace: Bizplace = inventoryHistory.bizplace
+    const ownerBizplace: Bizplace = context.state.mainBizplace
+    const customerBizplace: Bizplace = await getRepository(Bizplace).findOne({
+      domain: context.state.domain,
+      id: inventoryHistory.bizplace.id
+    })
+
     const fromDate: Date = new Date(inventoryHistory.fromDate)
     const toDate: Date = new Date(inventoryHistory.toDate)
 
     const convertedParams = convertListParams({ filters, pagination, sortings })
-    const commonCondition = {
-      domain: context.state.domain,
-      bizplace: await getRepository(Bizplace).findOne(bizplace)
-    }
-    let where = { ...commonCondition }
+    let where = { domain: context.state.domain }
 
     if (inventoryHistory && inventoryHistory.productName) {
       const _products: Product[] = await getRepository(Product).find({
-        ...commonCondition,
+        domain: context.state.domain,
+        bizplace: customerBizplace,
         name: Like(`%${inventoryHistory.productName}%`)
       })
       where['productId'] = In(_products.map((product: Product) => product.id))
@@ -27,8 +29,8 @@ export const bizplaceInventoryHistories = {
 
     if (inventoryHistory && inventoryHistory.warehouseName) {
       const _warehouses: Warehouse[] = await getRepository(Warehouse).find({
-        ...commonCondition,
-
+        domain: context.state.domain,
+        bizplace: ownerBizplace,
         name: Like(`%${inventoryHistory.warehouseName}%`)
       })
       where['warehouseId'] = In(_warehouses.map((warehouse: Warehouse) => warehouse.id))
@@ -36,14 +38,16 @@ export const bizplaceInventoryHistories = {
 
     if (inventoryHistory && inventoryHistory.locationName) {
       const _locations = await getRepository(Location).find({
-        ...commonCondition,
-        name: Like(`%${inventoryHistory.locationName}%`)
+        where: {
+          domain: context.state.domain,
+          bizplace: ownerBizplace,
+          name: Like(`%${inventoryHistory.locationName}%`)
+        }
       })
       where['locationId'] = In(_locations.map((location: Location) => location.id))
     }
 
     where['updatedAt'] = Between(fromDate.toISOString(), toDate.toISOString())
-
     const result = await getRepository(InventoryHistory).findAndCount({
       ...convertedParams,
       where,
@@ -61,18 +65,22 @@ export const bizplaceInventoryHistories = {
           batchId: item.batchId,
           bizplace: item.bizplace,
           qty: item.qty,
-          product: await getRepository(Product).findOne({ ...commonCondition, id: item.productId }),
+          product: await getRepository(Product).findOne({
+            domain: context.state.domain,
+            bizplace: customerBizplace,
+            id: item.productId
+          }),
           warehouse: await getRepository(Warehouse).findOne({
             where: {
               domain: context.state.domain,
-              bizplace: context.state.mainBizplace,
+              bizplace: ownerBizplace,
               id: item.warehouseId
             }
           }),
           location: await getRepository(Location).findOne({
             where: {
               domain: context.state.domain,
-              bizplace: context.state.mainBizplace,
+              bizplace: ownerBizplace,
               id: item.locationId
             }
           }),
