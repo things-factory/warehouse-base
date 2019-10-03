@@ -5,12 +5,12 @@ import { Between, getRepository, In, Like } from 'typeorm'
 import { InventoryHistory, Location, Warehouse } from '../../../entities'
 
 export const bizplaceInventoryHistories = {
-  async bizplaceInventoryHistories(_: any, { inventoryHistory, pagination, sortings }, context: any) {
+  async bizplaceInventoryHistories(_: any, { inventoryHistory, filters, pagination, sortings }, context: any) {
     const bizplace: Bizplace = inventoryHistory.bizplace
     const fromDate: Date = new Date(inventoryHistory.fromDate)
     const toDate: Date = new Date(inventoryHistory.toDate)
 
-    const convertedParams = convertListParams({ pagination, sortings })
+    const convertedParams = convertListParams({ filters, pagination, sortings })
     const commonCondition = {
       domain: context.state.domain,
       bizplace: await getRepository(Bizplace).findOne(bizplace)
@@ -62,8 +62,20 @@ export const bizplaceInventoryHistories = {
           bizplace: item.bizplace,
           qty: item.qty,
           product: await getRepository(Product).findOne({ ...commonCondition, id: item.productId }),
-          warehouse: await getRepository(Warehouse).findOne({ ...commonCondition, id: item.warehouseId }),
-          location: await getRepository(Location).findOne({ ...commonCondition, id: item.locationId }),
+          warehouse: await getRepository(Warehouse).findOne({
+            where: {
+              domain: context.state.domain,
+              bizplace: context.state.mainBizplace,
+              id: item.warehouseId
+            }
+          }),
+          location: await getRepository(Location).findOne({
+            where: {
+              domain: context.state.domain,
+              bizplace: context.state.mainBizplace,
+              id: item.locationId
+            }
+          }),
           zone: item.zone,
           updatedAt: item.updatedAt,
           updater: item.updater
