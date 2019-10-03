@@ -49,8 +49,9 @@ export const bizplaceInventoryHistories = {
 
     where['updatedAt'] = Between(fromDate.toISOString(), toDate.toISOString())
     convertedParams.where = {
-      ...convertListParams.where,
-      ...where
+      ...convertedParams.where,
+      ...where,
+      bizplace: customerBizplace
     }
 
     const result = await getRepository(InventoryHistory).findAndCount({
