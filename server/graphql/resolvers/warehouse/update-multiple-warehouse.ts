@@ -17,12 +17,12 @@ export const updateMultipleWarehouse = {
         if (newRecord.bizplace && newRecord.bizplace.id) {
           newRecord.bizplace = await bizplaceRepo.findOne(newRecord.bizplace.id)
         } else {
-          newRecord.bizplace = context.state.bizplaces[0]
+          newRecord.bizplace = context.state.mainBizplace
         }
 
         const result = await warehouseRepo.save({
           domain: context.state.domain,
-          bizplace: context.state.bizplace,
+          bizplace: context.state.mainBizplace,
           creator: context.state.user,
           updater: context.state.user,
           ...newRecord
