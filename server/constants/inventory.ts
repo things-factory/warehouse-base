@@ -3,3 +3,8 @@ export const INVENTORY_STATUS = {
   OCCUPIED: 'OCCUPIED',
   INTRANSIT: 'INTRANSIT'
 }
+
+export const INVENTORY_TYPES = {
+  BUFFER: 'BUFFER',
+  SHELF: 'SHELF'
+}

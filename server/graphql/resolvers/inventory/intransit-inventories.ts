@@ -3,7 +3,7 @@ import { Product } from '@things-factory/product-base'
 import { convertListParams } from '@things-factory/shell'
 import { getRepository, In, Like } from 'typeorm'
 import { Inventory, Location, Warehouse } from '../../../entities'
-import { INVENTORY_STATUS } from '../../../constants'
+import { INVENTORY_STATUS, INVENTORY_TYPES } from '../../../constants'
 
 export const intransitInventories = {
   async intransitInventories(_: any, { inventory, pagination, sortings }, context: any) {
@@ -11,7 +11,8 @@ export const intransitInventories = {
     const commonCondition = {
       domain: context.state.domain,
       bizplace: In(context.state.bizplaces.map((bizplace: Bizplace) => bizplace.id)),
-      status: INVENTORY_STATUS.INTRANSIT
+      status: INVENTORY_STATUS.INTRANSIT,
+      type: INVENTORY_TYPES.SHELF
     }
     let where = { ...commonCondition }
 
