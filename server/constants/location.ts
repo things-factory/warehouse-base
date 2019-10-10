@@ -3,3 +3,8 @@ export const LOCATION_STATUS = {
   OCCUPIED: 'OCCUPIED',
   FULL: 'FULL'
 }
+
+export const LOCATION_TYPE = {
+  BUFFER: 'BUFFER',
+  SHELF: 'SHELF'
+}
