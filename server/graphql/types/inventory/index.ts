@@ -16,6 +16,14 @@ export const Mutation = `
   deleteInventory (
     name: String!
   ): Boolean @priviledge(category: "inventory", priviledge: "mutation")
+  
+  updateMultipleInventory (
+    patches: [InventoryPatch]!
+  ): [Inventory] @priviledge(category: "inventory", priviledge: "mutation")
+
+  deleteInventories (
+    id: [String]!
+  ): Boolean @priviledge(category: "inventory", priviledge: "mutation")
     `
 
 export const Query = `

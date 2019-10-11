@@ -5,6 +5,8 @@ import { inventoriesResolver } from './inventories'
 import { inventoryResolver } from './inventory'
 import { onhandInventories } from './onhand-inventories'
 import { updateInventory } from './update-inventory'
+import { updateMultipleInventory } from './update-multiple-inventory'
+import { deleteInventories } from './delete-inventories'
 
 export const Query = {
   ...inventoriesResolver,
@@ -16,5 +18,7 @@ export const Query = {
 export const Mutation = {
   ...updateInventory,
   ...createInventory,
-  ...deleteInventory
+  ...deleteInventory,
+  ...updateMultipleInventory,
+  ...deleteInventories
 }
