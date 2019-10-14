@@ -13,8 +13,8 @@ export const updateMultipleInventory = {
     if (_createRecords.length > 0) {
       let today = new Date()
       let year = today.getFullYear()
-      let month = today.getFullYear()
-      let date = today.getFullYear()
+      let month = today.getMonth()
+      let date = today.getDate()
 
       for (let i = 0; i < _createRecords.length; i++) {
         const [items, total] = await getRepository(Inventory).findAndCount({
@@ -54,6 +54,7 @@ export const updateMultipleInventory = {
           domain: context.state.domain,
           creator: context.state.user,
           updater: context.state.user,
+          status: 'OCCUPIED',
           ...newRecord
         })
 
