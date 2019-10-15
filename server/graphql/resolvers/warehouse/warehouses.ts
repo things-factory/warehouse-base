@@ -10,7 +10,7 @@ export const warehousesResolver = {
 
     const [items, total] = await getRepository(Warehouse).findAndCount({
       ...convertedParams,
-      relations: ['domain', 'bizplace', 'locations', 'creator', 'updater']
+      relations: ['domain', 'bizplace', 'creator', 'updater']
     })
     return { items, total }
   }
