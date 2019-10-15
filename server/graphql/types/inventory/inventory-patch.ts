@@ -21,6 +21,7 @@ export const InventoryPatch = gql`
     status: String
     description: String
     updatedAt: String
+    updater: String
     cuFlag: String
   }
 `
