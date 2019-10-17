@@ -1,9 +1,9 @@
 import { Bizplace } from '@things-factory/biz-base'
 import { Product } from '@things-factory/product-base'
 import { convertListParams } from '@things-factory/shell'
-import { getRepository, In, Like } from 'typeorm'
-import { Inventory, Location, Warehouse } from '../../../entities'
+import { Equal, getRepository, In, IsNull, Like } from 'typeorm'
 import { INVENTORY_STATUS, INVENTORY_TYPES } from '../../../constants'
+import { Inventory, Location, Warehouse } from '../../../entities'
 
 export const intransitInventories = {
   async intransitInventories(_: any, { inventory, pagination, sortings }, context: any) {
@@ -20,10 +20,11 @@ export const intransitInventories = {
 
     const commonCondition = {
       domain: context.state.domain,
-      bizplace: In(targetBizplaces),
       status: INVENTORY_STATUS.INTRANSIT,
       type: INVENTORY_TYPES.SHELF
     }
+
+    if (targetBizplaces.length) commonCondition['bizplace'] = In(targetBizplaces)
 
     let where = { ...commonCondition }
 
@@ -35,21 +36,33 @@ export const intransitInventories = {
       const products: Product[] = await getRepository(Product).find({
         where: { domain: context.state.domain, name: Like(`%${inventory.productName}%`) }
       })
-      where['product'] = In(products.map((product: Product) => product.id))
+      if (products.length) {
+        where['product'] = In(products.map((product: Product) => product.id))
+      } else {
+        where['product'] = Equal(IsNull())
+      }
     }
 
     if (inventory && inventory.warehouseName) {
       const warehouses: Warehouse[] = await getRepository(Warehouse).find({
         where: { domain: context.state.domain, name: Like(`%${inventory.warehouseName}%`) }
       })
-      where['warehouse'] = In(warehouses.map((warehouse: Warehouse) => warehouse.id))
+      if (warehouses.length) {
+        where['warehouse'] = In(warehouses.map((warehouse: Warehouse) => warehouse.id))
+      } else {
+        where['warehouse'] = Equal(IsNull())
+      }
     }
 
     if (inventory && inventory.locationName) {
       const locations: Location[] = await getRepository(Location).find({
         where: { domain: context.state.domain, name: Like(`%${inventory.locationName}%`) }
       })
-      where['location'] = In(locations.map((location: Location) => location.id))
+      if (locations.length) {
+        where['location'] = In(locations.map((location: Location) => location.id))
+      } else {
+        where['location'] = Equal(IsNull())
+      }
     }
 
     const [items, total] = await getRepository(Inventory).findAndCount({
