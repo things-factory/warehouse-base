@@ -8,28 +8,49 @@ import { INVENTORY_STATUS, INVENTORY_TYPES } from '../../../constants'
 export const onhandInventories = {
   async onhandInventories(_: any, { inventory, pagination, sortings }, context: any) {
     const convertedParams = convertListParams({ pagination, sortings })
+    let targetBizplaces: String[]
+    if (inventory && inventory.bizplaceName) {
+      const bizplaces: Bizplace[] = await getRepository(Bizplace).find({
+        where: { name: Like(`%${inventory.bizplaceName}%`) }
+      })
+      targetBizplaces = bizplaces.map((bizplace: Bizplace) => bizplace.id)
+    } else {
+      targetBizplaces = context.state.bizplaces.map((bizplace: Bizplace) => bizplace.id)
+    }
+
     const commonCondition = {
       domain: context.state.domain,
-      bizplace: In(context.state.bizplaces.map((bizplace: Bizplace) => bizplace.id)),
+      bizplace: In(targetBizplaces),
       status: INVENTORY_STATUS.OCCUPIED,
       type: INVENTORY_TYPES.SHELF
     }
+
     let where = { ...commonCondition }
 
-    if (inventory && inventory.productName)
-      where['product'] = await getRepository(Product).findOne({
-        where: { ...commonCondition, name: Like(`%${inventory.productName}%`) }
-      })
+    if (inventory && inventory.zone) where['zone'] = Like(`%${inventory.zone}%`)
+    if (inventory && inventory.palletId) where['palletId'] = Like(`%${inventory.palletId}%`)
+    if (inventory && inventory.batchId) where['batchId'] = Like(`%${inventory.batchId}%`)
 
-    if (inventory && inventory.warehouseName)
-      where['warehouse'] = await getRepository(Warehouse).findOne({
-        where: { ...commonCondition, name: Like(`%${inventory.warehouseName}%`) }
+    if (inventory && inventory.productName) {
+      const products: Product[] = await getRepository(Product).find({
+        where: { domain: context.state.domain, name: Like(`%${inventory.productName}%`) }
       })
+      where['product'] = In(products.map((product: Product) => product.id))
+    }
 
-    if (inventory && inventory.locationName)
-      where['location'] = await getRepository(Location).findOne({
-        where: { ...commonCondition, name: Like(`%${inventory.locationName}%`) }
+    if (inventory && inventory.warehouseName) {
+      const warehouses: Warehouse[] = await getRepository(Warehouse).find({
+        where: { domain: context.state.domain, name: Like(`%${inventory.warehouseName}%`) }
       })
+      where['warehouse'] = In(warehouses.map((warehouse: Warehouse) => warehouse.id))
+    }
+
+    if (inventory && inventory.locationName) {
+      const locations: Location[] = await getRepository(Location).find({
+        where: { domain: context.state.domain, name: Like(`%${inventory.locationName}%`) }
+      })
+      where['location'] = In(locations.map((location: Location) => location.id))
+    }
 
     const [items, total] = await getRepository(Inventory).findAndCount({
       ...convertedParams,
