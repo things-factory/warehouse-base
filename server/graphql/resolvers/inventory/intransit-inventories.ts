@@ -1,7 +1,7 @@
 import { Bizplace } from '@things-factory/biz-base'
 import { Product } from '@things-factory/product-base'
 import { convertListParams } from '@things-factory/shell'
-import { Equal, getRepository, In, IsNull, Like } from 'typeorm'
+import { getRepository, In, IsNull, Like } from 'typeorm'
 import { INVENTORY_STATUS, INVENTORY_TYPES } from '../../../constants'
 import { Inventory, Location, Warehouse } from '../../../entities'
 
@@ -39,7 +39,7 @@ export const intransitInventories = {
       if (products.length) {
         where['product'] = In(products.map((product: Product) => product.id))
       } else {
-        where['product'] = Equal(IsNull())
+        where['product'] = IsNull()
       }
     }
 
@@ -50,7 +50,7 @@ export const intransitInventories = {
       if (warehouses.length) {
         where['warehouse'] = In(warehouses.map((warehouse: Warehouse) => warehouse.id))
       } else {
-        where['warehouse'] = Equal(IsNull())
+        where['warehouse'] = IsNull()
       }
     }
 
@@ -61,7 +61,7 @@ export const intransitInventories = {
       if (locations.length) {
         where['location'] = In(locations.map((location: Location) => location.id))
       } else {
-        where['location'] = Equal(IsNull())
+        where['location'] = IsNull()
       }
     }
 
