@@ -22,7 +22,7 @@ export const bizplaceInventoryHistories = {
       const _products: Product[] = await getRepository(Product).find({
         domain: context.state.domain,
         bizplace: customerBizplace,
-        name: Raw(alias => `LOWER(${alias}) LIKE '${inventoryHistory.productName.toLowerCase()}}'`)
+        name: Raw(alias => `LOWER(${alias}) LIKE '${inventoryHistory.productName.toLowerCase()}'`)
       })
       where['productId'] = In(_products.map((product: Product) => product.id))
     }
@@ -31,7 +31,7 @@ export const bizplaceInventoryHistories = {
       const _warehouses: Warehouse[] = await getRepository(Warehouse).find({
         domain: context.state.domain,
         bizplace: ownerBizplace,
-        name: Raw(alias => `LOWER(${alias}) LIKE '${inventoryHistory.warehouseName.toLowerCase()}}'`)
+        name: Raw(alias => `LOWER(${alias}) LIKE '${inventoryHistory.warehouseName.toLowerCase()}'`)
       })
       where['warehouseId'] = In(_warehouses.map((warehouse: Warehouse) => warehouse.id))
     }
@@ -41,7 +41,7 @@ export const bizplaceInventoryHistories = {
         where: {
           domain: context.state.domain,
           bizplace: ownerBizplace,
-          name: Raw(alias => `LOWER(${alias}) LIKE '${inventoryHistory.locationName.toLowerCase()}}'`)
+          name: Raw(alias => `LOWER(${alias}) LIKE '${inventoryHistory.locationName.toLowerCase()}'`)
         }
       })
       where['locationId'] = In(_locations.map((location: Location) => location.id))
