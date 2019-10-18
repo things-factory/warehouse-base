@@ -42,15 +42,17 @@ export const updateMultipleInventory = {
           newRecord.product = product
         }
 
-        newRecord.name = newRecord.batchId || ''
-        newRecord.status = 'OCCUPIED'
-        newRecord.palletId =
+        let palletId =
           'P' +
           year.toString().substr(year.toString().length - 2) +
           ('0' + month.toString()).substr(('0' + month.toString()).toString().length - 2) +
           ('0' + date.toString()).substr(('0' + date.toString()).length - 2) +
           '/' +
           ('0000' + (total + 1).toString()).substr(('0000' + (total + 1).toString()).length - 4)
+
+        newRecord.name = palletId
+        newRecord.status = 'OCCUPIED'
+        newRecord.palletId = palletId
 
         const result = await inventoryRepo.save({
           domain: context.state.domain,
