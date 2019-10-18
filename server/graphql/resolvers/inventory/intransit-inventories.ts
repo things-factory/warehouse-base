@@ -1,7 +1,7 @@
 import { Bizplace } from '@things-factory/biz-base'
 import { Product } from '@things-factory/product-base'
 import { convertListParams } from '@things-factory/shell'
-import { getRepository, In, IsNull, Like } from 'typeorm'
+import { getRepository, In, IsNull, Raw } from 'typeorm'
 import { INVENTORY_STATUS, INVENTORY_TYPES } from '../../../constants'
 import { Inventory, Location, Warehouse } from '../../../entities'
 
@@ -11,7 +11,7 @@ export const intransitInventories = {
     let targetBizplaces: String[]
     if (inventory && inventory.bizplaceName) {
       const bizplaces: Bizplace[] = await getRepository(Bizplace).find({
-        where: { name: Like(`%${inventory.bizplaceName}%`) }
+        where: { name: Raw(alias => `LOWER(${alias}) LIKE '${inventory.bizplaceName.toLowerCase()}'`) }
       })
       targetBizplaces = bizplaces.map((bizplace: Bizplace) => bizplace.id)
     } else {
@@ -28,13 +28,22 @@ export const intransitInventories = {
 
     let where = { ...commonCondition }
 
-    if (inventory && inventory.zone) where['zone'] = Like(`%${inventory.zone}%`)
-    if (inventory && inventory.palletId) where['palletId'] = Like(`%${inventory.palletId}%`)
-    if (inventory && inventory.batchId) where['batchId'] = Like(`%${inventory.batchId}%`)
+    if (inventory && inventory.zone) {
+      where['zone'] = Raw(alias => `LOWER(${alias}) LIKE '${inventory.zone.toLowerCase()}'`)
+    }
+    if (inventory && inventory.palletId) {
+      where['palletId'] = Raw(alias => `LOWER(${alias}) LIKE '${inventory.palletId.toLowerCase()}'`)
+    }
+    if (inventory && inventory.batchId) {
+      where['batchId'] = Raw(alias => `LOWER(${alias}) LIKE '${inventory.batchId.toLowerCase()}'`)
+    }
 
     if (inventory && inventory.productName) {
       const products: Product[] = await getRepository(Product).find({
-        where: { domain: context.state.domain, name: Like(`%${inventory.productName}%`) }
+        where: {
+          domain: context.state.domain,
+          name: Raw(alias => `LOWER(${alias}) LIKE '${inventory.productName.toLowerCase()}'`)
+        }
       })
       if (products.length) {
         where['product'] = In(products.map((product: Product) => product.id))
@@ -45,7 +54,10 @@ export const intransitInventories = {
 
     if (inventory && inventory.warehouseName) {
       const warehouses: Warehouse[] = await getRepository(Warehouse).find({
-        where: { domain: context.state.domain, name: Like(`%${inventory.warehouseName}%`) }
+        where: {
+          domain: context.state.domain,
+          name: Raw(alias => `LOWER(${alias}) LIKE '${inventory.warehouseName.toLowerCase()}'`)
+        }
       })
       if (warehouses.length) {
         where['warehouse'] = In(warehouses.map((warehouse: Warehouse) => warehouse.id))
@@ -56,7 +68,10 @@ export const intransitInventories = {
 
     if (inventory && inventory.locationName) {
       const locations: Location[] = await getRepository(Location).find({
-        where: { domain: context.state.domain, name: Like(`%${inventory.locationName}%`) }
+        where: {
+          domain: context.state.domain,
+          name: Raw((alias: string) => `LOWER(${alias}) LIKE '${inventory.locationName.toLowerCase()}'`)
+        }
       })
       if (locations.length) {
         where['location'] = In(locations.map((location: Location) => location.id))

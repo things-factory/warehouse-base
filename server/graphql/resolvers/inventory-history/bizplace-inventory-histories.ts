@@ -1,7 +1,7 @@
 import { Bizplace } from '@things-factory/biz-base'
 import { Product } from '@things-factory/product-base'
 import { convertListParams } from '@things-factory/shell'
-import { Between, getRepository, In, Like } from 'typeorm'
+import { Between, getRepository, In, Raw } from 'typeorm'
 import { InventoryHistory, Location, Warehouse } from '../../../entities'
 
 export const bizplaceInventoryHistories = {
@@ -22,7 +22,7 @@ export const bizplaceInventoryHistories = {
       const _products: Product[] = await getRepository(Product).find({
         domain: context.state.domain,
         bizplace: customerBizplace,
-        name: Like(`%${inventoryHistory.productName}%`)
+        name: Raw(alias => `LOWER(${alias}) LIKE '${inventoryHistory.productName.toLowerCase()}}'`)
       })
       where['productId'] = In(_products.map((product: Product) => product.id))
     }
@@ -31,7 +31,7 @@ export const bizplaceInventoryHistories = {
       const _warehouses: Warehouse[] = await getRepository(Warehouse).find({
         domain: context.state.domain,
         bizplace: ownerBizplace,
-        name: Like(`%${inventoryHistory.warehouseName}%`)
+        name: Raw(alias => `LOWER(${alias}) LIKE '${inventoryHistory.warehouseName.toLowerCase()}}'`)
       })
       where['warehouseId'] = In(_warehouses.map((warehouse: Warehouse) => warehouse.id))
     }
@@ -41,7 +41,7 @@ export const bizplaceInventoryHistories = {
         where: {
           domain: context.state.domain,
           bizplace: ownerBizplace,
-          name: Like(`%${inventoryHistory.locationName}%`)
+          name: Raw(alias => `LOWER(${alias}) LIKE '${inventoryHistory.locationName.toLowerCase()}}'`)
         }
       })
       where['locationId'] = In(_locations.map((location: Location) => location.id))
