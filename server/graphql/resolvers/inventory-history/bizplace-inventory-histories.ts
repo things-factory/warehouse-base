@@ -13,7 +13,8 @@ export const bizplaceInventoryHistories = {
     })
 
     const fromDate: Date = new Date(inventoryHistory.fromDate)
-    const toDate: Date = new Date(inventoryHistory.toDate)
+    let toDate: Date = new Date(inventoryHistory.toDate)
+    toDate.setDate(toDate.getDate() + 1)
 
     const convertedParams = convertListParams({ filters, pagination, sortings })
     let where = { domain: context.state.domain }
