@@ -19,6 +19,7 @@ export const InventoryHistory = gql`
     packingType: String
     qty: Int
     status: String
+    transactionType: String
     description: String
     creator: User
     updater: User

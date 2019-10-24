@@ -13,6 +13,7 @@ export const NewInventoryHistory = gql`
     packingType: String
     qty: Int
     status: String
+    transactionType: String
     description: String
   }
 `
