@@ -1,7 +1,7 @@
 import { Bizplace } from '@things-factory/biz-base'
 import { Product } from '@things-factory/product-base'
 import { convertListParams } from '@things-factory/shell'
-import { getRepository, In, IsNull, Raw } from 'typeorm'
+import { getRepository, In, IsNull, Raw, Not } from 'typeorm'
 import { INVENTORY_STATUS, INVENTORY_TYPES } from '../../../constants'
 import { Inventory, Location, Warehouse } from '../../../entities'
 
@@ -20,7 +20,7 @@ export const onhandInventories = {
 
     const commonCondition = {
       domain: context.state.domain,
-      status: INVENTORY_STATUS.STORED,
+      status: Not(In([INVENTORY_STATUS.INTRANSIT, INVENTORY_STATUS.TERMINATED, INVENTORY_STATUS.DELETED])),
       type: INVENTORY_TYPES.SHELF
     }
 
