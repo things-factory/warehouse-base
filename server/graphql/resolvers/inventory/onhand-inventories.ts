@@ -20,7 +20,7 @@ export const onhandInventories = {
 
     const commonCondition = {
       domain: context.state.domain,
-      status: INVENTORY_STATUS.OCCUPIED,
+      status: INVENTORY_STATUS.STORED,
       type: INVENTORY_TYPES.SHELF
     }
 
