@@ -71,6 +71,8 @@ export const bizplaceInventoryHistories = {
           batchId: item.batchId,
           bizplace: item.bizplace,
           qty: item.qty,
+          status: item.status,
+          transactionType: item.transactionType,
           product: await getRepository(Product).findOne({
             domain: context.state.domain,
             bizplace: customerBizplace,
