@@ -63,6 +63,9 @@ export class InventoryHistory {
   @Column()
   status: string
 
+  @Column()
+  transactionType: String
+
   @ManyToOne(type => User, {
     nullable: true
   })
