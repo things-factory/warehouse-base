@@ -5,13 +5,15 @@ import { Inventory } from '../../../entities'
 
 export const inventoriesResolver = {
   async inventories(_: any, params: ListParam, context: any) {
-    const convertedParams = convertListParams(params)
-    convertedParams.where = {
-      ...convertedParams.where,
-      domain: context.state.domain,
-      bizplace: In(context.state.bizplaces.map((bizplace: Bizplace) => bizplace.id))
+    if (!params.filters.find((filter: any) => filter.name === 'bizplace')) {
+      params.filters.push({
+        name: 'bizplace',
+        operator: 'in',
+        value: context.state.bizplaces.map((bizplace: Bizplace) => bizplace.id)
+      })
     }
 
+    const convertedParams = convertListParams(params)
     const [items, total] = await getRepository(Inventory).findAndCount({
       ...convertedParams,
       relations: ['domain', 'bizplace', 'product', 'warehouse', 'location', 'creator', 'updater']
