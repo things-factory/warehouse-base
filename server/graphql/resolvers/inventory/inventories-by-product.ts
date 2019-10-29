@@ -1,8 +1,9 @@
 import { Bizplace } from '@things-factory/biz-base'
 import { Product } from '@things-factory/product-base'
 import { convertListParams, ListParam } from '@things-factory/shell'
-import { Inventory } from '@things-factory/warehouse-base'
+import { INVENTORY_STATUS } from 'server/constants'
 import { getRepository } from 'typeorm'
+import { Inventory } from '../../../entities'
 
 export const inventoriesByProduct = {
   async inventoriesByProduct(_: any, params: ListParam, context: any) {
@@ -37,7 +38,7 @@ export const inventoriesByProduct = {
       .addSelect('SUM(Inventory.qty)', 'qty')
       .leftJoin('Product.productRef', 'ProductRef')
       .leftJoin(Inventory, 'Inventory', 'Inventory.product_id = Product.id')
-      .where('Inventory.status = :status', { status: 'STORED' })
+      .where('Inventory.status = :status', { status: INVENTORY_STATUS.STORED })
       .skip((page - 1) * limit)
       .take(limit)
       .groupBy('Product.id')
