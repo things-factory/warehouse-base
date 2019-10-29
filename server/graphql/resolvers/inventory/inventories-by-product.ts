@@ -1,7 +1,7 @@
 import { Bizplace } from '@things-factory/biz-base'
 import { Product } from '@things-factory/product-base'
 import { convertListParams, ListParam } from '@things-factory/shell'
-import { INVENTORY_STATUS } from 'server/constants'
+import { INVENTORY_STATUS } from '../../../constants/inventory'
 import { getRepository } from 'typeorm'
 import { Inventory } from '../../../entities'
 
