@@ -39,8 +39,8 @@ export const inventoriesByProduct = {
       .leftJoin('Product.productRef', 'ProductRef')
       .leftJoin(Inventory, 'Inventory', 'Inventory.product_id = Product.id')
       .where('Inventory.status = :status', { status: INVENTORY_STATUS.STORED })
-      .skip((page - 1) * limit)
-      .take(limit)
+      .offset((page - 1) * limit)
+      .limit(limit)
       .groupBy('Product.id')
       .addGroupBy('ProductRef.id')
 
