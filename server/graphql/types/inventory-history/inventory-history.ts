@@ -19,6 +19,7 @@ export const InventoryHistory = gql`
     zone: String
     packingType: String
     qty: Int
+    unit: String
     status: String
     transactionType: String
     description: String

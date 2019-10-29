@@ -12,6 +12,7 @@ export const NewInventory = gql`
     packingType: String
     qty: Int
     weight: Float
+    unit: String
     status: String
     description: String
   }

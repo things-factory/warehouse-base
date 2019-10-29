@@ -17,6 +17,7 @@ export const Inventory = gql`
     qty: Int
     lastSeq: Int
     weight: Float
+    unit: String
     status: String
     description: String
     creator: User

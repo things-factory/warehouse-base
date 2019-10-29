@@ -53,7 +53,14 @@ export class Inventory {
   @Column()
   packingType: string
 
-  @Column('float')
+  @Column({
+    nullable: true
+  })
+  unit: string
+
+  @Column('float', {
+    nullable: true
+  })
   weight: number
 
   @Column('float')
