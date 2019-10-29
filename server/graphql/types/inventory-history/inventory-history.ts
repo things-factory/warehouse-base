@@ -15,6 +15,7 @@ export const InventoryHistory = gql`
     location: Location
     warehouseId: String
     warehouse: Warehouse
+    weight: Float
     zone: String
     packingType: String
     qty: Int

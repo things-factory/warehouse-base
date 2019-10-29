@@ -54,6 +54,9 @@ export class Inventory {
   packingType: string
 
   @Column('float')
+  weight: number
+
+  @Column('float')
   qty: number
 
   @Column({ default: 0 })

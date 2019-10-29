@@ -55,6 +55,9 @@ export class InventoryHistory {
   @Column('float')
   qty: number
 
+  @Column('float')
+  weight: number
+
   @Column({
     nullable: true
   })
