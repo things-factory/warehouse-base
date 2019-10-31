@@ -1,5 +1,5 @@
 import { getRepository, MoreThan } from 'typeorm'
-import { Inventory, Location } from '../../../entities'
+import { Inventory, Location, InventoryHistory } from '../../../entities'
 import { Bizplace } from '@things-factory/biz-base'
 import { Product } from '@things-factory/product-base'
 
@@ -61,6 +61,17 @@ export const updateMultipleInventory = {
           ...newRecord
         })
 
+        await getRepository(InventoryHistory).save({
+          domain: context.state.domain,
+          creator: context.state.user,
+          updater: context.state.user,
+          transactionType: 'ADJUSTMENT',
+          productId: newRecord.product.id,
+          warehouseId: newRecord.warehouse.id,
+          locationId: newRecord.location.id,
+          ...newRecord
+        })
+
         results.push({ ...result, cuFlag: '+' })
       }
     }
@@ -68,7 +79,7 @@ export const updateMultipleInventory = {
     if (_updateRecords.length > 0) {
       for (let i = 0; i < _updateRecords.length; i++) {
         const newRecord = _updateRecords[i]
-        const inventory = await inventoryRepo.findOne(newRecord.id)
+        let inventory = await inventoryRepo.findOne(newRecord.id)
 
         if (newRecord.location && newRecord.location.id) {
           var location = await getRepository(Location).findOne({
