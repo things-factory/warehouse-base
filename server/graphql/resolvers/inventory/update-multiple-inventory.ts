@@ -51,7 +51,7 @@ export const updateMultipleInventory = {
           ('0000' + (total + 1).toString()).substr(('0000' + (total + 1).toString()).length - 4)
 
         newRecord.name = palletId
-        newRecord.status = 'OCCUPIED'
+        newRecord.status = 'STORED'
         newRecord.palletId = palletId
 
         const result = await inventoryRepo.save({
