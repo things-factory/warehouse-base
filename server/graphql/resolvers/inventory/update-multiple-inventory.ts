@@ -51,7 +51,7 @@ export const updateMultipleInventory = {
           ('0000' + (total + 1).toString()).substr(('0000' + (total + 1).toString()).length - 4)
 
         newRecord.name = palletId
-        newRecord.status = 'STORED'
+        newRecord.status = newRecord.qty < 1 ? 'TERMINATED' : 'STORED'
         newRecord.palletId = palletId
 
         const result = await inventoryRepo.save({
@@ -80,6 +80,10 @@ export const updateMultipleInventory = {
       for (let i = 0; i < _updateRecords.length; i++) {
         const newRecord = _updateRecords[i]
         let inventory = await inventoryRepo.findOne(newRecord.id)
+
+        if (inventory.qty < 1) {
+          newRecord.status = 'TERMINATED'
+        }
 
         if (newRecord.location && newRecord.location.id) {
           var location = await getRepository(Location).findOne({
