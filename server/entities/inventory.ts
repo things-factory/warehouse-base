@@ -34,6 +34,11 @@ export class Inventory {
   })
   batchId: string
 
+  @Column({
+    nullable: true
+  })
+  refOrderId: string
+
   @ManyToOne(type => Product)
   product: Product
 
