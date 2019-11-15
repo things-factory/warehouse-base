@@ -14,9 +14,20 @@ export const inventoriesResolver = {
     }
 
     const convertedParams = convertListParams(params)
-    const [items, total] = await getRepository(Inventory).findAndCount({
+    let [items, total] = await getRepository(Inventory).findAndCount({
       ...convertedParams,
       relations: ['domain', 'bizplace', 'product', 'warehouse', 'location', 'creator', 'updater']
+    })
+
+    items = items.map((item: Inventory) => {
+      const remainQty: number = item.qty && item.lockedQty ? item.qty - item.lockedQty : item.qty || 0
+      const remainWeight: number = item.weight && item.lockedWeight ? item.weight - item.lockedWeight : item.weight || 0
+
+      return {
+        ...item,
+        remainQty,
+        remainWeight
+      }
     })
 
     return { items, total }
