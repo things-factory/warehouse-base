@@ -7,7 +7,6 @@ export const DockPatch = gql`
     description: String
     type: String
     status: String
-    warehouse: ObjectRef
     cuFlag: String
   }
 `

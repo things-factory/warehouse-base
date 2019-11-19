@@ -8,7 +8,6 @@ export const Dock = gql`
     description: String
     type: String
     status: String
-    warehouse: Warehouse
     startedAt: String
     endedAt: String
     updater: User

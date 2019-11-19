@@ -1,6 +1,5 @@
 import { User } from '@things-factory/auth-base'
 import { Domain } from '@things-factory/shell'
-import { Warehouse } from './warehouse'
 import { Column, CreateDateColumn, Entity, Index, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm'
 
 @Entity()
@@ -25,9 +24,6 @@ export class Dock {
 
   @Column()
   type: string
-
-  @ManyToOne(type => Warehouse)
-  warehouse: Warehouse
 
   @Column({
     nullable: true

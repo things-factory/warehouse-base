@@ -5,7 +5,6 @@ export const NewDock = gql`
     name: String
     type: String
     status: String
-    warehouse: ObjectRef
     description: String
   }
 `

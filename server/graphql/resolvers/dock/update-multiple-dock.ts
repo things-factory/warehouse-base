@@ -7,15 +7,10 @@ export const updateMultipleDock = {
     const _createRecords = patches.filter((patch: any) => patch.cuFlag.toUpperCase() === '+')
     const _updateRecords = patches.filter((patch: any) => patch.cuFlag.toUpperCase() === 'M')
     const dockRepo = getRepository(Dock)
-    const warehouseRepo = getRepository(Warehouse)
 
     if (_createRecords.length > 0) {
       for (let i = 0; i < _createRecords.length; i++) {
         const newRecord = _createRecords[i]
-
-        if (newRecord.warehouse && newRecord.warehouse.id) {
-          newRecord.warehouse = await warehouseRepo.findOne(newRecord.warehouse.id)
-        }
 
         const result = await dockRepo.save({
           domain: context.state.domain,
@@ -32,10 +27,6 @@ export const updateMultipleDock = {
       for (let i = 0; i < _updateRecords.length; i++) {
         const newRecord = _updateRecords[i]
         const location = await dockRepo.findOne(newRecord.id)
-
-        if (newRecord.warehouse && newRecord.warehouse.id) {
-          newRecord.warehouse = await warehouseRepo.findOne(newRecord.warehouse.id)
-        }
 
         const result = await dockRepo.save({
           ...location,

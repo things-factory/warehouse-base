@@ -7,7 +7,7 @@ export const docksResolver = {
     const convertedParams = convertListParams(params)
     const [items, total] = await getRepository(Dock).findAndCount({
       ...convertedParams,
-      relations: ['domain', 'warehouse', 'creator', 'updater']
+      relations: ['domain', 'creator', 'updater']
     })
     return { items, total }
   }

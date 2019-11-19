@@ -5,7 +5,7 @@ export const dockResolver = {
   async dock(_: any, { name }, context: any) {
     return await getRepository(Dock).findOne({
       where: { domain: context.state.domain, name },
-      relations: ['domain', 'warehouse', 'creator', 'updater']
+      relations: ['domain', 'creator', 'updater']
     })
   }
 }
