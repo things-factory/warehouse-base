@@ -10,7 +10,7 @@ export const Mutation = `
   ): Movement @priviledge(category: "movement", priviledge: "mutation")
 
   updateMovement (
-    name: String!
+    id: String!
     patch: MovementPatch!
   ): Movement @priviledge(category: "movement", priviledge: "mutation")
 

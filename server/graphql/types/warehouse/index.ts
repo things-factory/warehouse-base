@@ -10,7 +10,7 @@ export const Mutation = `
   ): Warehouse @priviledge(category: "warehouse", priviledge: "mutation")
 
   updateWarehouse (
-    name: String!
+    id: String!
     patch: WarehousePatch!
   ): Warehouse @priviledge(category: "warehouse", priviledge: "mutation")
 

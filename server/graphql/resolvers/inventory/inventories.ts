@@ -1,6 +1,6 @@
-import { Bizplace } from '@things-factory/biz-base'
+import { getPermittedBizplaceIds } from '@things-factory/biz-base'
 import { convertListParams, ListParam } from '@things-factory/shell'
-import { getRepository, In } from 'typeorm'
+import { getRepository } from 'typeorm'
 import { Inventory } from '../../../entities'
 
 export const inventoriesResolver = {
@@ -9,7 +9,7 @@ export const inventoriesResolver = {
       params.filters.push({
         name: 'bizplace',
         operator: 'in',
-        value: context.state.bizplaces.map((bizplace: Bizplace) => bizplace.id)
+        value: await getPermittedBizplaceIds(context.state.domain, context.state.user)
       })
     }
 

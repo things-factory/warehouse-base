@@ -6,7 +6,6 @@ export const createMovement = {
     return await getRepository(Movement).save({
       ...movement,
       domain: context.state.domain,
-      bizplace: context.state.bizplaces[0],
       creator: context.state.user,
       updater: context.state.user
     })
