@@ -1,9 +1,10 @@
-import { Bizplace } from '@things-factory/biz-base'
+import { Bizplace, getMyBizplace } from '@things-factory/biz-base'
 import { getRepository } from 'typeorm'
 import { Warehouse } from '../../../entities'
 
 export const updateMultipleWarehouse = {
   async updateMultipleWarehouse(_: any, { patches }, context: any) {
+    const myBizplace: Bizplace = await getMyBizplace(context.state.user)
     let results = []
     const _createRecords = patches.filter((patch: any) => patch.cuFlag.toUpperCase() === '+')
     const _updateRecords = patches.filter((patch: any) => patch.cuFlag.toUpperCase() === 'M')
@@ -17,12 +18,12 @@ export const updateMultipleWarehouse = {
         if (newRecord.bizplace && newRecord.bizplace.id) {
           newRecord.bizplace = await bizplaceRepo.findOne(newRecord.bizplace.id)
         } else {
-          newRecord.bizplace = context.state.mainBizplace
+          newRecord.bizplace = myBizplace
         }
 
         const result = await warehouseRepo.save({
           domain: context.state.domain,
-          bizplace: context.state.mainBizplace,
+          bizplace: myBizplace,
           creator: context.state.user,
           updater: context.state.user,
           ...newRecord
