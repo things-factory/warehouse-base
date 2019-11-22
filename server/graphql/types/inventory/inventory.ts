@@ -15,8 +15,10 @@ export const Inventory = gql`
     zone: String
     packingType: String
     qty: Int
+    remainQty: Int
     lastSeq: Int
     weight: Float
+    remainWeight: Float
     unit: String
     status: String
     description: String

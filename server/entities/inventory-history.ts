@@ -22,6 +22,11 @@ export class InventoryHistory {
   @ManyToOne(type => Bizplace)
   bizplace: Bizplace
 
+  @Column({
+    nullable: true
+  })
+  refOrderId: string
+
   @Column()
   name: string
 

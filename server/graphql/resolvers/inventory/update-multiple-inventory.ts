@@ -1,5 +1,6 @@
 import { getRepository, MoreThan } from 'typeorm'
 import { Inventory, Location, InventoryHistory } from '../../../entities'
+import { InventoryNoGenerator } from '../../../utils'
 import { Bizplace } from '@things-factory/biz-base'
 import { Product } from '@things-factory/product-base'
 
@@ -51,7 +52,7 @@ export const updateMultipleInventory = {
           ('0000' + (total + 1).toString()).substr(('0000' + (total + 1).toString()).length - 4)
 
         newRecord.name = palletId
-        newRecord.status = 'OCCUPIED'
+        newRecord.status = newRecord.qty < 1 ? 'TERMINATED' : 'STORED'
         newRecord.palletId = palletId
 
         const result = await inventoryRepo.save({
@@ -62,14 +63,15 @@ export const updateMultipleInventory = {
         })
 
         await getRepository(InventoryHistory).save({
+          ...newRecord,
           domain: context.state.domain,
           creator: context.state.user,
           updater: context.state.user,
+          name: InventoryNoGenerator.inventoryHistoryName(),
           transactionType: 'ADJUSTMENT',
           productId: newRecord.product.id,
           warehouseId: newRecord.warehouse.id,
-          locationId: newRecord.location.id,
-          ...newRecord
+          locationId: newRecord.location.id
         })
 
         results.push({ ...result, cuFlag: '+' })
@@ -79,7 +81,14 @@ export const updateMultipleInventory = {
     if (_updateRecords.length > 0) {
       for (let i = 0; i < _updateRecords.length; i++) {
         const newRecord = _updateRecords[i]
-        let inventory = await inventoryRepo.findOne(newRecord.id)
+        let inventory = await inventoryRepo.findOne({
+          where: { id: newRecord.id },
+          relations: ['warehouse', 'location', 'product']
+        })
+
+        if (newRecord.qty && newRecord.qty < 1) {
+          newRecord.status = 'TERMINATED'
+        }
 
         if (newRecord.location && newRecord.location.id) {
           var location = await getRepository(Location).findOne({
@@ -104,6 +113,22 @@ export const updateMultipleInventory = {
           ...newRecord,
           updater: context.state.user
         })
+
+        let inventoryHistory = {
+          ...inventory,
+          ...newRecord,
+          domain: context.state.domain,
+          creator: context.state.user,
+          updater: context.state.user,
+          name: InventoryNoGenerator.inventoryHistoryName(),
+          transactionType: 'ADJUSTMENT',
+          productId: newRecord.product ? newRecord.product.id : inventory.product.id,
+          warehouseId: newRecord.warehouse ? newRecord.warehouse.id : inventory.warehouse.id,
+          locationId: newRecord.location ? newRecord.location.id : inventory.location.id
+        }
+
+        delete inventoryHistory.id
+        await getRepository(InventoryHistory).save(inventoryHistory)
 
         results.push({ ...result, cuFlag: 'M' })
       }

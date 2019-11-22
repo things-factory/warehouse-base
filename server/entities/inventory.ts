@@ -34,6 +34,11 @@ export class Inventory {
   })
   batchId: string
 
+  @Column({
+    nullable: true
+  })
+  refOrderId: string
+
   @ManyToOne(type => Product)
   product: Product
 
@@ -63,8 +68,18 @@ export class Inventory {
   })
   weight: number
 
+  @Column('float', {
+    nullable: true
+  })
+  lockedWeight: number
+
   @Column('float')
   qty: number
+
+  @Column('float', {
+    nullable: true
+  })
+  lockedQty: number
 
   @Column({ default: 0 })
   lastSeq: number
