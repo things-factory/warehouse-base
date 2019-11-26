@@ -4,6 +4,7 @@ import * as InventoryHistory from './inventory-history'
 import * as Location from './location'
 import * as Movement from './movement'
 import * as Warehouse from './warehouse'
+import * as Pallet from './pallet'
 
 export const queries = [
   Location.Query,
@@ -11,7 +12,8 @@ export const queries = [
   InventoryHistory.Query,
   Warehouse.Query,
   Movement.Query,
-  Container.Query
+  Container.Query,
+  Pallet.Query
 ]
 
 export const mutations = [
@@ -20,5 +22,6 @@ export const mutations = [
   InventoryHistory.Mutation,
   Warehouse.Mutation,
   Movement.Mutation,
-  Container.Mutation
+  Container.Mutation,
+  Pallet.Mutation
 ]
