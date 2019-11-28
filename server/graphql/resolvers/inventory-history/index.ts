@@ -6,11 +6,13 @@ import { inventoryHistoryResolver } from './inventory-history'
 import { updateInventoryHistory } from './update-inventory-history'
 import { updateMultipleInventoryHistory } from './update-multiple-inventory-history'
 import { bizplaceInventoryHistories } from './bizplace-inventory-histories'
+import { inventoryHistoryReport } from './inventory-history-report'
 
 export const Query = {
   ...inventoryHistoriesResolver,
   ...inventoryHistoryResolver,
-  ...bizplaceInventoryHistories
+  ...bizplaceInventoryHistories,
+  ...inventoryHistoryReport
 }
 
 export const Mutation = {
