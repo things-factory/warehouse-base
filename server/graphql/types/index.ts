@@ -1,11 +1,12 @@
 import { Filter, ObjectRef, Pagination, Sorting } from '@things-factory/shell'
 import * as Container from './container'
+import * as Dock from './dock'
 import * as Inventory from './inventory'
 import * as InventoryHistory from './inventory-history'
 import * as Location from './location'
 import * as Movement from './movement'
+import * as Pallet from './pallet'
 import * as Warehouse from './warehouse'
-import * as Dock from './dock'
 
 export const queries = [
   Location.Query,
@@ -14,7 +15,8 @@ export const queries = [
   Warehouse.Query,
   Movement.Query,
   Container.Query,
-  Dock.Query
+  Dock.Query,
+  Pallet.Query
 ]
 
 export const mutations = [
@@ -24,7 +26,8 @@ export const mutations = [
   Warehouse.Mutation,
   Movement.Mutation,
   Container.Mutation,
-  Dock.Mutation
+  Dock.Mutation,
+  Pallet.Mutation
 ]
 
 export const types = [
@@ -38,5 +41,6 @@ export const types = [
   ...Warehouse.Types,
   ...Movement.Types,
   ...Container.Types,
-  ...Dock.Types
+  ...Dock.Types,
+  ...Pallet.Types
 ]

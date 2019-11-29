@@ -19,16 +19,19 @@ export const inventoriesResolver = {
       relations: ['domain', 'bizplace', 'product', 'warehouse', 'location', 'creator', 'updater']
     })
 
-    items = items.map((item: Inventory) => {
-      const remainQty: number = item.qty && item.lockedQty ? item.qty - item.lockedQty : item.qty || 0
-      const remainWeight: number = item.weight && item.lockedWeight ? item.weight - item.lockedWeight : item.weight || 0
+    items = items
+      .map((item: Inventory) => {
+        const remainQty: number = item.qty && item.lockedQty ? item.qty - item.lockedQty : item.qty || 0
+        const remainWeight: number =
+          item.weight && item.lockedWeight ? item.weight - item.lockedWeight : item.weight || 0
 
-      return {
-        ...item,
-        remainQty,
-        remainWeight
-      }
-    })
+        return {
+          ...item,
+          remainQty,
+          remainWeight
+        }
+      })
+      .filter((item: any) => item.remainQty > 0 || item.remainWeight > 0)
 
     return { items, total }
   }
