@@ -31,7 +31,7 @@ export const inventoriesResolver = {
           remainWeight
         }
       })
-      .filter((item: any) => item.remainQty <= 0 && item.remainWeight <= 0)
+      .filter((item: any) => item.remainQty > 0 || item.remainWeight > 0)
 
     return { items, total }
   }
