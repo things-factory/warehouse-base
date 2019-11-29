@@ -10,9 +10,9 @@ export const inventoryHistoryReport = {
 
     const result = await getRepository(InventoryHistory).query(`
         SELECT CASE WHEN status = 'UNLOADED' THEN 'IN'
-        WHEN status = 'TERMINATED' THEN 'OUT' ELSE status END AS transaction_flow,
+        WHEN status = 'PICKED' THEN 'OUT' ELSE status END AS transaction_flow,
         *
-        FROM inventory_histories WHERE status IN ('UNLOADED', 'PICKING')        
+        FROM inventory_histories WHERE status IN ('UNLOADED', 'PICKED')        
         AND domain_id = '${context.state.domain.id}'
     `)
     // const [items, total] = await getRepository(InventoryHistory).findAndCount({
@@ -21,12 +21,10 @@ export const inventoryHistoryReport = {
     // })
     // return { items, total }
 
-
-//     select case when status = 'UNLOADED' then 'IN'
-// when status = 'TERMINATED' then 'OUT' else status end as transaction_flow,
-// *
-// from inventory_histories where status in ('UNLOADED', 'PICKING')
-
+    //     select case when status = 'UNLOADED' then 'IN'
+    // when status = 'TERMINATED' then 'OUT' else status end as transaction_flow,
+    // *
+    // from inventory_histories where status in ('UNLOADED', 'PICKING')
 
     // const result = await getRepository(InventoryHistory).findAndCount({
     //   ...convertedParams,
@@ -36,28 +34,36 @@ export const inventoryHistoryReport = {
     let items = result as any
 
     items = await Promise.all(
-      items.map(async (item) => {
-        let product = await getRepository(Product).findOne({
+      items.map(async item => {
+        let bizplace = await getRepository(Bizplace).findOne({
           domain: context.state.domain,
-          bizplace: item.bizplace ? item.bizplace.id : null,
-          id: item.productId
+          id: item.bizplace_id ? item.bizplace_id : ''
         })
+        let product: Product = await getRepository(Product).findOne({
+          domain: context.state.domain,
+          bizplace: item.bizplace_id ? item.bizplace_id : '',
+          id: item.product_id
+        })
+
+        if (product) product.name = product.name + ' ( ' + product.description + ' )'
+
         return {
           seq: item.seq,
-          palletId: item.palletId,
-          batchId: item.batchId,
-          bizplace: item.bizplace,
-          packingType: item.packingType,
+          palletId: item.pallet_id,
+          batchId: item.batch_id,
+          bizplace: bizplace,
+          packingType: item.packing_type,
           product: product,
           qty: item.qty,
           status: item.status,
-          transactionType: item.transactionType,
+          transactionType: item.transaction_type,
           zone: item.zone,
-          createdAt: item.createdAt
+          transactionFlow: item.transaction_flow,
+          createdAt: item.created_at
         } as any
       })
     )
 
-    return items 
+    return items
   }
 }
