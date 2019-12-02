@@ -5,7 +5,7 @@ import { updateWarehouse } from './update-warehouse'
 
 export const updateMultipleWarehouse = {
   async updateMultipleWarehouse(_: any, { patches }, context: any): Promise<any> {
-    getManager().transaction(async (trxMgr: EntityManager) => {
+    return await getManager().transaction(async (trxMgr: EntityManager) => {
       let results = []
       const _createRecords = patches.filter((patch: any) => patch.cuFlag === '+')
       const _updateRecords = patches.filter((patch: any) => patch.cuFlag.toUpperCase() === 'M')
