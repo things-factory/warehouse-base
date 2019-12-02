@@ -9,7 +9,7 @@ export const Mutation = `
   ): Location @priviledge(category: "warehouse", priviledge: "mutation")
 
   updateLocation (
-    name: String!
+    id: String!
     patch: LocationPatch!
   ): Location @priviledge(category: "warehouse", priviledge: "mutation")
 
@@ -18,21 +18,21 @@ export const Mutation = `
   ): [Location] @priviledge(category: "warehouse", priviledge: "mutation")
 
   deleteLocation (
-    name: String!
+    id: String!
   ): Boolean @priviledge(category: "warehouse", priviledge: "mutation")
 
   deleteLocations (
-    names: [String]!
+    ids: [String]!
   ): Boolean @priviledge(category: "warehouse", priviledge: "mutation")
 
   deleteAllLocations (
-    name: String!
+    warehouseId: String!
   ): Boolean @priviledge(category: "warehouse", priviledge: "mutation")
 `
 
 export const Query = `
   locations(filters: [Filter], pagination: Pagination, sortings: [Sorting]): LocationList @priviledge(category: "warehouse", priviledge: "query")
-  location(name: String!): Location @priviledge(category: "warehouse", priviledge: "query")
+  location(id: String!): Location @priviledge(category: "warehouse", priviledge: "query")
 `
 
 export const Types = [Location, NewLocation, LocationPatch, LocationList]

@@ -1,17 +1,24 @@
-import { getRepository } from 'typeorm'
+import { User } from '@things-factory/auth-base'
+import { Domain } from '@things-factory/shell'
+import { EntityManager, getRepository, Repository } from 'typeorm'
 import { Location, Warehouse } from '../../../entities'
+import { createWarehouse } from '../warehouse'
 
-export const createLocation = {
+export const createLocationResolver = {
   async createLocation(_: any, { location }, context: any) {
-    if (location.warehouse && location.warehouse.id) {
-      location.warehouse = await getRepository(Warehouse).findOne(location.warehouse.id)
-    }
-
-    return await getRepository(Location).save({
-      ...location,
-      domain: context.state.domain,
-      creator: context.state.user,
-      updater: context.state.user
-    })
+    return await createWarehouse(location, context.state.domain, context.state.user)
   }
+}
+
+export async function createLocation(location: Location, domain: Domain, user: User, trxMgr?: EntityManager) {
+  const locationRepository: Repository<Location> = trxMgr ? trxMgr.getRepository(Location) : getRepository(Location)
+  const warehouseRepository: Repository<Warehouse> = trxMgr ? trxMgr.getRepository(Warehouse) : getRepository(Warehouse)
+
+  return await locationRepository.save({
+    ...location,
+    warehouse: await warehouseRepository.findOne(location.warehouse.id),
+    domain,
+    creator: user,
+    updater: user
+  })
 }

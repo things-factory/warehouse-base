@@ -2,9 +2,8 @@ import { getRepository } from 'typeorm'
 import { Location } from '../../../entities'
 
 export const locationResolver = {
-  async location(_: any, { name }, context: any) {
-    return await getRepository(Location).findOne({
-      where: { domain: context.state.domain, name },
+  async location(_: any, { id }, _context: any) {
+    return await getRepository(Location).findOne(id, {
       relations: ['domain', 'warehouse', 'creator', 'updater']
     })
   }
