@@ -11,7 +11,7 @@ export const createWarehouseResolver = {
 
 export async function createWarehouse(warehouse: Warehouse, domain: Domain, user: User, trxMgr?: EntityManager) {
   const repository: Repository<Warehouse> = trxMgr ? trxMgr.getRepository(Warehouse) : getRepository(Warehouse)
-  return repository.save({
+  return await repository.save({
     ...warehouse,
     domain,
     creator: user,

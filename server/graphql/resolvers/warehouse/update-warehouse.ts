@@ -12,7 +12,7 @@ export async function updateWarehouse(id: string, patch: Warehouse, user: User, 
   const repository: Repository<Warehouse> = trxMgr ? trxMgr.getRepository(Warehouse) : getRepository(Warehouse)
   const product = await repository.findOne(id)
 
-  return repository.save({
+  return await repository.save({
     ...product,
     ...patch,
     updater: user
