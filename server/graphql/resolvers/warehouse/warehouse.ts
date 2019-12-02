@@ -10,7 +10,7 @@ export const warehouseResolver = {
         name,
         bizplace: In(await getPermittedBizplaceIds(context.state.domain, context.state.user))
       },
-      relations: ['domain', 'bizplace', 'locations', 'creator', 'updater']
+      relations: ['domain', 'locations', 'creator', 'updater']
     })
   }
 }
