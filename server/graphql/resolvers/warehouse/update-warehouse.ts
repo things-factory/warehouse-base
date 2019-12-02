@@ -1,21 +1,20 @@
-import { getPermittedBizplaceIds } from '@things-factory/biz-base'
-import { getRepository, In } from 'typeorm'
+import { User } from '@things-factory/auth-base'
+import { EntityManager, getRepository, Repository } from 'typeorm'
 import { Warehouse } from '../../../entities'
 
-export const updateWarehouse = {
+export const updateWarehouseResolver = {
   async updateWarehouse(_: any, { id, patch }, context: any) {
-    const warehouse = await getRepository(Warehouse).findOne({
-      where: {
-        domain: context.state.domain,
-        id,
-        bizplace: In(await getPermittedBizplaceIds(context.state.domain, context.state.user))
-      }
-    })
-
-    return await getRepository(Warehouse).save({
-      ...warehouse,
-      ...patch,
-      updater: context.state.user
-    })
+    return await updateWarehouse(id, patch, context.state.user)
   }
+}
+
+export async function updateWarehouse(id: string, patch: Warehouse, user: User, trxMgr?: EntityManager) {
+  const repository: Repository<Warehouse> = trxMgr ? trxMgr.getRepository(Warehouse) : getRepository(Warehouse)
+  const product = await repository.findOne(id)
+
+  return repository.save({
+    ...product,
+    ...patch,
+    updater: user
+  })
 }

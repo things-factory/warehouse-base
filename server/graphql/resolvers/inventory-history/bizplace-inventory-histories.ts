@@ -31,7 +31,6 @@ export const bizplaceInventoryHistories = {
     if (inventoryHistory && inventoryHistory.warehouseName) {
       const _warehouses: Warehouse[] = await getRepository(Warehouse).find({
         domain: context.state.domain,
-        bizplace: ownerBizplace,
         name: Raw(alias => `LOWER(${alias}) LIKE '${inventoryHistory.warehouseName.toLowerCase()}'`)
       })
       where['warehouseId'] = In(_warehouses.map((warehouse: Warehouse) => warehouse.id))

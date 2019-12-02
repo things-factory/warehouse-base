@@ -19,11 +19,11 @@ export const Mutation = `
   ): [Warehouse] @priviledge(category: "warehouse", priviledge: "mutation")
 
   deleteWarehouse (
-    name: String!
+    id: String!
   ): Boolean @priviledge(category: "warehouse", priviledge: "mutation")
 
   deleteWarehouses (
-    names: [String]!
+    ids: [String]!
   ): Boolean @priviledge(category: "warehouse", priviledge: "mutation")
 `
 

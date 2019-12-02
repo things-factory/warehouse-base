@@ -1,5 +1,4 @@
 import { User } from '@things-factory/auth-base'
-import { Bizplace } from '@things-factory/biz-base'
 import { Domain } from '@things-factory/shell'
 import {
   Column,
@@ -22,15 +21,13 @@ export class Warehouse {
   @ManyToOne(type => Domain)
   domain: Domain
 
-  @ManyToOne(type => Bizplace, {
-    nullable: false
-  })
-  bizplace: Bizplace
-
   @Column()
   name: string
 
-  @OneToMany(type => Location, location => location.warehouse)
+  @OneToMany(
+    type => Location,
+    location => location.warehouse
+  )
   locations: Location[]
 
   @Column()

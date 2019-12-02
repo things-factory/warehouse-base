@@ -5,7 +5,6 @@ export const WarehousePatch = gql`
     id: String
     name: String
     type: String
-    bizplace: ObjectRef
     locations: [ObjectRef]
     description: String
     cuFlag: String

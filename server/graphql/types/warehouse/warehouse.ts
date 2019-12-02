@@ -4,7 +4,6 @@ export const Warehouse = gql`
   type Warehouse {
     id: String
     domain: Domain
-    bizplace: Bizplace
     type: String
     name: String
     locations: [Location]
