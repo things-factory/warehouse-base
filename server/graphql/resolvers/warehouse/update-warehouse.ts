@@ -10,10 +10,10 @@ export const updateWarehouseResolver = {
 
 export async function updateWarehouse(id: string, patch: Warehouse, user: User, trxMgr?: EntityManager) {
   const repository: Repository<Warehouse> = trxMgr ? trxMgr.getRepository(Warehouse) : getRepository(Warehouse)
-  const product = await repository.findOne(id)
+  const warehouse = await repository.findOne(id)
 
   return await repository.save({
-    ...product,
+    ...warehouse,
     ...patch,
     updater: user
   })
