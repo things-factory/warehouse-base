@@ -1,5 +1,4 @@
-import { getPermittedBizplaceIds } from '@things-factory/biz-base'
-import { getRepository, In } from 'typeorm'
+import { getRepository } from 'typeorm'
 import { Warehouse } from '../../../entities'
 
 export const warehouseResolver = {
@@ -7,8 +6,7 @@ export const warehouseResolver = {
     return await getRepository(Warehouse).findOne({
       where: {
         domain: context.state.domain,
-        name,
-        bizplace: In(await getPermittedBizplaceIds(context.state.domain, context.state.user))
+        name
       },
       relations: ['domain', 'locations', 'creator', 'updater']
     })
