@@ -7,6 +7,16 @@ export const inventoryHistoryReport = {
   async inventoryHistoryReport(_: any, params: ListParam, context: any) {
     try {
       const convertedParams = convertListParams(params)
+      let bizplaceFilter = params.filters.find(data => data.name === 'bizplace')
+      let fromDate = params.filters.find(data => data.name === 'fromDate')
+      let toDate = params.filters.find(data => data.name === 'toDate')
+
+      if (!bizplaceFilter || !fromDate || !toDate) throw 'Invalid input'
+
+      const bizplace: Bizplace = await getRepository(Bizplace).findOne({
+        domain: context.state.domain,
+        id: bizplaceFilter.value
+      })
 
       const result = await getRepository(InventoryHistory).query(`
           SELECT invh.*,
@@ -17,16 +27,16 @@ export const inventoryHistoryReport = {
           LEFT JOIN release_goods rel ON cast(rel.id as VARCHAR) = invh.ref_order_id AND invh.transaction_type = 'PICKING'
           WHERE invh.transaction_type IN ('UNLOADING', 'PICKING')       
           AND invh.domain_id = '${context.state.domain.id}' AND ref_order_id IS NOT NULL
+          AND invh.bizplace_id = '${bizplace.id}'
+          AND invh.created_at BETWEEN '${new Date(fromDate.value).toLocaleDateString()} 00:00:00' 
+          AND '${new Date(toDate.value).toLocaleDateString()} 23:59:59'
+          ORDER BY invh.created_at
       `)
 
       let items = result as any
 
       items = await Promise.all(
         items.map(async item => {
-          let bizplace = await getRepository(Bizplace).findOne({
-            domain: context.state.domain,
-            id: item.bizplace_id ? item.bizplace_id : ''
-          })
           let product: Product = await getRepository(Product).findOne({
             domain: context.state.domain,
             bizplace: item.bizplace_id ? item.bizplace_id : '',
