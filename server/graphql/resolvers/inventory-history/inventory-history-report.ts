@@ -51,7 +51,7 @@ export const inventoryHistoryReport = {
             batchId: item.batch_id,
             bizplace: bizplace,
             packingType: item.packing_type,
-            product: product,
+            product: product ? product : { name: '' },
             qty: item.qty,
             status: item.status,
             orderName: item.order_name,
