@@ -117,6 +117,8 @@ export const updateMultipleInventory = {
         let inventoryHistory = {
           ...inventory,
           ...newRecord,
+          openingQty: inventory.qty,
+          openingWeight: inventory.weight,
           domain: context.state.domain,
           creator: context.state.user,
           updater: context.state.user,
