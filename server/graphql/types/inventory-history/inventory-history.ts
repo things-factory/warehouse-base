@@ -16,14 +16,18 @@ export const InventoryHistory = gql`
     warehouseId: String
     warehouse: Warehouse
     weight: Float
+    openingWeight: Float
     zone: String
     packingType: String
-    qty: Int
+    qty: Float
+    openingQty: Float
     unit: String
     status: String
     transactionType: String
     description: String
     transactionFlow: String
+    orderName: String
+    orderRefNo: String
     creator: User
     updater: User
     createdAt: String

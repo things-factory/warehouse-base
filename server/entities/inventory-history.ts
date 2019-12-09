@@ -63,10 +63,16 @@ export class InventoryHistory {
   @Column('float')
   qty: number
 
+  @Column('float', { default: 0, nullable: true })
+  openingQty: number
+
   @Column('float', {
     nullable: true
   })
   weight: number
+
+  @Column('float', { default: 0, nullable: true })
+  openingWeight: number
 
   @Column({
     nullable: true
