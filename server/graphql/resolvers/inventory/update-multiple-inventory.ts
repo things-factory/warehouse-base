@@ -86,8 +86,9 @@ export const updateMultipleInventory = {
           relations: ['warehouse', 'location', 'product']
         })
 
-        if (newRecord.qty && newRecord.qty < 1) {
+        if (typeof newRecord.qty != 'undefined' && newRecord.qty < 1) {
           newRecord.status = 'TERMINATED'
+          newRecord.weight = 0
         }
 
         if (newRecord.location && newRecord.location.id) {
