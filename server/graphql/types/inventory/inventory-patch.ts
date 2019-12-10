@@ -16,6 +16,7 @@ export const InventoryPatch = gql`
     warehouse: ObjectRef
     warehouseName: String
     packingType: String
+    otherRef: String
     zone: String
     weight: Float
     unit: String

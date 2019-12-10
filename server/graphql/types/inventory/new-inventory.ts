@@ -10,6 +10,7 @@ export const NewInventory = gql`
     location: ObjectRef
     warehouse: ObjectRef
     packingType: String
+    otherRef: String
     qty: Int
     weight: Float
     unit: String

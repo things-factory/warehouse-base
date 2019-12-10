@@ -19,6 +19,7 @@ export const InventoryHistory = gql`
     openingWeight: Float
     zone: String
     packingType: String
+    otherRef: String
     qty: Float
     openingQty: Float
     unit: String

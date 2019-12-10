@@ -13,6 +13,7 @@ export const InventoryHistoryPatch = gql`
     locationName: String
     warehouseId: String
     warehouseName: String
+    otherRef: String
     zone: String
     packingType: String
     weight: Float

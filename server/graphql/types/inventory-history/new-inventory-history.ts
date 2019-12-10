@@ -9,6 +9,7 @@ export const NewInventoryHistory = gql`
     productId: String
     locationId: String
     warehouseId: String
+    otherRef: String
     zone: String
     packingType: String
     weight: Float

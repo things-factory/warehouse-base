@@ -27,6 +27,11 @@ export class InventoryHistory {
   })
   refOrderId: string
 
+  @Column({
+    nullable: true
+  })
+  otherRef: string
+
   @Column()
   name: string
 
