@@ -46,7 +46,7 @@ export const updateMultipleInventory = {
         let palletId =
           'P' +
           year.toString().substr(year.toString().length - 2) +
-          ('0' + month.toString()).substr(('0' + month.toString()).toString().length - 2) +
+          ('0' + (month + 1).toString()).substr(('0' + (month + 1).toString()).toString().length - 2) +
           ('0' + date.toString()).substr(('0' + date.toString()).length - 2) +
           '/' +
           ('0000' + (total + 1).toString()).substr(('0000' + (total + 1).toString()).length - 4)
@@ -59,6 +59,7 @@ export const updateMultipleInventory = {
           domain: context.state.domain,
           creator: context.state.user,
           updater: context.state.user,
+          lastSeq: 1,
           ...newRecord
         })
 
@@ -68,6 +69,7 @@ export const updateMultipleInventory = {
           creator: context.state.user,
           updater: context.state.user,
           name: InventoryNoGenerator.inventoryHistoryName(),
+          seq: 1,
           transactionType: 'ADJUSTMENT',
           productId: newRecord.product.id,
           warehouseId: newRecord.warehouse.id,
@@ -112,7 +114,8 @@ export const updateMultipleInventory = {
         const result = await inventoryRepo.save({
           ...inventory,
           ...newRecord,
-          updater: context.state.user
+          updater: context.state.user,
+          lastSeq: inventory.lastSeq + 1
         })
 
         let inventoryHistory = {
@@ -124,6 +127,7 @@ export const updateMultipleInventory = {
           creator: context.state.user,
           updater: context.state.user,
           name: InventoryNoGenerator.inventoryHistoryName(),
+          seq: inventory.lastSeq + 1,
           transactionType: 'ADJUSTMENT',
           productId: newRecord.product ? newRecord.product.id : inventory.product.id,
           warehouseId: newRecord.warehouse ? newRecord.warehouse.id : inventory.warehouse.id,
