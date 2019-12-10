@@ -19,18 +19,50 @@ export const inventoryHistoryReport = {
       })
 
       const result = await getRepository(InventoryHistory).query(`
-          SELECT invh.*,
-          CASE WHEN invh.transaction_type = 'UNLOADING' THEN arrNo."name" WHEN invh.transaction_type = 'PICKING' THEN rel."name" ELSE NULL END AS order_name,
-          CASE WHEN invh.transaction_type = 'UNLOADING' THEN arrNo.ref_no WHEN invh.transaction_type = 'PICKING' THEN rel.ref_no ELSE NULL END AS ref_no
+        ;WITH invhCte AS
+        (
+          select invh.batch_id, invh.product_id, invh.packing_type, invh.bizplace_id, invh.domain_id,
+          sum(opening_qty) as qty,
+          sum(opening_weight) as weight,
+          0 as opening_qty,
+          0 as opening_weight,
+          'Opening Balance' AS order_name,
+          '-' AS ref_no,
+          0 as rn,
+          to_timestamp('${new Date(
+            fromDate.value
+          ).toLocaleDateString()} 00:00:00', 'MM/DD/YYYY HH24:MI:SS') as created_at
+          from inventory_histories invh
+          LEFT JOIN arrival_notices arrNo on cast(arrNo.id as VARCHAR) = invh.ref_order_id and invh.transaction_type = 'UNLOADING'
+          LEFT JOIN release_goods rel on cast(rel.id as VARCHAR) = invh.ref_order_id and invh.transaction_type = 'PICKING'
+          where    
+          invh.transaction_type in ('ADJUSTMENT', 'UNLOADING', 'PICKING')    
+          and invh.domain_id = '${context.state.domain.id}'
+          and invh.bizplace_id = '${bizplace.id}'
+          and invh.created_at between '${new Date(fromDate.value).toLocaleDateString()} 00:00:00' 
+          and '${new Date(toDate.value).toLocaleDateString()} 23:59:59'
+          group by invh.batch_id, invh.product_id, invh.packing_type, invh.bizplace_id, invh.domain_id
+        )
+        select * from (
+          SELECT *
+          FROM invhCte
+          union all
+          select invh.batch_id, invh.product_id, invh.packing_type, invh.bizplace_id, invh.domain_id,
+          invh.qty, invh.opening_qty,
+          invh.weight, invh.opening_weight,
+          CASE WHEN invh.transaction_type = 'UNLOADING' THEN arrNo."name" WHEN invh.transaction_type = 'PICKING' THEN rel."name" ELSE 'ADJUSTMENT' END AS order_name,
+          CASE WHEN invh.transaction_type = 'UNLOADING' THEN arrNo.ref_no WHEN invh.transaction_type = 'PICKING' THEN rel.ref_no ELSE 'ADJUSTMENT' END AS ref_no,
+          1 as rn, invh.created_at
           FROM inventory_histories invh
           LEFT JOIN arrival_notices arrNo ON cast(arrNo.id as VARCHAR) = invh.ref_order_id AND invh.transaction_type = 'UNLOADING'
           LEFT JOIN release_goods rel ON cast(rel.id as VARCHAR) = invh.ref_order_id AND invh.transaction_type = 'PICKING'
-          WHERE invh.transaction_type IN ('UNLOADING', 'PICKING')       
-          AND invh.domain_id = '${context.state.domain.id}' AND ref_order_id IS NOT NULL
+          WHERE
+          invh.transaction_type IN ('ADJUSTMENT', 'UNLOADING', 'PICKING')
+          AND invh.domain_id = '${context.state.domain.id}'
           AND invh.bizplace_id = '${bizplace.id}'
-          AND invh.created_at BETWEEN '${new Date(fromDate.value).toLocaleDateString()} 00:00:00' 
-          AND '${new Date(toDate.value).toLocaleDateString()} 23:59:59'
-          ORDER BY invh.created_at
+          AND invh.created_at BETWEEN '${new Date(fromDate.value).toLocaleDateString()} 00:00:00'
+          AND '${new Date(toDate.value).toLocaleDateString()} 23:59:59'          
+        ) as src order by product_id asc, batch_id asc, rn asc, created_at asc
       `)
 
       let items = result as any
@@ -46,18 +78,14 @@ export const inventoryHistoryReport = {
           if (product) product.name = product.name + ' ( ' + product.description + ' )'
 
           return {
-            seq: item.seq,
-            palletId: item.pallet_id,
             batchId: item.batch_id,
             bizplace: bizplace,
             packingType: item.packing_type,
             product: product ? product : { name: '' },
             qty: item.qty,
-            status: item.status,
+            weight: item.weight,
             orderName: item.order_name,
             orderRefNo: item.ref_no,
-            transactionType: item.transaction_type,
-            zone: item.zone,
             createdAt: item.created_at
           } as any
         })
