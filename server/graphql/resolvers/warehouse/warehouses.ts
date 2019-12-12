@@ -4,7 +4,7 @@ import { Warehouse } from '../../../entities'
 
 export const warehousesResolver = {
   async warehouses(_: any, params: ListParam, context: any) {
-    const convertedParams = convertListParams(params)
+    const convertedParams = convertListParams(params, context.state.domain.id)
     const [items, total] = await getRepository(Warehouse).findAndCount({
       ...convertedParams,
       relations: ['domain', 'creator', 'updater']
