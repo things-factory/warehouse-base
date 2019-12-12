@@ -22,9 +22,9 @@ export const inventoryHistoryReport = {
         ;WITH invhCte AS
         (
           select invh.batch_id, invh.product_id, invh.packing_type, invh.bizplace_id, invh.domain_id,
-          sum(opening_qty) as qty,
-          sum(opening_weight) as weight,
+          sum(COALESCE(oldinvh.opening_qty,0) + COALESCE(oldinvh.qty,0)) as qty,
           0 as opening_qty,
+          sum(COALESCE(oldinvh.opening_weight,0) + COALESCE(oldinvh.weight,0)) as weight,
           0 as opening_weight,
           'Opening Balance' AS order_name,
           '-' AS ref_no,
@@ -33,13 +33,15 @@ export const inventoryHistoryReport = {
             fromDate.value
           ).toLocaleDateString()} 00:00:00', 'MM/DD/YYYY HH24:MI:SS') as created_at
           from inventory_histories invh
-          LEFT JOIN arrival_notices arrNo on cast(arrNo.id as VARCHAR) = invh.ref_order_id and invh.transaction_type = 'UNLOADING'
-          LEFT JOIN release_goods rel on cast(rel.id as VARCHAR) = invh.ref_order_id and invh.transaction_type = 'PICKING'
+          left join inventory_histories oldinvh on oldinvh.product_id = invh.product_id and oldinvh.batch_id = invh.batch_id and oldinvh.packing_type = invh.packing_type
+          and oldinvh.created_at < '${new Date(fromDate.value).toLocaleDateString()} 00:00:00'
+          left join arrival_notices arrNo on cast(arrNo.id as VARCHAR) = invh.ref_order_id and invh.transaction_type = 'UNLOADING'
+          left join release_goods rel on cast(rel.id as VARCHAR) = invh.ref_order_id and invh.transaction_type = 'PICKING'
           where    
           invh.transaction_type in ('ADJUSTMENT', 'UNLOADING', 'PICKING')    
           and invh.domain_id = '${context.state.domain.id}'
           and invh.bizplace_id = '${bizplace.id}'
-          and invh.created_at between '${new Date(fromDate.value).toLocaleDateString()} 00:00:00' 
+          and invh.created_at BETWEEN '${new Date(fromDate.value).toLocaleDateString()} 00:00:00'
           and '${new Date(toDate.value).toLocaleDateString()} 23:59:59'
           group by invh.batch_id, invh.product_id, invh.packing_type, invh.bizplace_id, invh.domain_id
         )
