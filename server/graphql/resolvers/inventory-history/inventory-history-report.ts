@@ -57,7 +57,8 @@ export const inventoryHistoryReport = {
           1 as rn, invh.created_at
           FROM inventory_histories invh
           LEFT JOIN arrival_notices arrNo ON cast(arrNo.id as VARCHAR) = invh.ref_order_id AND invh.transaction_type = 'UNLOADING'
-          LEFT JOIN release_goods rel ON cast(rel.id as VARCHAR) = invh.ref_order_id AND invh.transaction_type = 'PICKING'
+          LEFT JOIN worksheets wks ON cast(wks.id as VARCHAR) = invh.ref_order_id AND invh.transaction_type = 'PICKING'
+          LEFT JOIN release_goods rel ON cast(rel.id as VARCHAR) = cast(wks.release_good_id as VARCHAR) AND invh.transaction_type = 'PICKING'
           WHERE
           invh.transaction_type IN ('ADJUSTMENT', 'UNLOADING', 'PICKING')
           AND invh.domain_id = '${context.state.domain.id}'
