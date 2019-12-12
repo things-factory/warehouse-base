@@ -35,10 +35,10 @@ export const inventoryHistoryReport = {
           from inventory_histories invh
           left join inventory_histories oldinvh on oldinvh.product_id = invh.product_id and oldinvh.batch_id = invh.batch_id and oldinvh.packing_type = invh.packing_type
           and oldinvh.created_at < '${new Date(fromDate.value).toLocaleDateString()} 00:00:00'
-          left join arrival_notices arrNo on cast(arrNo.id as VARCHAR) = invh.ref_order_id and invh.transaction_type = 'UNLOADING'
+          left join arrival_notices arrNo on cast(arrNo.id as VARCHAR) = invh.ref_order_id and (invh.transaction_type = 'UNLOADING' OR invh.transaction_type = 'UNDO_UNLOADING')
           left join release_goods rel on cast(rel.id as VARCHAR) = invh.ref_order_id and invh.transaction_type = 'PICKING'
           where    
-          invh.transaction_type in ('ADJUSTMENT', 'UNLOADING', 'PICKING')    
+          invh.transaction_type in ('ADJUSTMENT', 'UNLOADING', 'PICKING', 'UNDO_UNLOADING')
           and invh.domain_id = '${context.state.domain.id}'
           and invh.bizplace_id = '${bizplace.id}'
           and invh.created_at BETWEEN '${new Date(fromDate.value).toLocaleDateString()} 00:00:00'
@@ -52,15 +52,18 @@ export const inventoryHistoryReport = {
           select invh.batch_id, invh.product_id, invh.packing_type, invh.bizplace_id, invh.domain_id,
           invh.qty, invh.opening_qty,
           invh.weight, invh.opening_weight,
-          CASE WHEN invh.transaction_type = 'UNLOADING' THEN arrNo."name" WHEN invh.transaction_type = 'PICKING' THEN rel."name" ELSE 'ADJUSTMENT' END AS order_name,
-          CASE WHEN invh.transaction_type = 'UNLOADING' THEN arrNo.ref_no WHEN invh.transaction_type = 'PICKING' THEN rel.ref_no ELSE 'ADJUSTMENT' END AS ref_no,
+          CASE WHEN invh.transaction_type = 'UNLOADING' THEN arrNo."name" 
+               WHEN invh.transaction_type = 'UNDO_UNLOADING' then concat(arrNo."name", ' (Undo-Unloading)')
+               WHEN invh.transaction_type = 'PICKING' THEN rel."name" ELSE 'ADJUSTMENT' END AS order_name,
+          CASE WHEN invh.transaction_type = 'UNLOADING' THEN arrNo.ref_no 
+               WHEN invh.transaction_type = 'PICKING' THEN rel.ref_no ELSE 'ADJUSTMENT' END AS ref_no,
           1 as rn, invh.created_at
           FROM inventory_histories invh
-          LEFT JOIN arrival_notices arrNo ON cast(arrNo.id as VARCHAR) = invh.ref_order_id AND invh.transaction_type = 'UNLOADING'
+          LEFT JOIN arrival_notices arrNo ON cast(arrNo.id as VARCHAR) = invh.ref_order_id AND (invh.transaction_type = 'UNLOADING' OR invh.transaction_type = 'UNDO_UNLOADING')
           LEFT JOIN worksheets wks ON cast(wks.id as VARCHAR) = invh.ref_order_id AND invh.transaction_type = 'PICKING'
           LEFT JOIN release_goods rel ON cast(rel.id as VARCHAR) = cast(wks.release_good_id as VARCHAR) AND invh.transaction_type = 'PICKING'
           WHERE
-          invh.transaction_type IN ('ADJUSTMENT', 'UNLOADING', 'PICKING')
+          invh.transaction_type IN ('ADJUSTMENT', 'UNLOADING', 'PICKING', 'UNDO_UNLOADING')
           AND invh.domain_id = '${context.state.domain.id}'
           AND invh.bizplace_id = '${bizplace.id}'
           AND invh.created_at BETWEEN '${new Date(fromDate.value).toLocaleDateString()} 00:00:00'
