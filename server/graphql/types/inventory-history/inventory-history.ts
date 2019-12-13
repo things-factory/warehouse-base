@@ -26,8 +26,9 @@ export const InventoryHistory = gql`
     transactionType: String
     description: String
     transactionFlow: String
-    orderName: String
     orderRefNo: String
+    orderNo: String
+    refOrderId: String
     creator: User
     updater: User
     createdAt: String
