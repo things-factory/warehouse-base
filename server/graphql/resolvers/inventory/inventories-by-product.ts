@@ -38,7 +38,7 @@ export const inventoriesByProduct = {
       .addSelect('SUM(Inventory.qty)', 'qty')
       .leftJoin('Product.productRef', 'ProductRef')
       .leftJoin(Inventory, 'Inventory', 'Inventory.product_id = Product.id')
-      .where('Inventory.status = :status', { status: INVENTORY_STATUS.STORED })
+      // .where('Inventory.status = :status', { status: INVENTORY_STATUS.STORED })
       .offset((page - 1) * limit)
       .limit(limit)
       .groupBy('Product.id')
@@ -54,20 +54,22 @@ export const inventoriesByProduct = {
     const total = await queryBuilder.getCount()
 
     return {
-      items: items.map((item: any) => {
-        return {
-          product: {
-            id: item.id,
-            name: item.name,
-            description: item.description,
-            type: item.type,
-            weight: item.weight,
-            unit: item.unit,
-            productRef: { name: item.productRefName, description: item.productRefDesciption }
-          },
-          qty: item.qty
-        }
-      }),
+      items: items
+        .map((item: any) => {
+          return {
+            product: {
+              id: item.id,
+              name: item.name,
+              description: item.description,
+              type: item.type,
+              weight: item.weight,
+              unit: item.unit,
+              productRef: { name: item.productRefName, description: item.productRefDesciption }
+            },
+            qty: item.qty
+          }
+        })
+        .filter(item => item.qty != null),
       total
     }
   }
