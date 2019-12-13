@@ -107,18 +107,13 @@ export const updateMultipleInventory = {
           }
 
           // Condition 3: if user change from bizplace A to B or product A to B
-          const currentBizplace = inventory.bizplace && inventory.bizplace.id
-          const currentProduct = inventory.product && inventory.product.id
-          const newProduct = (newRecord.product && newRecord.product.id) || ''
-          const newBizplace = (newRecord.bizplace && newRecord.bizplace.id) || ''
-
           let invTransferFlag = false
 
-          if (newBizplace) {
+          if (newRecord.bizplace && newRecord.bizplace.id) {
             newRecord.bizplace = await trxMgr.getRepository(Bizplace).findOne(newRecord.bizplace.id)
           }
 
-          if (newProduct) {
+          if (newRecord.product && newRecord.product.id) {
             newRecord.product = await trxMgr.getRepository(Product).findOne(newRecord.product.id)
           }
 
@@ -129,30 +124,32 @@ export const updateMultipleInventory = {
             lastSeq: inventory.lastSeq + 1
           })
 
-          if (currentBizplace != newBizplace || currentProduct != newProduct) {
-            invTransferFlag = true
+          if ((newRecord.product && newRecord.product.id) || (newRecord.bizplace && newRecord.bizplace.id)) {
+            if (inventory.bizplace.id !== newRecord.bizplace.id || inventory.product.id !== newRecord.product.id) {
+              invTransferFlag = true
 
-            let inventoryHistory = {
-              ...inventory,
-              domain: context.state.domain,
-              bizplace: currentBizplace,
-              openingQty: inventory.qty,
-              openingWeight: inventory.weight,
-              qty: -inventory.qty || 0,
-              weight: -inventory.weight || 0,
-              name: InventoryNoGenerator.inventoryHistoryName(),
-              seq: inventory.lastSeq + 1,
-              transactionType: 'ADJUSTMENT',
-              status: INVENTORY_STATUS.TERMINATED,
-              productId: inventory.product.id,
-              warehouseId: inventory.warehouse.id,
-              locationId: inventory.location.id,
-              creator: context.state.user,
-              updater: context.state.user
+              let inventoryHistory = {
+                ...inventory,
+                domain: context.state.domain,
+                bizplace: inventory.bizplace.id,
+                openingQty: inventory.qty,
+                openingWeight: inventory.weight,
+                qty: -inventory.qty || 0,
+                weight: -inventory.weight || 0,
+                name: InventoryNoGenerator.inventoryHistoryName(),
+                seq: inventory.lastSeq + 1,
+                transactionType: 'ADJUSTMENT',
+                status: INVENTORY_STATUS.TERMINATED,
+                productId: inventory.product.id,
+                warehouseId: inventory.warehouse.id,
+                locationId: inventory.location.id,
+                creator: context.state.user,
+                updater: context.state.user
+              }
+
+              delete inventoryHistory.id
+              await trxMgr.getRepository(InventoryHistory).save(inventoryHistory)
             }
-
-            delete inventoryHistory.id
-            await trxMgr.getRepository(InventoryHistory).save(inventoryHistory)
           }
 
           if (invTransferFlag) {
