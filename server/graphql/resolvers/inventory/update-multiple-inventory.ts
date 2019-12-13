@@ -3,7 +3,7 @@ import { Product } from '@things-factory/product-base'
 import { getManager, MoreThan } from 'typeorm'
 import { Inventory, InventoryHistory, Location } from '../../../entities'
 import { InventoryNoGenerator } from '../../../utils'
-import { INVENTORY_STATUS } from 'server/constants'
+import { INVENTORY_STATUS } from '../../../constants/inventory'
 
 export const updateMultipleInventory = {
   async updateMultipleInventory(_: any, { patches }, context: any) {
