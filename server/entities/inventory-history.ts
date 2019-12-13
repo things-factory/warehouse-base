@@ -54,6 +54,11 @@ export class InventoryHistory {
   })
   zone: string
 
+  @Column({
+    nullable: true
+  })
+  orderRefNo: string
+
   @Column()
   packingType: string
 

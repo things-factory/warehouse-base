@@ -70,6 +70,8 @@ export const bizplaceInventoryHistories = {
           palletId: item.palletId,
           batchId: item.batchId,
           bizplace: item.bizplace,
+          orderRefNo: item.orderRefNo,
+          refOrderId: item.refOrderId,
           qty: item.qty,
           status: item.status,
           transactionType: item.transactionType,

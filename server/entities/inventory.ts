@@ -39,6 +39,11 @@ export class Inventory {
   })
   refOrderId: string
 
+  @Column({
+    nullable: true
+  })
+  orderRefNo: string
+
   @ManyToOne(type => Product)
   product: Product
 
