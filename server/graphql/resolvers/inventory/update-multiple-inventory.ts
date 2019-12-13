@@ -1,17 +1,18 @@
-import { getRepository, MoreThan } from 'typeorm'
-import { Inventory, Location, InventoryHistory } from '../../../entities'
-import { InventoryNoGenerator } from '../../../utils'
 import { Bizplace } from '@things-factory/biz-base'
 import { Product } from '@things-factory/product-base'
+import { getManager, MoreThan } from 'typeorm'
+import { Inventory, InventoryHistory, Location } from '../../../entities'
+import { InventoryNoGenerator } from '../../../utils'
+import { INVENTORY_STATUS } from 'server/constants'
 
 export const updateMultipleInventory = {
   async updateMultipleInventory(_: any, { patches }, context: any) {
-    try {
+    return await getManager().transaction(async trxMgr => {
       let results = []
       const _createRecords = patches.filter((patch: any) => !patch.id)
       const _updateRecords = patches.filter((patch: any) => patch.id)
 
-      const inventoryRepo = getRepository(Inventory)
+      const inventoryRepo = trxMgr.getRepository(Inventory)
       if (_createRecords.length > 0) {
         let today = new Date()
         let year = today.getFullYear()
@@ -19,14 +20,14 @@ export const updateMultipleInventory = {
         let date = today.getDate()
 
         for (let i = 0; i < _createRecords.length; i++) {
-          const [items, total] = await getRepository(Inventory).findAndCount({
+          const [items, total] = await trxMgr.getRepository(Inventory).findAndCount({
             createdAt: MoreThan(new Date(year, month, date))
           })
 
           const newRecord = _createRecords[i]
 
           if (newRecord.location && newRecord.location.id) {
-            var location = await getRepository(Location).findOne({
+            var location = await trxMgr.getRepository(Location).findOne({
               where: { id: newRecord.location.id },
               relations: ['warehouse']
             })
@@ -36,11 +37,11 @@ export const updateMultipleInventory = {
           }
 
           if (newRecord.bizplace && newRecord.bizplace.id) {
-            newRecord.bizplace = await getRepository(Bizplace).findOne(newRecord.bizplace.id)
+            newRecord.bizplace = await trxMgr.getRepository(Bizplace).findOne(newRecord.bizplace.id)
           }
 
           if (newRecord.product && newRecord.product.id) {
-            var product = await getRepository(Product).findOne(newRecord.product.id)
+            var product = await trxMgr.getRepository(Product).findOne(newRecord.product.id)
             newRecord.product = product
           }
 
@@ -63,7 +64,7 @@ export const updateMultipleInventory = {
             ...newRecord
           })
 
-          await getRepository(InventoryHistory).save({
+          await trxMgr.getRepository(InventoryHistory).save({
             ...newRecord,
             domain: context.state.domain,
             creator: context.state.user,
@@ -88,13 +89,15 @@ export const updateMultipleInventory = {
             relations: ['warehouse', 'location', 'product', 'bizplace']
           })
 
+          // Condition 1: if new qty is changed to 0, update status to TERMINATED and weight to 0
           if (typeof newRecord.qty != 'undefined' && newRecord.qty < 1) {
             newRecord.status = 'TERMINATED'
             newRecord.weight = 0
           }
 
+          // Condition 2: if user change location, find zone and warehouse data based on location id
           if (newRecord.location && newRecord.location.id) {
-            var location = await getRepository(Location).findOne({
+            var location = await trxMgr.getRepository(Location).findOne({
               where: { id: newRecord.location.id },
               relations: ['warehouse']
             })
@@ -103,12 +106,20 @@ export const updateMultipleInventory = {
             newRecord.warehouse = location.warehouse
           }
 
-          if (newRecord.bizplace && newRecord.bizplace.id) {
-            newRecord.bizplace = await getRepository(Bizplace).findOne(newRecord.bizplace.id)
+          // Condition 3: if user change from bizplace A to B or product A to B
+          const currentBizplace = inventory.bizplace && inventory.bizplace.id
+          const currentProduct = inventory.product && inventory.product.id
+          const newProduct = (newRecord.product && newRecord.product.id) || ''
+          const newBizplace = (newRecord.bizplace && newRecord.bizplace.id) || ''
+
+          let invTransferFlag = false
+
+          if (newBizplace) {
+            newRecord.bizplace = await trxMgr.getRepository(Bizplace).findOne(newRecord.bizplace.id)
           }
 
-          if (newRecord.product && newRecord.product.id) {
-            newRecord.product = await getRepository(Product).findOne(newRecord.product.id)
+          if (newProduct) {
+            newRecord.product = await trxMgr.getRepository(Product).findOne(newRecord.product.id)
           }
 
           const result = await inventoryRepo.save({
@@ -118,16 +129,46 @@ export const updateMultipleInventory = {
             lastSeq: inventory.lastSeq + 1
           })
 
-          newRecord.qty = typeof newRecord.qty != 'undefined' ? newRecord.qty - inventory.qty : inventory.qty
+          if (currentBizplace != newBizplace || currentProduct != newProduct) {
+            invTransferFlag = true
 
-          newRecord.weight =
-            (typeof newRecord.weight != 'undefined' ? newRecord.weight - inventory.weight : inventory.weight) || 0
+            let inventoryHistory = {
+              ...inventory,
+              domain: context.state.domain,
+              bizplace: currentBizplace,
+              openingQty: inventory.qty,
+              openingWeight: inventory.weight,
+              qty: -inventory.qty || 0,
+              weight: -inventory.weight || 0,
+              name: InventoryNoGenerator.inventoryHistoryName(),
+              seq: inventory.lastSeq + 1,
+              transactionType: 'ADJUSTMENT',
+              status: INVENTORY_STATUS.TERMINATED,
+              productId: inventory.product.id,
+              warehouseId: inventory.warehouse.id,
+              locationId: inventory.location.id,
+              creator: context.state.user,
+              updater: context.state.user
+            }
+
+            delete inventoryHistory.id
+            await trxMgr.getRepository(InventoryHistory).save(inventoryHistory)
+          }
+
+          if (invTransferFlag) {
+            newRecord.qty = typeof newRecord.qty != 'undefined' ? newRecord.qty : inventory.qty
+            newRecord.weight = (typeof newRecord.weight != 'undefined' ? newRecord.weight : inventory.weight) || 0
+          } else {
+            newRecord.qty = typeof newRecord.qty != 'undefined' ? newRecord.qty - inventory.qty : inventory.qty
+            newRecord.weight =
+              (typeof newRecord.weight != 'undefined' ? newRecord.weight - inventory.weight : inventory.weight) || 0
+          }
 
           let inventoryHistory = {
             ...inventory,
             ...newRecord,
-            openingQty: inventory.qty,
-            openingWeight: inventory.weight,
+            openingQty: invTransferFlag ? 0 : inventory.qty,
+            openingWeight: invTransferFlag ? 0 : inventory.weight,
             domain: context.state.domain,
             creator: context.state.user,
             updater: context.state.user,
@@ -140,15 +181,13 @@ export const updateMultipleInventory = {
           }
 
           delete inventoryHistory.id
-          await getRepository(InventoryHistory).save(inventoryHistory)
+          await trxMgr.getRepository(InventoryHistory).save(inventoryHistory)
 
           results.push({ ...result, cuFlag: 'M' })
         }
       }
 
       return results
-    } catch (error) {
-      throw error
-    }
+    })
   }
 }
