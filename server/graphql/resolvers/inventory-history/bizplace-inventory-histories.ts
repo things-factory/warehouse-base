@@ -70,7 +70,7 @@ export const bizplaceInventoryHistories = {
           palletId: item.palletId,
           batchId: item.batchId,
           bizplace: item.bizplace,
-          orderRefNo: item.orderRefNo,
+          orderRefNo: item.orderRefNo || '',
           orderNo: item.orderNo,
           qty: item.qty,
           status: item.status,
