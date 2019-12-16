@@ -30,7 +30,7 @@ export class InventoryHistory {
   @Column({
     nullable: true
   })
-  otherRef: string
+  orderNo: string
 
   @Column()
   name: string
@@ -58,6 +58,11 @@ export class InventoryHistory {
     nullable: true
   })
   zone: string
+
+  @Column({
+    nullable: true
+  })
+  orderRefNo: string
 
   @Column()
   packingType: string
