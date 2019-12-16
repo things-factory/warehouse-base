@@ -1,15 +1,42 @@
 import { convertListParams, ListParam } from '@things-factory/shell'
 import { getRepository } from 'typeorm'
-import { Bizplace } from '@things-factory/biz-base'
+import { User } from '@things-factory/auth-base'
+import { Bizplace, BizplaceUser } from '@things-factory/biz-base'
 import { InventoryHistory } from '../../../entities'
 import { Product } from '@things-factory/product-base'
 export const inventoryHistoryReport = {
   async inventoryHistoryReport(_: any, params: ListParam, context: any) {
     try {
       const convertedParams = convertListParams(params)
-      let bizplaceFilter = params.filters.find(data => data.name === 'bizplace')
+      let userFilter = params.filters.find(data => data.name === 'user')
+
+      let bizplaceFilter = { name: '', operator: '', value: '' }
+
+      if (userFilter) {
+        const user: User = await getRepository(User).findOne({
+          domain: context.state.domain,
+          id: userFilter.value
+        })
+
+        const bizplaceUser: any = await getRepository(BizplaceUser).findOne({
+          where: {
+            user,
+            domain: context.state.domain,
+            mainBizplace: true
+          },
+          relations: ['bizplace']
+        })
+
+        if (!bizplaceUser.bizplace) throw 'Invalid input'
+
+        bizplaceFilter = { name: 'bizplace', operator: 'eq', value: bizplaceUser.bizplace.id }
+      } else {
+        bizplaceFilter = params.filters.find(data => data.name === 'bizplace')
+      }
+
       let fromDate = params.filters.find(data => data.name === 'fromDate')
       let toDate = params.filters.find(data => data.name === 'toDate')
+      let product = params.filters.find(data => data.name === 'product')
 
       if (!bizplaceFilter || !fromDate || !toDate) throw 'Invalid input'
 
@@ -17,6 +44,11 @@ export const inventoryHistoryReport = {
         domain: context.state.domain,
         id: bizplaceFilter.value
       })
+
+      let productQuery = ''
+      if (product) {
+        productQuery = "AND invh.product_id IN ('" + product.value + "')"
+      }
 
       const result = await getRepository(InventoryHistory).query(`
         ;WITH invhCte AS
@@ -43,6 +75,7 @@ export const inventoryHistoryReport = {
           and invh.bizplace_id = '${bizplace.id}'
           and invh.created_at BETWEEN '${new Date(fromDate.value).toLocaleDateString()} 00:00:00'
           and '${new Date(toDate.value).toLocaleDateString()} 23:59:59'
+          ${productQuery}
           group by invh.batch_id, invh.product_id, invh.packing_type, invh.bizplace_id, invh.domain_id
         )
         select * from (
@@ -67,7 +100,8 @@ export const inventoryHistoryReport = {
           AND invh.domain_id = '${context.state.domain.id}'
           AND invh.bizplace_id = '${bizplace.id}'
           AND invh.created_at BETWEEN '${new Date(fromDate.value).toLocaleDateString()} 00:00:00'
-          AND '${new Date(toDate.value).toLocaleDateString()} 23:59:59'          
+          AND '${new Date(toDate.value).toLocaleDateString()} 23:59:59'
+          ${productQuery}
         ) as src order by product_id asc, batch_id asc, rn asc, created_at asc
       `)
 
