@@ -125,7 +125,10 @@ export const updateMultipleInventory = {
           })
 
           if ((newRecord.product && newRecord.product.id) || (newRecord.bizplace && newRecord.bizplace.id)) {
-            if (inventory.bizplace.id !== newRecord.bizplace.id || inventory.product.id !== newRecord.product.id) {
+            if (
+              inventory.bizplace.id !== (newRecord.bizplace ? newRecord.bizplace.id : '') ||
+              inventory.product.id !== (newRecord.product ? newRecord.product.id : '')
+            ) {
               invTransferFlag = true
 
               let inventoryHistory = {
