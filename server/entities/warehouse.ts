@@ -1,4 +1,5 @@
 import { User } from '@things-factory/auth-base'
+import { Bizplace } from '@things-factory/biz-base'
 import { Domain } from '@things-factory/shell'
 import {
   Column,
@@ -20,6 +21,9 @@ export class Warehouse {
 
   @ManyToOne(type => Domain)
   domain: Domain
+
+  @ManyToOne(type => Bizplace)
+  bizplace: Bizplace
 
   @Column()
   name: string
