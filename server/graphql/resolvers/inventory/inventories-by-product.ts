@@ -1,7 +1,7 @@
 import { getPermittedBizplaceIds } from '@things-factory/biz-base'
 import { Product } from '@things-factory/product-base'
 import { convertListParams, ListParam } from '@things-factory/shell'
-import { getRepository } from 'typeorm'
+import { getRepository, SelectQueryBuilder } from 'typeorm'
 import { Inventory } from '../../../entities'
 
 export const inventoriesByProduct = {
@@ -27,8 +27,9 @@ export const inventoriesByProduct = {
     const page = params.pagination.page
     const limit = params.pagination.limit
 
-    const queryBuilder = getRepository(Inventory).createQueryBuilder()
-    queryBuilder
+    const selectQueryBuilder: SelectQueryBuilder<Inventory> = getRepository(Inventory).createQueryBuilder()
+    const countQueryBuilder: SelectQueryBuilder<Inventory> = getRepository(Inventory).createQueryBuilder()
+    selectQueryBuilder
       .select('Product.id', 'id')
       .addSelect('Product.name', 'name')
       .addSelect('Product.description', 'description')
@@ -47,13 +48,26 @@ export const inventoriesByProduct = {
       .groupBy('Product.id')
       .addGroupBy('ProductRef.id')
 
-    if (products?.length) {
-      const productIds: string[] = products.map((product: Product) => product.id)
-      queryBuilder.andWhere('Product.id IN (:...productIds)', { productIds })
+    countQueryBuilder
+      .select('COUNT(DISTINCT("Inventory"."product_id"))', 'total')
+      .leftJoin('Inventory.product', 'Product')
+      .leftJoin('Product.productRef', 'ProductRef')
+      .where('Inventory.qty >= :qty', { qty: 0 })
+      .andWhere('Inventory.domain_id = :domainId', { domainId: context.state.domain.id })
+      .andWhere('Inventory.bizplace_id IN (:...bizplaceIds)', { bizplaceIds: permittedBizplaceIds })
+
+    if (products) {
+      let productIds: string[] = products.map((product: Product) => product.id)
+      if (productIds.length === 0) {
+        productIds = [null]
+      }
+
+      selectQueryBuilder.andWhere('Product.id IN (:...productIds)', { productIds })
+      countQueryBuilder.andWhere('Product.id IN (:...productIds)', { productIds })
     }
 
-    const items = await queryBuilder.getRawMany()
-    const total = await queryBuilder.getCount()
+    const items = await selectQueryBuilder.getRawMany()
+    const { total } = await countQueryBuilder.getRawOne()
 
     return {
       items: items.map((item: any) => {
@@ -69,7 +83,7 @@ export const inventoriesByProduct = {
           qty: item.qty
         }
       }),
-      total
+      total: Number(total)
     }
   }
 }
