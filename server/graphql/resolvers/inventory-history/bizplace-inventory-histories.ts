@@ -7,10 +7,7 @@ import { InventoryHistory, Location, Warehouse } from '../../../entities'
 export const bizplaceInventoryHistories = {
   async bizplaceInventoryHistories(_: any, { inventoryHistory, filters, pagination, sortings }, context: any) {
     const ownerBizplace: Bizplace = await getMyBizplace(context.state.user)
-    const customerBizplace: Bizplace = await getRepository(Bizplace).findOne({
-      domain: context.state.domain,
-      id: inventoryHistory.bizplace.id
-    })
+    const customerBizplace: Bizplace = await getRepository(Bizplace).findOne(inventoryHistory.bizplace.id)
 
     const fromDate: Date = new Date(inventoryHistory.fromDate)
     let toDate: Date = new Date(inventoryHistory.toDate)
