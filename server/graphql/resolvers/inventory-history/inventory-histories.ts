@@ -1,7 +1,7 @@
 import { convertListParams, ListParam } from '@things-factory/shell'
 import { getRepository } from 'typeorm'
 import { InventoryHistory, Warehouse, Location } from '../../../entities'
-import { Bizplace } from '@things-factory/biz-base'
+import { Bizplace, getPermittedBizplaceIds } from '@things-factory/biz-base'
 import { Product } from '@things-factory/product-base'
 
 export const inventoryHistoriesResolver = {
@@ -10,7 +10,7 @@ export const inventoryHistoriesResolver = {
       params.filters.push({
         name: 'bizplace',
         operator: 'in',
-        value: context.state.bizplaces.map((bizplace: Bizplace) => bizplace.id)
+        value: await getPermittedBizplaceIds(context.state.domain, context.state.user)
       })
     }
 
