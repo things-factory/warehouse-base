@@ -56,7 +56,6 @@ export const inventoryHistoryReport = {
             })
             .join(',') +
           '])'
-        // productQuery = "AND invh.product_id ANY ARRAY['','%abc%','%xyz%']"
       }
 
       const result = await getRepository(InventoryHistory).query(`
@@ -110,34 +109,23 @@ export const inventoryHistoryReport = {
           AND invh.created_at BETWEEN '${new Date(fromDate.value).toLocaleDateString()} 00:00:00'
           AND '${new Date(toDate.value).toLocaleDateString()} 23:59:59'
           ${productQuery}
-        ) AS src order by product_id asc, batch_id asc, rn asc, created_at asc
+        ) AS src order by product_name asc, packing_type asc, batch_id asc, rn asc, created_at asc
       `)
 
       let items = result as any
-
-      items = await Promise.all(
-        items.map(async item => {
-          let product: Product = await getRepository(Product).findOne({
-            domain: context.state.domain,
-            bizplace: item.bizplace_id ? item.bizplace_id : '',
-            id: item.product_id
-          })
-
-          if (product) product.name = product.name + ' ( ' + product.description + ' )'
-
-          return {
-            batchId: item.batch_id,
-            bizplace: bizplace,
-            packingType: item.packing_type,
-            product: product ? product : { name: '' },
-            qty: item.qty,
-            weight: item.weight,
-            orderName: item.order_name,
-            orderRefNo: item.ref_no,
-            createdAt: item.created_at
-          } as any
-        })
-      )
+      items = items.map(item => {
+        return {
+          batchId: item.batch_id,
+          bizplace: bizplace,
+          packingType: item.packing_type,
+          product: { name: item.product_name + ' ( ' + item.product_description + ' )' },
+          qty: item.qty,
+          weight: item.weight,
+          orderName: item.order_name,
+          orderRefNo: item.ref_no,
+          createdAt: item.created_at
+        }
+      })
 
       return items
     } catch (error) {

@@ -35,5 +35,9 @@ export const InventoryHistory = gql`
     updater: User
     createdAt: String
     updatedAt: String
+    openingBalance: Float
+    inBalance: Float
+    outBalance: Float
+    closingBalance: Float
   }
 `
