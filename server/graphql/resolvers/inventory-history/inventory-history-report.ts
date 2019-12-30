@@ -41,7 +41,6 @@ export const inventoryHistoryReport = {
       if (!bizplaceFilter || !fromDate || !toDate) throw 'Invalid input'
 
       const bizplace: Bizplace = await getRepository(Bizplace).findOne({
-        domain: context.state.domain,
         id: bizplaceFilter.value
       })
 
