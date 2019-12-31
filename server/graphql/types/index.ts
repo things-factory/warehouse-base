@@ -5,8 +5,9 @@ import * as Inventory from './inventory'
 import * as InventoryHistory from './inventory-history'
 import * as Location from './location'
 import * as Movement from './movement'
-import * as Pallet from './pallet'
 import * as Warehouse from './warehouse'
+import * as Pallet from './pallet'
+import * as PalletCount from './pallet-count'
 
 export const queries = [
   Location.Query,
@@ -16,7 +17,8 @@ export const queries = [
   Movement.Query,
   Container.Query,
   Dock.Query,
-  Pallet.Query
+  Pallet.Query,
+  PalletCount.Query
 ]
 
 export const mutations = [
@@ -27,7 +29,8 @@ export const mutations = [
   Movement.Mutation,
   Container.Mutation,
   Dock.Mutation,
-  Pallet.Mutation
+  Pallet.Mutation,
+  PalletCount.Mutation
 ]
 
 export const types = [
@@ -42,5 +45,6 @@ export const types = [
   ...Movement.Types,
   ...Container.Types,
   ...Dock.Types,
-  ...Pallet.Types
+  ...Pallet.Types,
+  ...PalletCount.Types
 ]
