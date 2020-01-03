@@ -6,6 +6,7 @@ import { inventoryHistoryResolver } from './inventory-history'
 import { updateInventoryHistory } from './update-inventory-history'
 import { updateMultipleInventoryHistory } from './update-multiple-inventory-history'
 import { bizplaceInventoryHistories } from './bizplace-inventory-histories'
+import { warehouseInventoryHistories } from './warehouse-inventory-histories'
 import { inventoryHistoryReport } from './inventory-history-report'
 import { inventoryHistoryPalletReport } from './inventory-history-pallet-report'
 
@@ -14,6 +15,7 @@ export const Query = {
   ...inventoryHistoryResolver,
   ...bizplaceInventoryHistories,
   ...inventoryHistoryReport,
+  ...warehouseInventoryHistories,
   ...inventoryHistoryPalletReport
 }
 
