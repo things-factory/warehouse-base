@@ -1,23 +1,14 @@
-import { getRepository, In } from 'typeorm'
-import { Warehouse, Location } from '../../../entities'
+import { EntityManager, getRepository, Repository } from 'typeorm'
+import { Warehouse } from '../../../entities'
 
-export const deleteWarehouse = {
-  async deleteWarehouse(_: any, { name }, context: any) {
-    let foundWarehouse: Warehouse = await getRepository(Warehouse).findOne({
-      where: { domain: context.state.domain, name },
-      relations: ['domain', 'bizplace', 'creator', 'updater']
-    })
-    if (!foundWarehouse) throw new Error(`Warehouse doesn't exists.`)
-    const foundLocations: Location[] = foundWarehouse.locations
-
-    if (foundLocations) {
-      const locIds = foundLocations.map((loc: Location) => loc.id)
-      if (locIds.length) {
-        await getRepository(Location).delete({ id: In(locIds) })
-      }
-    }
-
-    await getRepository(Warehouse).delete({ domain: context.state.domain, name })
-    return true
+export const deleteWarehouseResolver = {
+  async deleteWarehouse(_: any, { id }, _context: any) {
+    await deleteWarehouse(id)
   }
+}
+
+export async function deleteWarehouse(id: string, trxMgr?: EntityManager) {
+  const repository: Repository<Warehouse> = trxMgr ? trxMgr.getRepository(Warehouse) : getRepository(Warehouse)
+  await repository.delete(id)
+  return true
 }

@@ -1,4 +1,4 @@
-import { gql } from 'apollo-server-koa'
+import gql from 'graphql-tag'
 
 export const InventoryHistory = gql`
   type InventoryHistory {
@@ -19,6 +19,7 @@ export const InventoryHistory = gql`
     openingWeight: Float
     zone: String
     packingType: String
+    otherRef: String
     qty: Float
     openingQty: Float
     unit: String

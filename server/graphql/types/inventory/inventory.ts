@@ -1,4 +1,4 @@
-import { gql } from 'apollo-server-koa'
+import gql from 'graphql-tag'
 
 export const Inventory = gql`
   type Inventory {
@@ -16,6 +16,7 @@ export const Inventory = gql`
     packingType: String
     qty: Int
     remainQty: Int
+    otherRef: String
     lastSeq: Int
     weight: Float
     remainWeight: Float

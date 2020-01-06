@@ -1,11 +1,10 @@
+import { createWarehouse, createWarehouseResolver } from './create-warehouse'
+import { deleteWarehouse } from './delete-warehouse'
+import { deleteWarehouses, deleteWarehousesResolver } from './delete-warehouses'
+import { updateMultipleWarehouse } from './update-multiple-warehouse'
+import { updateWarehouse } from './update-warehouse'
 import { warehouseResolver } from './warehouse'
 import { warehousesResolver } from './warehouses'
-
-import { updateWarehouse } from './update-warehouse'
-import { createWarehouse } from './create-warehouse'
-import { deleteWarehouse } from './delete-warehouse'
-import { deleteWarehouses } from './delete-warehouses'
-import { updateMultipleWarehouse } from './update-multiple-warehouse'
 
 export const Query = {
   ...warehousesResolver,
@@ -14,8 +13,10 @@ export const Query = {
 
 export const Mutation = {
   ...updateWarehouse,
-  ...createWarehouse,
+  ...createWarehouseResolver,
   ...deleteWarehouse,
-  ...deleteWarehouses,
+  ...deleteWarehousesResolver,
   ...updateMultipleWarehouse
 }
+
+export { createWarehouse, updateWarehouse, deleteWarehouses, deleteWarehouse }

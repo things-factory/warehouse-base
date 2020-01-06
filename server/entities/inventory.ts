@@ -92,6 +92,11 @@ export class Inventory {
   @Column()
   status: string
 
+  @Column({
+    nullable: true
+  })
+  otherRef: string
+
   @ManyToOne(type => User, {
     nullable: true
   })

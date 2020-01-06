@@ -1,4 +1,4 @@
-import { gql } from 'apollo-server-koa'
+import gql from 'graphql-tag'
 
 export const NewInventory = gql`
   input NewInventory {
@@ -10,6 +10,7 @@ export const NewInventory = gql`
     location: ObjectRef
     warehouse: ObjectRef
     packingType: String
+    otherRef: String
     qty: Int
     weight: Float
     unit: String

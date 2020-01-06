@@ -1,12 +1,11 @@
+import { createLocation, createLocationResolver } from './create-location'
+import { deleteAllLocations } from './delete-all-locations'
+import { deleteLocation, deleteLocationResolver } from './delete-location'
+import { deleteLocations, deleteLocationsResolver } from './delete-locations'
 import { locationResolver } from './location'
 import { locationsResolver } from './locations'
-
-import { updateLocation } from './update-location'
+import { updateLocation, updateLocationResolver } from './update-location'
 import { updateMultipleLocation } from './update-multiple-location'
-import { createLocation } from './create-location'
-import { deleteLocation } from './delete-location'
-import { deleteLocations } from './delete-locations'
-import { deleteAllLocations } from './delete-all-locations'
 
 export const Query = {
   ...locationsResolver,
@@ -14,10 +13,12 @@ export const Query = {
 }
 
 export const Mutation = {
-  ...updateLocation,
-  ...createLocation,
-  ...deleteLocation,
-  ...deleteLocations,
+  ...updateLocationResolver,
+  ...createLocationResolver,
+  ...deleteLocationResolver,
+  ...deleteLocationsResolver,
   ...deleteAllLocations,
   ...updateMultipleLocation
 }
+
+export { updateLocation, createLocation, deleteLocation, deleteLocations }

@@ -1,52 +1,32 @@
-import { getRepository } from 'typeorm'
-import { Location, Warehouse } from '../../../entities'
+import { EntityManager, getManager } from 'typeorm'
+import { Location } from '../../../entities'
+import { createLocation } from './create-location'
+import { updateLocation } from './update-location'
 
 export const updateMultipleLocation = {
   async updateMultipleLocation(_: any, { patches }, context: any) {
-    let results = []
-    const _createRecords = patches.filter((patch: any) => patch.cuFlag.toUpperCase() === '+')
-    const _updateRecords = patches.filter((patch: any) => patch.cuFlag.toUpperCase() === 'M')
-    const locationRepo = getRepository(Location)
-    const warehouseRepo = getRepository(Warehouse)
+    return await getManager().transaction(async (trxMgr: EntityManager) => {
+      let results = []
+      const _createRecords = patches.filter((patch: any) => patch.cuFlag === '+')
+      const _updateRecords = patches.filter((patch: any) => patch.cuFlag.toUpperCase() === 'M')
 
-    if (_createRecords.length > 0) {
-      for (let i = 0; i < _createRecords.length; i++) {
-        const newRecord = _createRecords[i]
-
-        if (newRecord.warehouse && newRecord.warehouse.id) {
-          newRecord.warehouse = await warehouseRepo.findOne(newRecord.warehouse.id)
+      if (_createRecords.length > 0) {
+        for (let i = 0; i < _createRecords.length; i++) {
+          const patch: Location = _createRecords[i]
+          const result = await createLocation(patch, context.state.domain, context.state.user, trxMgr)
+          results.push({ ...result, cuFlag: '+' })
         }
-
-        const result = await locationRepo.save({
-          domain: context.state.domain,
-          creator: context.state.user,
-          updater: context.state.user,
-          ...newRecord
-        })
-
-        results.push({ ...result, cuFlag: '+' })
       }
-    }
 
-    if (_updateRecords.length > 0) {
-      for (let i = 0; i < _updateRecords.length; i++) {
-        const newRecord = _updateRecords[i]
-        const location = await locationRepo.findOne(newRecord.id)
-
-        if (newRecord.warehouse && newRecord.warehouse.id) {
-          newRecord.warehouse = await warehouseRepo.findOne(newRecord.warehouse.id)
+      if (_updateRecords.length > 0) {
+        for (let i = 0; i < _updateRecords.length; i++) {
+          const patch: Location = _updateRecords[i]
+          const result = await updateLocation(patch.id, patch, context.state.user, trxMgr)
+          results.push({ ...result, cuFlag: 'M' })
         }
-
-        const result = await locationRepo.save({
-          ...location,
-          ...newRecord,
-          updater: context.state.user
-        })
-
-        results.push({ ...result, cuFlag: 'M' })
       }
-    }
 
-    return results
+      return results
+    })
   }
 }

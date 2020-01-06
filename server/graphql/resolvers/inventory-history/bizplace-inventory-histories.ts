@@ -1,4 +1,4 @@
-import { Bizplace } from '@things-factory/biz-base'
+import { Bizplace, getMyBizplace } from '@things-factory/biz-base'
 import { Product } from '@things-factory/product-base'
 import { convertListParams } from '@things-factory/shell'
 import { Between, getRepository, In, Raw } from 'typeorm'
@@ -6,11 +6,8 @@ import { InventoryHistory, Location, Warehouse } from '../../../entities'
 
 export const bizplaceInventoryHistories = {
   async bizplaceInventoryHistories(_: any, { inventoryHistory, filters, pagination, sortings }, context: any) {
-    const ownerBizplace: Bizplace = context.state.mainBizplace
-    const customerBizplace: Bizplace = await getRepository(Bizplace).findOne({
-      domain: context.state.domain,
-      id: inventoryHistory.bizplace.id
-    })
+    const ownerBizplace: Bizplace = await getMyBizplace(context.state.user)
+    const customerBizplace: Bizplace = await getRepository(Bizplace).findOne(inventoryHistory.bizplace.id)
 
     const fromDate: Date = new Date(inventoryHistory.fromDate)
     let toDate: Date = new Date(inventoryHistory.toDate)
@@ -31,7 +28,6 @@ export const bizplaceInventoryHistories = {
     if (inventoryHistory && inventoryHistory.warehouseName) {
       const _warehouses: Warehouse[] = await getRepository(Warehouse).find({
         domain: context.state.domain,
-        bizplace: ownerBizplace,
         name: Raw(alias => `LOWER(${alias}) LIKE '${inventoryHistory.warehouseName.toLowerCase()}'`)
       })
       where['warehouseId'] = In(_warehouses.map((warehouse: Warehouse) => warehouse.id))

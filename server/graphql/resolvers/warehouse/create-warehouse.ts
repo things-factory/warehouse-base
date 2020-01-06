@@ -1,20 +1,20 @@
-import { Bizplace } from '@things-factory/biz-base'
-import { getRepository } from 'typeorm'
+import { User } from '@things-factory/auth-base'
+import { Domain } from '@things-factory/shell'
+import { EntityManager, getRepository, Repository } from 'typeorm'
 import { Warehouse } from '../../../entities'
 
-export const createWarehouse = {
+export const createWarehouseResolver = {
   async createWarehouse(_: any, { warehouse }, context: any) {
-    if (warehouse.bizplace && warehouse.bizplace.id) {
-      warehouse.bizplace = await getRepository(Bizplace).findOne(warehouse.bizplace.id)
-    } else {
-      warehouse.bizplace = context.state.bizplaces[0]
-    }
-
-    return await getRepository(Warehouse).save({
-      ...warehouse,
-      domain: context.state.domain,
-      creator: context.state.user,
-      updater: context.state.user
-    })
+    return await createWarehouse(warehouse, context.state.domain, context.state.user)
   }
+}
+
+export async function createWarehouse(warehouse: Warehouse, domain: Domain, user: User, trxMgr?: EntityManager) {
+  const repository: Repository<Warehouse> = trxMgr ? trxMgr.getRepository(Warehouse) : getRepository(Warehouse)
+  return await repository.save({
+    ...warehouse,
+    domain,
+    creator: user,
+    updater: user
+  })
 }

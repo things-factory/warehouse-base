@@ -1,4 +1,4 @@
-import { Bizplace } from '@things-factory/biz-base'
+import { getPermittedBizplaceIds } from '@things-factory/biz-base'
 import { getRepository, In } from 'typeorm'
 import { Movement } from '../../../entities'
 
@@ -8,7 +8,7 @@ export const movementResolver = {
       where: {
         domain: context.state.domain,
         name,
-        bizplace: In(context.state.bizplaces.map((bizplace: Bizplace) => bizplace.id))
+        bizplace: In(await getPermittedBizplaceIds(context.state.domain, context.state.user))
       },
       relations: ['domain', 'bizplace', 'inventory', 'creator', 'updater']
     })
