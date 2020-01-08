@@ -18,11 +18,11 @@ export const Mutation = `
   ): [Pallet]
 
   deletePallet (
-    name: String!
+    id: String!
   ): Boolean
 
   deletePallets (
-    names: [String]!
+    id: [String]!
   ): Boolean
 
   updatePalletSeq(
