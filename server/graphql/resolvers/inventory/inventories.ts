@@ -5,24 +5,25 @@ import { Inventory } from '../../../entities'
 
 export const inventoriesResolver = {
   async inventories(_: any, params: ListParam, context: any) {
-    if (!params.filters.find((filter: any) => filter.name === 'bizplace_id')) {
+    if (!params.filters.find((filter: any) => filter.name === 'bizplace')) {
       params.filters.push({
-        name: 'bizplace_id',
+        name: 'bizplace',
         operator: 'in',
         value: await getPermittedBizplaceIds(context.state.domain, context.state.user)
       })
     }
 
-    const arrChildData = ['bizplace', 'product', 'location']
+    const arrChildSortData = ['bizplace', 'product', 'location', 'warehouse', 'zone']
     const convertedParams = convertListParams(params)
     const orderParams = params.sortings.reduce(
       (acc, sort) => ({
         ...acc,
-        [arrChildData.indexOf(sort.name) >= 0 ? sort.name + '.name' : 'iv.' + sort.name]: sort.desc ? 'DESC' : 'ASC'
+        [arrChildSortData.indexOf(sort.name) >= 0 ? sort.name + '.name' : 'iv.' + sort.name]: sort.desc ? 'DESC' : 'ASC'
       }),
       {}
     )
 
+    const arrChildFilterData = ['bizplace.name', 'product.name', 'location.name', 'warehouse.name', 'zone.name']
     const qb: SelectQueryBuilder<Inventory> = getRepository(Inventory).createQueryBuilder('iv')
 
     qb.leftJoinAndSelect('iv.domain', 'domain')
@@ -35,7 +36,7 @@ export const inventoriesResolver = {
       .where('1=1')
 
     params.filters.forEach(item => {
-      let columnName = arrChildData.indexOf(item.name) >= 0 ? item.name + '.name' : 'iv.' + item.name
+      let columnName = arrChildFilterData.indexOf(item.name) >= 0 ? item.name : 'iv.' + item.name
       switch (item.operator) {
         case 'in':
           qb.andWhere(columnName + ' IN (:...' + item.name + ')', { [item.name]: item.value })
