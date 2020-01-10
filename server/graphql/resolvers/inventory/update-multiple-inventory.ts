@@ -60,7 +60,7 @@ export const updateMultipleInventory = {
             domain: context.state.domain,
             creator: context.state.user,
             updater: context.state.user,
-            lastSeq: 1,
+            lastSeq: 0,
             ...newRecord
           })
 
@@ -70,8 +70,8 @@ export const updateMultipleInventory = {
             creator: context.state.user,
             updater: context.state.user,
             name: InventoryNoGenerator.inventoryHistoryName(),
-            seq: 1,
-            transactionType: 'ADJUSTMENT',
+            seq: 0,
+            transactionType: 'NEW',
             productId: newRecord.product.id,
             warehouseId: newRecord.warehouse.id,
             locationId: newRecord.location.id

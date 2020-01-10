@@ -6,7 +6,6 @@ import { updateMultiplePallet } from './update-multiple-pallet'
 import { createPallet } from './create-pallet'
 import { deletePallet } from './delete-pallet'
 import { deletePallets } from './delete-pallets'
-import { updatePalletSeq } from './update-pallet-seq'
 
 export const Query = {
   ...palletsResolver,
@@ -18,6 +17,5 @@ export const Mutation = {
   ...updateMultiplePallet,
   ...createPallet,
   ...deletePallet,
-  ...deletePallets,
-  ...updatePalletSeq
+  ...deletePallets
 }

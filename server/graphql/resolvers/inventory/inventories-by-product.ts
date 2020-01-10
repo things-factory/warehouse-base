@@ -12,12 +12,12 @@ export const inventoriesByProduct = {
     if (params?.filters?.length) {
       const convertedParams = convertListParams({
         filters: [
-          ...params.filters,
           {
             name: 'bizplace',
             operator: 'in',
             value: permittedBizplaceIds
-          }
+          },
+          ...params.filters
         ]
       })
 
@@ -35,11 +35,13 @@ export const inventoriesByProduct = {
       .addSelect('Product.description', 'description')
       .addSelect('Product.weight', 'weight')
       .addSelect('Product.type', 'type')
+      .addSelect('Bizplace.name', 'bizplaceName')
       .addSelect('ProductRef.name', 'productRefName')
       .addSelect('ProductRef.description', 'productRefDesciption')
       .addSelect('SUM(Inventory.qty)', 'qty')
       .leftJoin('Inventory.product', 'Product')
       .leftJoin('Product.productRef', 'ProductRef')
+      .innerJoin('Product.bizplace', 'Bizplace')
       .where('Inventory.qty >= :qty', { qty: 0 })
       .andWhere('Inventory.domain_id = :domainId', { domainId: context.state.domain.id })
       .andWhere('Inventory.bizplace_id IN (:...bizplaceIds)', { bizplaceIds: permittedBizplaceIds })
@@ -47,6 +49,7 @@ export const inventoriesByProduct = {
       .limit(limit)
       .groupBy('Product.id')
       .addGroupBy('ProductRef.id')
+      .addGroupBy('Bizplace.id')
 
     countQueryBuilder
       .select('COUNT(DISTINCT("Inventory"."product_id"))', 'total')
@@ -78,7 +81,8 @@ export const inventoriesByProduct = {
             description: item.description,
             type: item.type,
             weight: item.weight,
-            productRef: { name: item.productRefName, description: item.productRefDesciption }
+            productRef: { name: item.productRefName, description: item.productRefDesciption },
+            bizplace: { name: item.bizplaceName }
           },
           qty: item.qty
         }

@@ -6,6 +6,7 @@ import * as Location from './location'
 import * as Movement from './movement'
 import * as Warehouse from './warehouse'
 import * as Pallet from './pallet'
+import * as PalletHistory from './pallet-history'
 import * as PalletCount from './pallet-count'
 
 export const queries = [
@@ -17,6 +18,7 @@ export const queries = [
   Container.Query,
   Dock.Query,
   Pallet.Query,
+  PalletHistory.Query,
   PalletCount.Query
 ]
 
@@ -29,5 +31,6 @@ export const mutations = [
   Container.Mutation,
   Dock.Mutation,
   Pallet.Mutation,
+  PalletHistory.Mutation,
   PalletCount.Mutation
 ]
