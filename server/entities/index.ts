@@ -6,8 +6,31 @@ import { Location } from './location'
 import { Movement } from './movement'
 import { Warehouse } from './warehouse'
 import { Pallet } from './pallet'
+import { PalletHistory } from './pallet-history'
 import { PalletCount } from './pallet-count'
 
-export const entities = [Location, Inventory, InventoryHistory, Warehouse, Movement, Container, Dock, Pallet, PalletCount]
+export const entities = [
+  Location,
+  Inventory,
+  InventoryHistory,
+  Warehouse,
+  Movement,
+  Container,
+  Dock,
+  Pallet,
+  PalletHistory,
+  PalletCount
+]
 
-export { Location, Inventory, InventoryHistory, Warehouse, Movement, Container, Dock, Pallet, PalletCount }
+export {
+  Location,
+  Inventory,
+  InventoryHistory,
+  Warehouse,
+  Movement,
+  Container,
+  Dock,
+  Pallet,
+  PalletHistory,
+  PalletCount
+}

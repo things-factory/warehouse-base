@@ -1,11 +1,23 @@
-import { CreateDateColumn, UpdateDateColumn, Entity, Index, Column, ManyToOne, PrimaryGeneratedColumn } from 'typeorm'
+import {
+  CreateDateColumn,
+  UpdateDateColumn,
+  Entity,
+  Index,
+  Column,
+  OneToMany,
+  ManyToOne,
+  PrimaryGeneratedColumn
+} from 'typeorm'
 import { Domain } from '@things-factory/shell'
 import { User } from '@things-factory/auth-base'
 import { Bizplace } from '@things-factory/biz-base'
+import { Pallet } from '.'
 
 @Entity()
-@Index('ix_pallet_0', (pallet: Pallet) => [pallet.domain, pallet.name], { unique: true })
-export class Pallet {
+@Index('ix_pallet-history_0', (palletHistory: PalletHistory) => [palletHistory.domain, palletHistory.id], {
+  unique: true
+})
+export class PalletHistory {
   @PrimaryGeneratedColumn('uuid')
   id: string
 
@@ -24,8 +36,14 @@ export class Pallet {
   @ManyToOne(type => Bizplace)
   holder: Bizplace
 
+  @ManyToOne(type => Pallet)
+  pallet: Pallet
+
   @Column()
   status: string
+
+  @Column()
+  transactionType: string
 
   @CreateDateColumn()
   createdAt: Date

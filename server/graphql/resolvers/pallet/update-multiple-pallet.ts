@@ -1,5 +1,5 @@
 import { getManager, getRepository } from 'typeorm'
-import { Pallet } from '../../../entities'
+import { Pallet, PalletHistory } from '../../../entities'
 import { Bizplace } from '@things-factory/biz-base'
 
 export const updateMultiplePallet = {
@@ -8,8 +8,6 @@ export const updateMultiplePallet = {
       let results = []
       const _createRecords = patches.filter((patch: any) => patch.cuFlag.toUpperCase() === '+')
       const _updateRecords = patches.filter((patch: any) => patch.cuFlag.toUpperCase() === 'M')
-      const palletRepo = getRepository(Pallet)
-      const bizplaceRepo = getRepository(Bizplace)
 
       if (_createRecords.length > 0) {
         for (let i = 0; i < _createRecords.length; i++) {
@@ -23,11 +21,20 @@ export const updateMultiplePallet = {
             newRecord.holder = await trxMgr.getRepository(Bizplace).findOne(newRecord.holder.id)
           }
 
-          const result = await palletRepo.save({
+          const result: Pallet = await trxMgr.getRepository(Pallet).save({
             domain: context.state.domain,
             creator: context.state.user,
             updater: context.state.user,
             ...newRecord
+          })
+
+          await trxMgr.getRepository(PalletHistory).save({
+            ...newRecord,
+            pallet: result,
+            domain: context.state.domain,
+            creator: context.state.user,
+            updater: context.state.user,
+            transactionType: 'NEW'
           })
 
           results.push({ ...result, cuFlag: '+' })
@@ -37,7 +44,11 @@ export const updateMultiplePallet = {
       if (_updateRecords.length > 0) {
         for (let i = 0; i < _updateRecords.length; i++) {
           const newRecord = _updateRecords[i]
-          const pallet = await palletRepo.findOne(newRecord.id)
+          const pallet = await getRepository(Pallet).findOne({
+            where: { id: newRecord.id },
+            relations: ['owner', 'holder']
+          })
+          const seq = pallet.seq + 1
 
           if (newRecord.owner && newRecord.owner.id) {
             newRecord.owner = await trxMgr.getRepository(Bizplace).findOne(newRecord.owner.id)
@@ -47,10 +58,28 @@ export const updateMultiplePallet = {
             newRecord.holder = await trxMgr.getRepository(Bizplace).findOne(newRecord.holder.id)
           }
 
-          const result = await palletRepo.save({
+          const result = await trxMgr.getRepository(Pallet).save({
             ...pallet,
             ...newRecord,
+            seq,
             updater: context.state.user
+          })
+
+          delete newRecord.id
+
+          let newHistory = {
+            ...pallet,
+            ...newRecord,
+            pallet: result,
+            seq,
+            domain: context.state.domain,
+            creator: context.state.user,
+            updater: context.state.user,
+            transactionType: 'UPDATE'
+          }
+
+          await trxMgr.getRepository(PalletHistory).save({
+            ...newHistory
           })
 
           results.push({ ...result, cuFlag: 'M' })
