@@ -76,7 +76,7 @@ export const inventoryHistoryReport = {
           AND oldinvh.created_at < '${new Date(fromDate.value).toLocaleDateString()} 00:00:00'
           INNER JOIN products prd on cast(prd.id AS VARCHAR) = invh.product_id
           WHERE    
-          invh.transaction_type in ('ADJUSTMENT', 'UNLOADING', 'PICKING', 'UNDO_UNLOADING')
+          invh.transaction_type in ('ADJUSTMENT', 'UNLOADING', 'LOADING', 'UNDO_UNLOADING')
           AND invh.domain_id = '${context.state.domain.id}'
           AND invh.bizplace_id = '${bizplace.id}'
           AND invh.created_at BETWEEN '${new Date(fromDate.value).toLocaleDateString()} 00:00:00'
@@ -102,7 +102,7 @@ export const inventoryHistoryReport = {
           LEFT JOIN release_goods rel ON cast(rel.id AS VARCHAR) = cast(wks.release_good_id AS VARCHAR) AND invh.transaction_type = 'PICKING'
           INNER JOIN products prd on cast(prd.id AS VARCHAR) = invh.product_id
           WHERE
-          invh.transaction_type IN ('ADJUSTMENT', 'UNLOADING', 'PICKING', 'UNDO_UNLOADING')
+          invh.transaction_type IN ('ADJUSTMENT', 'UNLOADING', 'LOADING', 'UNDO_UNLOADING')
           AND invh.domain_id = '${context.state.domain.id}'
           AND invh.bizplace_id = '${bizplace.id}'
           AND invh.created_at BETWEEN '${new Date(fromDate.value).toLocaleDateString()} 00:00:00'
