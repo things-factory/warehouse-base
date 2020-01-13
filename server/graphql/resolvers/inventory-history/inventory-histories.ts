@@ -34,11 +34,11 @@ export const inventoryHistoriesResolver = {
             item.description = 'Undo Unloading'
             item.orderRefNo = ''
             break
-          case 'PICKING':
+          case 'LOADING':
             item.description = 'Release'
             break
           default:
-            item.description = 'Adjustment'
+            item.description = 'N/A'
             break
         }
 
