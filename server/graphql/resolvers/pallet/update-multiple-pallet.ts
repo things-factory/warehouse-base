@@ -65,8 +65,6 @@ export const updateMultiplePallet = {
             updater: context.state.user
           })
 
-          delete newRecord.id
-
           let newHistory = {
             ...pallet,
             ...newRecord,
@@ -77,6 +75,8 @@ export const updateMultiplePallet = {
             updater: context.state.user,
             transactionType: 'UPDATE'
           }
+
+          delete newHistory.id
 
           await trxMgr.getRepository(PalletHistory).save({
             ...newHistory

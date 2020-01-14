@@ -3,11 +3,10 @@ import { Pallet } from '../../../entities'
 
 export const palletResolver = {
   async pallet(_: any, { name }, context: any) {
-    const repository = getRepository(Pallet)
-
-    return await getRepository(Pallet).findOne({
-      where: { domain: context.state.domain, name, relations: ['domain', 'creator', 'updater']}
+    let records = await getRepository(Pallet).findOne({
+      where: { domain: context.state.domain, name },
+      relations: ['owner', 'holder', 'domain', 'creator', 'updater']
     })
+    return records
   }
 }
-

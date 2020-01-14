@@ -2,6 +2,7 @@ import { Pallet } from './pallet'
 import { NewPallet } from './new-pallet'
 import { PalletPatch } from './pallet-patch'
 import { PalletList } from './pallet-list'
+import { PalletValidate } from './pallet-validate'
 
 export const Mutation = `
   createPallet (
@@ -25,14 +26,16 @@ export const Mutation = `
     id: [String]!
   ): Boolean
 
-  updatePalletSeq(
-    printQty: Int!
-  ): Pallet
+  palletReturn (
+    patches: [PalletPatch]!
+  ): [Pallet]
+
 `
 
 export const Query = `
   pallets(filters: [Filter], pagination: Pagination, sortings: [Sorting]): PalletList
   pallet(name: String!): Pallet
+  palletReturnValidate(name: String!): PalletValidate
 `
 
-export const Types = [Pallet, NewPallet, PalletPatch, PalletList]
+export const Types = [Pallet, NewPallet, PalletPatch, PalletList, PalletValidate]
