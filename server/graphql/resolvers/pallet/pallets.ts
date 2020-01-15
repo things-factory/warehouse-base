@@ -12,7 +12,7 @@ export const palletsResolver = {
       })
     }
 
-    const convertedParams = convertListParams(params)
+    const convertedParams = convertListParams(params, context.state.domain.id)
     const [items, total] = await getRepository(Pallet).findAndCount({
       ...convertedParams,
       relations: ['owner', 'holder', 'domain', 'creator', 'updater']
