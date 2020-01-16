@@ -35,7 +35,8 @@ export const Mutation = `
 export const Query = `
   pallets(filters: [Filter], pagination: Pagination, sortings: [Sorting]): PalletList
   pallet(name: String!): Pallet
-  palletReturnValidate(name: String!): PalletValidate
+  palletInboundValidate(name: String!): PalletValidate
+  palletOutboundValidate(name: String!): PalletValidate
 `
 
 export const Types = [Pallet, NewPallet, PalletPatch, PalletList, PalletValidate]
