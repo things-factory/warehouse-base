@@ -76,7 +76,7 @@ export const inventoryHistoryReport = {
           AND oldinvh.created_at < '${new Date(fromDate.value).toLocaleDateString()} 00:00:00'
           INNER JOIN products prd on cast(prd.id AS VARCHAR) = invh.product_id
           WHERE    
-          invh.transaction_type in ('ADJUSTMENT', 'UNLOADING', 'PICKNG', 'LOADING', 'UNDO_UNLOADING')
+          invh.transaction_type in ('NEW', 'ADJUSTMENT', 'UNLOADING', 'PICKNG', 'LOADING', 'UNDO_UNLOADING')
           AND invh.domain_id = '${context.state.domain.id}'
           AND invh.bizplace_id = '${bizplace.id}'
           AND invh.created_at BETWEEN '${new Date(fromDate.value).toLocaleDateString()} 00:00:00'
@@ -92,8 +92,10 @@ export const inventoryHistoryReport = {
           invh.qty, invh.opening_qty,
           invh.weight, invh.opening_weight,
           CASE WHEN invh.transaction_type = 'ADJUSTMENT' THEN 'ADJUSTMENT'
+               WHEN invh.transaction_type = 'NEW' THEN 'NEW'
                ELSE COALESCE(order_no, '-') END AS order_name,
           CASE WHEN invh.transaction_type = 'ADJUSTMENT' THEN 'ADJUSTMENT' 
+               WHEN invh.transaction_type = 'NEW' THEN 'NEW'
           	   ELSE COALESCE(order_ref_no, '-') END AS ref_no,
           1 AS rn, invh.created_at
           FROM inventory_histories invh
@@ -102,7 +104,7 @@ export const inventoryHistoryReport = {
           LEFT JOIN release_goods rel ON cast(rel.id AS VARCHAR) = cast(wks.release_good_id AS VARCHAR) AND invh.transaction_type = 'PICKING'
           INNER JOIN products prd on cast(prd.id AS VARCHAR) = invh.product_id
           WHERE
-          invh.transaction_type IN ('ADJUSTMENT', 'UNLOADING', 'PICKING', 'LOADING', 'UNDO_UNLOADING')
+          invh.transaction_type IN ('NEW', 'ADJUSTMENT', 'UNLOADING', 'PICKNG', 'LOADING', 'UNDO_UNLOADING')
           AND invh.domain_id = '${context.state.domain.id}'
           AND invh.bizplace_id = '${bizplace.id}'
           AND invh.created_at BETWEEN '${new Date(fromDate.value).toLocaleDateString()} 00:00:00'
