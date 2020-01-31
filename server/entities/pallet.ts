@@ -24,6 +24,11 @@ export class Pallet {
   @ManyToOne(type => Bizplace)
   holder: Bizplace
 
+  @Column({
+    nullable: true
+  })
+  refOrderNo: string
+
   @Column()
   status: string
 

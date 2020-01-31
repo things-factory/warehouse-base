@@ -26,6 +26,11 @@ export const Mutation = `
     id: [String]!
   ): Boolean
 
+  palletOutbound(
+    refOrderNo: String!
+    patches: [PalletPatch]!
+  ): Boolean
+
   palletReturn (
     patches: [PalletPatch]!
   ): [Pallet]
