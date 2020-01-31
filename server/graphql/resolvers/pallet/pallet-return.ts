@@ -24,7 +24,8 @@ export const palletReturn = {
             ...pallet,
             ...newRecord,
             seq,
-            updater: context.state.user
+            updater: context.state.user,
+            refOrderNo: null
           })
 
           let newHistory = {
