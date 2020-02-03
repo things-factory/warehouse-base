@@ -61,9 +61,9 @@ export const inventoryHistoryReport = {
         ;WITH invhCte AS
         (
           SELECT prd.name AS product_name, prd.description AS product_description, invh.batch_id, invh.product_id, invh.packing_type, invh.bizplace_id, invh.domain_id,
-          SUM(COALESCE(oldinvh.opening_qty,0) + COALESCE(oldinvh.qty,0)) AS qty,
+          SUM(COALESCE(invh.opening_qty,0) + COALESCE(invh.qty,0)) AS qty,
           0 AS opening_qty,
-          SUM(COALESCE(oldinvh.opening_weight,0) + COALESCE(oldinvh.weight,0)) AS weight,
+          SUM(COALESCE(invh.opening_weight,0) + COALESCE(invh.weight,0)) AS weight,
           0 AS opening_weight,
           'Opening Balance' AS order_name,
           '-' AS ref_no,
@@ -72,15 +72,12 @@ export const inventoryHistoryReport = {
             fromDate.value
           ).toLocaleDateString()} 00:00:00', 'MM/DD/YYYY HH24:MI:SS') AS created_at
           FROM inventory_histories invh
-          LEFT JOIN inventory_histories oldinvh ON oldinvh.product_id = invh.product_id AND oldinvh.batch_id = invh.batch_id AND oldinvh.packing_type = invh.packing_type
-          AND oldinvh.created_at < '${new Date(fromDate.value).toLocaleDateString()} 00:00:00'
           INNER JOIN products prd on cast(prd.id AS VARCHAR) = invh.product_id
           WHERE    
           invh.transaction_type in ('NEW', 'ADJUSTMENT', 'UNLOADING', 'PICKNG', 'LOADING', 'UNDO_UNLOADING')
           AND invh.domain_id = '${context.state.domain.id}'
           AND invh.bizplace_id = '${bizplace.id}'
-          AND invh.created_at BETWEEN '${new Date(fromDate.value).toLocaleDateString()} 00:00:00'
-          AND '${new Date(toDate.value).toLocaleDateString()} 23:59:59'
+          AND invh.created_at <'${new Date(fromDate.value).toLocaleDateString()} 00:00:00'
           ${productQuery}
           GROUP BY prd.name, prd.description, invh.batch_id, invh.product_id, invh.packing_type, invh.bizplace_id, invh.domain_id
         )
