@@ -35,13 +35,16 @@ export const inventoryHistoriesResolver = {
             item.orderRefNo = ''
             break
           case 'LOADING':
-            item.description = 'Release'
+            item.description = 'Loading'
+            break
+          case 'UNDO_LOADING':
+            item.description = 'Undo Loading'
             break
           default:
-            item.description = 'N/A'
+            item.description = String(item.transactionType)
             break
         }
-
+        item.description = item.description.toUpperCase()
         return {
           ...item,
           orderRefNo: item.orderRefNo,
