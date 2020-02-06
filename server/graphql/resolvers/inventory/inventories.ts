@@ -15,7 +15,7 @@ export const inventoriesResolver = {
 
     const arrChildSortData = ['bizplace', 'product', 'location', 'warehouse', 'zone']
     const convertedParams = convertListParams(params)
-    const orderParams = params.sortings.reduce(
+    const orderParams = (params.sortings || []).reduce(
       (acc, sort) => ({
         ...acc,
         [arrChildSortData.indexOf(sort.name) >= 0 ? sort.name + '.name' : 'iv.' + sort.name]: sort.desc ? 'DESC' : 'ASC'
