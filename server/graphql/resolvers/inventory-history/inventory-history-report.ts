@@ -3,7 +3,6 @@ import { getRepository } from 'typeorm'
 import { User } from '@things-factory/auth-base'
 import { Bizplace, BizplaceUser } from '@things-factory/biz-base'
 import { InventoryHistory } from '../../../entities'
-import { Product } from '@things-factory/product-base'
 export const inventoryHistoryReport = {
   async inventoryHistoryReport(_: any, params: ListParam, context: any) {
     try {
