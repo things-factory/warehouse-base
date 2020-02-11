@@ -5,23 +5,15 @@ import { Domain } from '@things-factory/shell'
 import { Column, CreateDateColumn, Entity, Index, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm'
 import { Location } from './location'
 import { Warehouse } from './warehouse'
+import { Inventory } from './inventory'
 
-@Entity('inventories')
-@Index('ix_inventory_0', (inventory: Inventory) => [inventory.domain, inventory.id, inventory.palletId], {
+@Entity()
+@Index('ix_inventory-change_0', (inventoryChange: InventoryChange) => [inventoryChange.domain, inventoryChange.name], {
   unique: true
 })
-export class Inventory {
+export class InventoryChange {
   @PrimaryGeneratedColumn('uuid')
   id: string
-
-  @ManyToOne(type => Domain)
-  domain: Domain
-
-  @ManyToOne(type => Bizplace)
-  bizplace: Bizplace
-
-  @ManyToOne(type => Inventory)
-  refInventory: Inventory
 
   @Column()
   name: string
@@ -34,17 +26,19 @@ export class Inventory {
   })
   batchId: string
 
-  @Column({
-    nullable: true
-  })
-  refOrderId: string
+  @ManyToOne(type => Domain)
+  domain: Domain
+
+  @ManyToOne(type => Bizplace)
+  bizplace: Bizplace
+
+  @ManyToOne(type => Inventory)
+  inventory: Inventory
 
   @ManyToOne(type => Product)
   product: Product
 
-  @ManyToOne(type => Warehouse, {
-    nullable: true
-  })
+  @ManyToOne(type => Warehouse)
   warehouse: Warehouse
 
   @ManyToOne(type => Location)
@@ -68,21 +62,8 @@ export class Inventory {
   })
   weight: number
 
-  @Column('float', {
-    nullable: true
-  })
-  lockedWeight: number
-
   @Column('float')
   qty: number
-
-  @Column('float', {
-    nullable: true
-  })
-  lockedQty: number
-
-  @Column({ default: 0 })
-  lastSeq: number
 
   @Column({
     nullable: true
@@ -92,10 +73,11 @@ export class Inventory {
   @Column()
   status: string
 
-  @Column({
-    nullable: true
-  })
-  otherRef: string
+  @CreateDateColumn()
+  createdAt: Date
+
+  @UpdateDateColumn()
+  updatedAt: Date
 
   @ManyToOne(type => User, {
     nullable: true
@@ -106,10 +88,4 @@ export class Inventory {
     nullable: true
   })
   updater: User
-
-  @CreateDateColumn()
-  createdAt: Date
-
-  @UpdateDateColumn()
-  updatedAt: Date
 }

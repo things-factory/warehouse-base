@@ -1,6 +1,7 @@
 import { Container } from './container'
 import { Dock } from './dock'
 import { Inventory } from './inventory'
+import { InventoryChange } from './inventory-change'
 import { InventoryHistory } from './inventory-history'
 import { Location } from './location'
 import { Movement } from './movement'
@@ -12,6 +13,7 @@ import { PalletCount } from './pallet-count'
 export const entities = [
   Location,
   Inventory,
+  InventoryChange,
   InventoryHistory,
   Warehouse,
   Movement,
@@ -25,6 +27,7 @@ export const entities = [
 export {
   Location,
   Inventory,
+  InventoryChange,
   InventoryHistory,
   Warehouse,
   Movement,
