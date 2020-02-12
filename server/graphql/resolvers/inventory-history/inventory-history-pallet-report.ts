@@ -58,43 +58,52 @@ export const inventoryHistoryPalletReport = {
       }
 
       const result = await getRepository(InventoryHistory).query(`
-        ;with inventoryHistoriesByPallet as
-        (
-          select 
-          invh.product_id, prd.name as product_name, prd.description as product_description, invh.bizplace_id,
-          SUM(case when invh.created_at <= '${new Date(fromDate.value).toLocaleDateString()} 00:00:00' then 
-              case when invh.status = 'STORED' then 1 else -1 end
-            else 0 end) as opening_balance,
-          SUM(case when invh.created_at >= '${new Date(
-            fromDate.value
-          ).toLocaleDateString()} 00:00:00' and invh.created_at <= '${new Date(
-        toDate.value
-      ).toLocaleDateString()} 23:59:59' then 
-              case when invh.status = 'STORED' then 1 else 0 end
-            else 0 end) as in_balance,
-          SUM(case when invh.created_at >= '${new Date(
-            fromDate.value
-          ).toLocaleDateString()} 00:00:00' and invh.created_at <= '${new Date(
-        toDate.value
-      ).toLocaleDateString()} 23:59:59' then 
-              case when invh.status = 'TERMINATED' then 1 else 0 end
-            else 0 end) as out_balance
-          from inventory_histories invh
-          inner join (
-            select pallet_id, product_id from (
-              select pallet_id, product_id, row_number() over(partition by pallet_id order by created_at desc) as rn from inventory_histories
-              where status = 'STORED'	
-            ) as src where rn = 1
-          ) filtered on filtered.pallet_id = invh.pallet_id and filtered.product_id = invh.product_id
-          inner join products prd on cast(prd.id as VARCHAR) = invh.product_id
-          where invh.status IN('STORED', 'TERMINATED')
-          and invh.domain_id = '${context.state.domain.id}'
-          AND invh.bizplace_id = '${bizplace.id}'
+        with invHistory as (
+          select i2.pallet_id, ih.seq, ih.status, ih.transaction_type, i2.product_id, prd.name as product_name,
+          prd.description as product_description,	ih.id as inventory_history_id, ih.packing_type, ih.qty, ih.opening_qty,
+          ih.weight, ih.opening_weight, ih.created_at
+          from inventories i2 
+          inner join inventory_histories ih on ih.pallet_id = i2.pallet_id and ih.domain_id = i2.domain_id
+          inner join products prd on prd.id = i2.product_id
+          where 
+          i2.domain_id = '${context.state.domain.id}'
+          AND i2.bizplace_id = '${bizplace.id}'
+          and (
+            (ih.status = 'STORED' and ih.transaction_type = 'NEW') 
+            or (ih.status = 'STORED' and ih.transaction_type = 'PUTAWAY') 
+            or (ih.status = 'TERMINATED')
+          )
           ${productQuery}
-          group by invh.product_id, invh.bizplace_id, prd.name, prd.description
+          order by ih.pallet_id, ih.seq
+        ), inventoryHistoriesByPallet as (
+          select invHistory.product_name, invHistory.product_description,
+          SUM(case when invHistory.created_at <= '${new Date(fromDate.value).toLocaleDateString()} 00:00:00' then 
+              case when invHistory.status = 'STORED' then 1 else -1 end
+            else 0 end) as opening_balance,
+          SUM(case when invHistory.created_at >= '${new Date(fromDate.value).toLocaleDateString()} 00:00:00' 
+                and invHistory.created_at <= '${new Date(toDate.value).toLocaleDateString()} 23:59:59' then 
+              case when invHistory.status = 'STORED' then 1 else 0 end
+            else 0 end) as in_balance,
+          SUM(case when invHistory.created_at >= '${new Date(fromDate.value).toLocaleDateString()} 00:00:00' 
+                and invHistory.created_at <= '${new Date(toDate.value).toLocaleDateString()} 23:59:59' then 
+              case when invHistory.status = 'TERMINATED' then 1 else 0 end
+            else 0 end) as out_balance
+          from(
+            select pallet_id, seq, status, transaction_type, product_id, product_name, product_description,
+            inventory_history_id, packing_type, qty, opening_qty, weight, opening_weight, created_at from (
+              select row_number() over(partition by pallet_id order by created_at asc) as rn, *  from invHistory where status = 'STORED'
+            )as invIn where rn = 1
+            union all
+            select pallet_id, seq, status, transaction_type, product_id, product_name, product_description,
+            inventory_history_id, packing_type, qty, opening_qty, weight, opening_weight, created_at from (
+              select row_number() over(partition by pallet_id order by created_at desc) as rn, *  from invHistory
+            )as invOut where rn = 1 and status = 'TERMINATED'
+          ) as invHistory group by product_name, product_description
         )
         select invh.*, invh.opening_balance + invh.in_balance - invh.out_balance as closing_balance from inventoryHistoriesByPallet invh
         where invh.opening_balance >= 0
+        and invh.in_balance >= 0
+        and invh.out_balance >= 0
         order by invh.product_name;
       `)
 
