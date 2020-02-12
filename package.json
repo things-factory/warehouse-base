@@ -27,5 +27,7 @@
     "@things-factory/biz-base": "^2.0.0",
     "@things-factory/product-base": "^2.0.0"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "@things-factory/id-rule-base": "*"
+  }
 }

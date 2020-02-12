@@ -7,10 +7,12 @@ import { createPalletCount } from './create-pallet-count'
 import { deletePalletCount } from './delete-pallet-count'
 import { deletePalletCounts } from './delete-pallet-counts'
 import { updatePalletCountSeq } from './update-pallet-count-seq'
+import { generatePalletIdResolver } from './generate-pallet-id'
 
 export const Query = {
   ...palletCountsResolver,
-  ...palletCountResolver
+  ...palletCountResolver,
+  ...generatePalletIdResolver
 }
 
 export const Mutation = {
