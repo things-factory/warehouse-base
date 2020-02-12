@@ -1,7 +1,7 @@
 import { generateId } from '@things-factory/id-rule-base'
 
 export const generatePalletIdResolver = {
-  async generatePalletId(_: any, { batchID }, context: any) {
+  async generatePalletId(_: any, { batchId }, context: any) {
 
     let today = new Date()
 			let year = today.getFullYear()
@@ -17,7 +17,7 @@ export const generatePalletIdResolver = {
 			domain: context.state.domain,
 			type: 'pallet_id',
 			seed: {
-				batchId: batchID,
+				batchId: batchId,
 				date: date
 			}
 		})
