@@ -1,5 +1,5 @@
-import { getPermittedBizplaceIds, Bizplace } from '@things-factory/biz-base'
-import { convertListParams, ListParam, buildQuery } from '@things-factory/shell'
+import { getPermittedBizplaceIds } from '@things-factory/biz-base'
+import { convertListParams, ListParam } from '@things-factory/shell'
 import { getRepository, SelectQueryBuilder } from 'typeorm'
 import { Inventory } from '../../../entities'
 
@@ -13,9 +13,17 @@ export const inventoriesResolver = {
       })
     }
 
-    const remainOnly: boolean =
-      params?.filter?.find((filter: { name: string; operator: string; value: any }) => filter.name === 'remainOnly')
-        ?.value || false
+    const remainOnlyParam: { name: string; operator: string; value: boolean } = params?.filters?.find(
+      (f: { name: string; operator: string; value: any }) => f.name === 'remainOnly'
+    )
+
+    let remainOnly: boolean = false
+    if (typeof remainOnlyParam.value !== 'undefined') {
+      remainOnly = remainOnlyParam.value
+      params.filters = params.filters.filter(
+        (f: { name: string; operator: string; value: any }) => f.name !== 'remainOnly'
+      )
+    }
 
     const arrChildSortData = ['bizplace', 'product', 'location', 'warehouse', 'zone']
     const convertedParams = convertListParams(params)
