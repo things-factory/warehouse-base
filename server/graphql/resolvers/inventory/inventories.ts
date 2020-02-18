@@ -13,6 +13,10 @@ export const inventoriesResolver = {
       })
     }
 
+    const remainOnly: boolean =
+      params?.filter?.find((filter: { name: string; operator: string; value: any }) => filter.name === 'remainOnly')
+        ?.value || false
+
     const arrChildSortData = ['bizplace', 'product', 'location', 'warehouse', 'zone']
     const convertedParams = convertListParams(params)
     const orderParams = (params.sortings || []).reduce(
@@ -73,6 +77,10 @@ export const inventoriesResolver = {
         remainWeight
       }
     })
+
+    if (remainOnly) {
+      items = items.filter((item: any) => item.remainQty > 0 && item.remainWeight > 0)
+    }
 
     return { items, total }
   }
