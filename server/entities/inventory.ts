@@ -39,6 +39,21 @@ export class Inventory {
   })
   refOrderId: string
 
+  /**
+   * Expected: Putting ManyToOne relation with OrderProduct to find out unloaded inventories within unloading process
+   * Because if there's inventory which has same batch id with others but different product id
+   * then can't find out exact same inventory by batch id as a condition to find
+   *
+   * Problem: Because of circular dependency problem.
+   * OrderProduct entity comes from sales-base module and the module is looking for warehouse-base module
+   *
+   * Solution: Putting plain orderProductId field instead of ManyToOne relation for this release (2.2.0-beta)
+   */
+  @Column({
+    nullable: true
+  })
+  orderProductId: string
+
   @ManyToOne(type => Product)
   product: Product
 
