@@ -8,7 +8,7 @@ import { Warehouse } from './warehouse'
 import { Inventory } from './inventory'
 
 @Entity()
-@Index('ix_inventory-change_0', (inventoryChange: InventoryChange) => [inventoryChange.domain, inventoryChange.name], {
+@Index('ix_inventory-change_0', (inventoryChange: InventoryChange) => [inventoryChange.domain, inventoryChange.id], {
   unique: true
 })
 export class InventoryChange {
@@ -21,13 +21,43 @@ export class InventoryChange {
   @Column()
   palletId: string
 
+  @ManyToOne(type => Domain)
+  domain: Domain
+
+  @Column({
+    nullable: true
+  })
+  oriBatchId: string
+
+  @ManyToOne(type => Bizplace)
+  oriBizplace: Bizplace
+
+  @ManyToOne(type => Product)
+  oriProduct: Product
+
+  @ManyToOne(type => Location)
+  oriLocation: Location
+
+  @Column()
+  oriPackingType: string
+
+  @Column({
+    nullable: true
+  })
+  oriUnit: string
+
+  @Column('float', {
+    nullable: true
+  })
+  oriWeight: number
+
+  @Column('float')
+  oriQty: number
+
   @Column({
     nullable: true
   })
   batchId: string
-
-  @ManyToOne(type => Domain)
-  domain: Domain
 
   @ManyToOne(type => Bizplace)
   bizplace: Bizplace
@@ -38,16 +68,8 @@ export class InventoryChange {
   @ManyToOne(type => Product)
   product: Product
 
-  @ManyToOne(type => Warehouse)
-  warehouse: Warehouse
-
   @ManyToOne(type => Location)
   location: Location
-
-  @Column({
-    nullable: true
-  })
-  zone: string
 
   @Column()
   packingType: string
@@ -64,11 +86,6 @@ export class InventoryChange {
 
   @Column('float')
   qty: number
-
-  @Column({
-    nullable: true
-  })
-  description: string
 
   @Column()
   status: string

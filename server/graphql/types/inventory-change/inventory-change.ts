@@ -4,21 +4,22 @@ export const InventoryChange = gql`
   type InventoryChange {
     id: String
     domain: Domain
-    bizplace: Bizplace
-    inventory: Inventory
     name: String
     palletId: String
     batchId: String
+    bizplace: Bizplace
+    inventory: Inventory
     product: Product
     location: Location
-    warehouse: Warehouse
-    zone: String
+    oriBizplace: Bizplace
+    oriInventory: Inventory
+    oriProduct: Product
+    oriLocation: Location
     packingType: String
     qty: Int
     weight: Float
     unit: String
     status: String
-    description: String
     creator: User
     updater: User
     createdAt: String

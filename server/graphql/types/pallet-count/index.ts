@@ -33,6 +33,7 @@ export const Mutation = `
 export const Query = `
   palletCounts(filters: [Filter], pagination: Pagination, sortings: [Sorting]): PalletCountList
   palletCount(name: String!): PalletCount
+  generatePalletId(batchId: String): String
 `
 
 export const Types = [PalletCount, NewPalletCount, PalletCountPatch, PalletCountList]
