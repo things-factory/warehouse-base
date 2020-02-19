@@ -6,10 +6,12 @@ import { locationResolver } from './location'
 import { locationsResolver } from './locations'
 import { updateLocation, updateLocationResolver } from './update-location'
 import { updateMultipleLocation } from './update-multiple-location'
+import { locationOccupanciesResolver } from './location-occupancies'
 
 export const Query = {
   ...locationsResolver,
-  ...locationResolver
+  ...locationResolver,
+  ...locationOccupanciesResolver
 }
 
 export const Mutation = {

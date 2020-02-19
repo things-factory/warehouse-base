@@ -2,6 +2,7 @@ import { Location } from './location'
 import { LocationList } from './location-list'
 import { LocationPatch } from './location-patch'
 import { NewLocation } from './new-location'
+import { LocationOccupancy } from './location-occupancy'
 
 export const Mutation = `
   createLocation (
@@ -32,7 +33,8 @@ export const Mutation = `
 
 export const Query = `
   locations(filters: [Filter], pagination: Pagination, sortings: [Sorting]): LocationList @priviledge(category: "warehouse", priviledge: "query")
+  locationOccupancies(warehouse: String): LocationOccupancy @priviledge(category: "warehouse", priviledge: "query")
   location(id: String!): Location @priviledge(category: "warehouse", priviledge: "query")
 `
 
-export const Types = [Location, NewLocation, LocationPatch, LocationList]
+export const Types = [Location, NewLocation, LocationPatch, LocationList, LocationOccupancy]
