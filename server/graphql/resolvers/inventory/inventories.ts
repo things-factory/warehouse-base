@@ -18,7 +18,7 @@ export const inventoriesResolver = {
     )
 
     let remainOnly: boolean = false
-    if (typeof remainOnlyParam.value !== 'undefined') {
+    if (typeof remainOnlyParam?.value !== 'undefined') {
       remainOnly = remainOnlyParam.value
       params.filters = params.filters.filter(
         (f: { name: string; operator: string; value: any }) => f.name !== 'remainOnly'
