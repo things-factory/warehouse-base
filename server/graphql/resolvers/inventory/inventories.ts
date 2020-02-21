@@ -10,7 +10,8 @@ export const inventoriesResolver = {
       params.filters.push({
         name: 'bizplace',
         operator: 'in',
-        value: await getPermittedBizplaceIds(context.state.domain, context.state.user)
+        value: await getPermittedBizplaceIds(context.state.domain, context.state.user),
+        relation: true
       })
     }
 
