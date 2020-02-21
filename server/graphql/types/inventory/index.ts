@@ -27,7 +27,7 @@ export const Mutation = `
     `
 
 export const Query = `
-  inventories(filters: [Filter], pagination: Pagination, sortings: [Sorting]): InventoryList @priviledge(category: "inventory", priviledge: "query")
+  inventories(filters: [Filter], pagination: Pagination, sortings: [Sorting], locationSortingRules: [Sorting]): InventoryList @priviledge(category: "inventory", priviledge: "query")
   inventory(id: String!): Inventory @priviledge(category: "inventory", priviledge: "query")
   inventoriesByProduct(filters: [Filter], pagination: Pagination, sortings: [Sorting]): InventoryList @priviledge(category: "inventory", priviledge: "query")
 `
