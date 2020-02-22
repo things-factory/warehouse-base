@@ -87,38 +87,39 @@ export const inventoryHistoryReport = {
             fromDate.value
           ).toLocaleDateString()} 00:00:00', 'MM/DD/YYYY HH24:MI:SS') AS created_at
           FROM (
-          SELECT src.product_name, src.product_description, src.batch_id, src.product_id, src.packing_type, src.bizplace_id, 
-          src.domain_id
-          FROM dataSrc src
+            SELECT src.product_name, src.product_description, src.batch_id, src.product_id, src.packing_type, src.bizplace_id, 
+            src.domain_id
+            FROM dataSrc src
+            GROUP BY src.product_name, src.product_description, src.batch_id, src.product_id, src.packing_type, src.bizplace_id, 
+            src.domain_id
+          ) AS src 
+          LEFT JOIN inventory_histories invh ON src.batch_id = invh.batch_id AND 
+          src.product_id = invh.product_id AND 
+          src.packing_type = invh.packing_type AND 
+          src.bizplace_id = invh.bizplace_id AND 
+          src.domain_id = invh.domain_id AND
+          invh.created_at < '${new Date(fromDate.value).toLocaleDateString()} 00:00:00' AND
+          invh.transaction_type IN ('NEW', 'ADJUSTMENT', 'UNLOADING', 'PICKING', 'LOADING', 'UNDO_UNLOADING')
           GROUP BY src.product_name, src.product_description, src.batch_id, src.product_id, src.packing_type, src.bizplace_id, 
           src.domain_id
-        ) AS src 
-        LEFT JOIN inventory_histories invh ON src.batch_id = invh.batch_id AND 
-        src.product_id = invh.product_id AND 
-        src.packing_type = invh.packing_type AND 
-        src.bizplace_id = invh.bizplace_id AND 
-        src.domain_id = invh.domain_id AND
-        invh.created_at < '${new Date(fromDate.value).toLocaleDateString()} 00:00:00' AND
-        invh.transaction_type IN ('NEW', 'ADJUSTMENT', 'UNLOADING', 'PICKING', 'LOADING', 'UNDO_UNLOADING')
-        GROUP BY src.product_name, src.product_description, src.batch_id, src.product_id, src.packing_type, src.bizplace_id, 
-        src.domain_id
-        UNION ALL
-        SELECT invh.product_name, invh.product_description, invh.batch_id, invh.product_id, invh.packing_type, invh.bizplace_id, 
-        invh.domain_id,
-        invh.qty, invh.opening_qty,	invh.weight, invh.opening_weight,
-        CASE WHEN invh.transaction_type = 'ADJUSTMENT' THEN 'ADJUSTMENT'
-          WHEN invh.transaction_type = 'NEW' THEN 'NEW'
-          ELSE COALESCE(order_no, '-') END AS order_name,
-        CASE WHEN invh.transaction_type = 'ADJUSTMENT' THEN 'ADJUSTMENT' 
-          WHEN invh.transaction_type = 'NEW' THEN 'NEW'
-          ELSE COALESCE(order_ref_no, '-') END AS ref_no,
-        1 AS rn, invh.created_at
-        FROM dataSrc invh
-        LEFT JOIN arrival_notices arrNo ON cast(arrNo.id AS VARCHAR) = invh.ref_order_id AND (invh.transaction_type = 'UNLOADING' OR 
-          invh.transaction_type = 'UNDO_UNLOADING')
-        LEFT JOIN worksheets wks ON cast(wks.id AS VARCHAR) = invh.ref_order_id AND invh.transaction_type = 'PICKING'
-        LEFT JOIN release_goods rel ON cast(rel.id AS VARCHAR) = cast(wks.release_good_id AS VARCHAR) AND 
-          invh.transaction_type = 'PICKING'
+          UNION ALL
+          SELECT invh.product_name, invh.product_description, invh.batch_id, invh.product_id, invh.packing_type, invh.bizplace_id, 
+          invh.domain_id,
+          invh.qty, invh.opening_qty,	invh.weight, invh.opening_weight,
+          CASE WHEN invh.transaction_type = 'ADJUSTMENT' THEN 'ADJUSTMENT'
+            WHEN invh.transaction_type = 'NEW' THEN 'NEW'
+            ELSE COALESCE(order_no, '-') END AS order_name,
+          CASE WHEN invh.transaction_type = 'ADJUSTMENT' THEN 'ADJUSTMENT' 
+            WHEN invh.transaction_type = 'NEW' THEN 'NEW'
+            ELSE COALESCE(order_ref_no, '-') END AS ref_no,
+          1 AS rn, invh.created_at
+          FROM dataSrc invh
+          LEFT JOIN arrival_notices arrNo ON cast(arrNo.id AS VARCHAR) = invh.ref_order_id AND (invh.transaction_type = 'UNLOADING' OR 
+            invh.transaction_type = 'UNDO_UNLOADING')
+          LEFT JOIN worksheets wks ON cast(wks.id AS VARCHAR) = invh.ref_order_id AND invh.transaction_type = 'PICKING'
+          LEFT JOIN release_goods rel ON cast(rel.id AS VARCHAR) = cast(wks.release_good_id AS VARCHAR) AND 
+            invh.transaction_type = 'PICKING'
+          WHERE invh.qty <> 0 AND invh.weight <> 0
         ) AS reportData ORDER BY product_name asc, packing_type asc, batch_id asc, rn asc, created_at asc
       `)
 
