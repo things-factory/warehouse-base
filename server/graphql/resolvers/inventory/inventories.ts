@@ -59,6 +59,7 @@ export const inventoriesResolver = {
 
     if (remainOnly) {
       items = items.filter((item: any) => item.remainQty > 0 && item.remainWeight > 0)
+      total = items.length
     }
 
     return { items, total }

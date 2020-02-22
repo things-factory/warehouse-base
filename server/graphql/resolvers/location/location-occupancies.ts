@@ -1,6 +1,5 @@
 import { getRepository } from 'typeorm'
-import { convertListParams, ListParam } from '@things-factory/shell'
-import { Location } from '../../../entities'
+import { Location, Warehouse } from '../../../entities'
 
 export const locationOccupanciesResolver = {
   async locationOccupancies(_: any, { warehouse }, context: any) {
@@ -11,7 +10,16 @@ export const locationOccupanciesResolver = {
     }
 
     if (warehouse !== '') {
-      where['warehouse'] = warehouse
+      const foundWarehouse = await getRepository(Warehouse).findOne({
+        where: {
+          domain: context.state.domain,
+          name: warehouse
+        }
+      })
+
+      if (foundWarehouse)
+        where['warehouse'] = foundWarehouse.id
+      else throw new Error(`${warehouse} was not found!`)
     }
 
     const locations = await getRepository(Location).find({
