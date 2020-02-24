@@ -38,6 +38,12 @@ export const inventoriesResolver = {
       .leftJoinAndSelect('iv.creator', 'creator')
       .leftJoinAndSelect('iv.updater', 'updater')
 
+    if (remainOnly) {
+      qb.andWhere('iv.qty > 0')
+        .andWhere('CASE WHEN iv.lockedQty IS NULL THEN 0 ELSE iv.lockedQty END >= 0')
+        .andWhere('iv.qty - CASE WHEN iv.lockedQty IS NULL THEN 0 ELSE iv.lockedQty END > 0')
+    }
+
     if (locationSortingRules?.length > 0) {
       locationSortingRules.forEach((rule: { name: string; desc: boolean }) => {
         qb.addOrderBy(`location.${rule.name}`, rule.desc ? 'DESC' : 'ASC')
@@ -56,11 +62,6 @@ export const inventoriesResolver = {
         remainWeight
       }
     })
-
-    if (remainOnly) {
-      items = items.filter((item: any) => item.remainQty > 0 && item.remainWeight > 0)
-      total = items.length
-    }
 
     return { items, total }
   }
