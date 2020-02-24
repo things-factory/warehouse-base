@@ -20,6 +20,7 @@ export const InventoryChange = gql`
     weight: Float
     unit: String
     status: String
+    type: String
     creator: User
     updater: User
     createdAt: String

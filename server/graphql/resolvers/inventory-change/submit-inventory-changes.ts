@@ -36,7 +36,8 @@ export const submitInventoryChanges = {
             newRecord.product = product
           }
 
-          newRecord.status = 'NEW'
+          newRecord.status = 'PENDING'
+          newRecord.type = 'NEW'
 
           await inventoryChangeRepo.save({
             domain: context.state.domain,
@@ -72,7 +73,8 @@ export const submitInventoryChanges = {
           if (!!updateRecord?.product?.id)
             updateRecord.product = await trxMgr.getRepository(Product).findOne(updateRecord.product.id)
 
-          updateRecord.status = 'CHANGES'
+          updateRecord.status = 'PENDING'
+          updateRecord.transaction = 'CHANGES'
 
           await inventoryChangeRepo.save({
             ...existingRecord,

@@ -22,7 +22,6 @@ export const inventoryChangesResolver = {
         'product',
         'location',
         'oriBizplace',
-        'oriInventory',
         'oriProduct',
         'oriLocation',
         'domain',

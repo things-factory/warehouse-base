@@ -90,6 +90,9 @@ export class InventoryChange {
   @Column()
   status: string
 
+  @Column()
+  type: string
+
   @CreateDateColumn()
   createdAt: Date
 
