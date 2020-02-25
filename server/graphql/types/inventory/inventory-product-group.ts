@@ -3,8 +3,8 @@ import gql from 'graphql-tag'
 export const InventoryProductGroup = gql`
   type InventoryProductGroup {
     batchId: String
-    productType: String
     productName: String
+    packingType: String
     remainQty: Float
     remainWeight: Float
   }
