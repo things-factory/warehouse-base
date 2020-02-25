@@ -3,7 +3,7 @@ import { Product } from '@things-factory/product-base'
 import { buildQuery, ListParam } from '@things-factory/shell'
 import { EntityManager, getManager, Raw, SelectQueryBuilder } from 'typeorm'
 import { Inventory } from '../../../entities'
-import _ from 'lodash'
+import lodash from 'lodash'
 
 export const inventoryProductGroupResolver = {
   async inventoryProductGroup(_: any, params: ListParam, context: any) {
@@ -63,10 +63,10 @@ export const inventoryProductGroupResolver = {
                       return `AND INV.product_id IN (${f.value.map((v: string) => `'${v}'`).join()})`
 
                     case 'eq':
-                      return `AND INV.${_.snakeCase(f.name)} = '${f.value}'`
+                      return `AND INV.${lodash.snakeCase()} = '${f.value}'`
 
                     default:
-                      return `AND LOWER(INV.${_.snakeCase(f.name)}) LIKE '${f.value}'`
+                      return `AND LOWER(INV.${lodash.snakeCase(f.name)}) LIKE '${f.value}'`
                   }
                 })
                 .join()}
