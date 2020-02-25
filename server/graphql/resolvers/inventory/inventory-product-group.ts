@@ -3,6 +3,7 @@ import { Product } from '@things-factory/product-base'
 import { buildQuery, ListParam } from '@things-factory/shell'
 import { EntityManager, getManager, Raw, SelectQueryBuilder } from 'typeorm'
 import { Inventory } from '../../../entities'
+import _ from 'lodash'
 
 export const inventoryProductGroupResolver = {
   async inventoryProductGroup(_: any, params: ListParam, context: any) {

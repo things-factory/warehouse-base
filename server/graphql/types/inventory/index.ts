@@ -26,7 +26,7 @@ export const Mutation = `
   deleteInventories (
     id: [String]!
   ): Boolean @priviledge(category: "inventory", priviledge: "mutation")
-    `
+`
 
 export const Query = `
   inventories(filters: [Filter], pagination: Pagination, sortings: [Sorting], locationSortingRules: [Sorting]): InventoryList @priviledge(category: "inventory", priviledge: "query")
