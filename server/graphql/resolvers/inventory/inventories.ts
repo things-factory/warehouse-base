@@ -5,7 +5,7 @@ import { Inventory } from '../../../entities'
 
 export const inventoriesResolver = {
   async inventories(_: any, { filters, pagination, sortings, locationSortingRules }, context: any) {
-    const params = { filters, pagination, sortings }
+    const params = { filters, pagination }
     if (!params.filters.find((filter: any) => filter.name === 'bizplace')) {
       params.filters.push({
         name: 'bizplace',
@@ -42,6 +42,20 @@ export const inventoriesResolver = {
       qb.andWhere('iv.qty > 0')
         .andWhere('CASE WHEN iv.lockedQty IS NULL THEN 0 ELSE iv.lockedQty END >= 0')
         .andWhere('iv.qty - CASE WHEN iv.lockedQty IS NULL THEN 0 ELSE iv.lockedQty END > 0')
+    }
+
+    if (sortings.length !== 0) {
+      const arrChildSortData = ['bizplace', 'product', 'location', 'warehouse', 'zone']
+      const sort = (sortings || []).reduce(
+        (acc, sort) => ({
+          ...acc,
+          [arrChildSortData.indexOf(sort.name) >= 0 ? sort.name + '.name' : 'iv.' + sort.name]: sort.desc
+            ? 'DESC'
+            : 'ASC'
+        }),
+        {}
+      )
+      qb.orderBy(sort)
     }
 
     if (locationSortingRules?.length > 0) {
