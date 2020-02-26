@@ -2,6 +2,7 @@ import { Inventory } from './inventory'
 import { InventoryList } from './inventory-list'
 import { InventoryPatch } from './inventory-patch'
 import { NewInventory } from './new-inventory'
+import { PalletInfo } from './pallet-info'
 
 export const Mutation = `
   createInventory (
@@ -30,6 +31,7 @@ export const Query = `
   inventories(filters: [Filter], pagination: Pagination, sortings: [Sorting], locationSortingRules: [Sorting]): InventoryList @priviledge(category: "inventory", priviledge: "query")
   inventory(id: String!): Inventory @priviledge(category: "inventory", priviledge: "query")
   inventoriesByProduct(filters: [Filter], pagination: Pagination, sortings: [Sorting]): InventoryList @priviledge(category: "inventory", priviledge: "query")
+  generatePalletId(targets: [PalletInfo]): [Inventory]
 `
 
-export const Types = [Inventory, NewInventory, InventoryPatch, InventoryList]
+export const Types = [Inventory, NewInventory, InventoryPatch, InventoryList, PalletInfo]

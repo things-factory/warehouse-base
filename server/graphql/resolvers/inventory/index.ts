@@ -6,11 +6,13 @@ import { inventoriesByProduct } from './inventories-by-product'
 import { inventoryResolver } from './inventory'
 import { updateInventory } from './update-inventory'
 import { updateMultipleInventory } from './update-multiple-inventory'
+import { generatePalletIdResolver } from './generate-pallet-id'
 
 export const Query = {
   ...inventoriesResolver,
   ...inventoryResolver,
-  ...inventoriesByProduct
+  ...inventoriesByProduct,
+  ...generatePalletIdResolver
 }
 
 export const Mutation = {
