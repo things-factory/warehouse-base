@@ -12,13 +12,21 @@ export const inventoryProductGroupResolver = {
       const bizplace: Bizplace = await getMyBizplace(context.state.user)
       const bizplaceId: string = bizplace.id
 
+      let batchProductCondition: { name: string; operator: string; value: [] } = params.filters.find(
+        (f: any) => f.name === 'batch_product'
+      )
+      if (batchProductCondition) {
+        params.filters = params.filters.filter((f: any) => f.name !== 'batch_product')
+      }
+
       params.filters = await Promise.all(
         params.filters.map(async (f: any) => {
           if (f.name === 'productName') {
             const products: Product[] = await trxMgr
               .getRepository(Product)
-              .find({ where: { bizplace, name: Raw(alias => `LOWER(${alias}) LIKE '${f.value}'`) } })
-            const productIds: string[] = products.map((p: Product) => p.id)
+              .find({ where: { bizplace, name: Raw(alias => `LOWER(${alias}) LIKE '${f.value.toLowerCase()}'`) } })
+            let productIds: string[] = products.map((p: Product) => p.id)
+            if (!productIds?.length) productIds = [null]
             return {
               name: 'product_id',
               operator: 'in',
@@ -31,8 +39,7 @@ export const inventoryProductGroupResolver = {
       )
 
       buildQuery(qb, params, context)
-      const items: any[] = await qb
-        .select('"INV"."batch_id"', 'batchId')
+      qb.select('"INV"."batch_id"', 'batchId')
         .addSelect('"INV"."packing_type"', 'packingType')
         .addSelect('"PROD"."name"', 'productName')
         .addSelect('SUM(COALESCE("INV"."qty", 0) - COALESCE("INV"."locked_qty", 0))', 'remainQty')
@@ -42,7 +49,18 @@ export const inventoryProductGroupResolver = {
         .groupBy('"INV"."batch_id"')
         .addGroupBy('"INV"."packing_type"')
         .addGroupBy('"PROD"."id"')
-        .getRawMany()
+
+      if (batchProductCondition) {
+        qb.andWhere(
+          `("INV"."batch_id", "PROD"."name") ${
+            batchProductCondition.operator === 'in' ? 'IN' : 'NOT IN'
+          } (${batchProductCondition.value
+            .map((value: { batchId: string; productName: string }) => `('${value.batchId}', '${value.productName}')`)
+            .join()})`
+        )
+      }
+
+      const items: any[] = await qb.getRawMany()
 
       const [result] = await trxMgr.query(`
           SELECT 
@@ -60,7 +78,11 @@ export const inventoryProductGroupResolver = {
                 .map((f: { name: string; value: any }) => {
                   switch (f.name) {
                     case 'product_id':
-                      return `AND INV.product_id IN (${f.value.map((v: string) => `'${v}'`).join()})`
+                      if (f.value?.length && f.value[0]) {
+                        return `AND INV.product_id IN (${f.value.map((v: string) => `'${v}'`).join()})`
+                      } else {
+                        return `AND INV.product_id ISNULL`
+                      }
 
                     case 'eq':
                       return `AND INV.${lodash.snakeCase()} = '${f.value}'`
@@ -69,7 +91,7 @@ export const inventoryProductGroupResolver = {
                       return `AND LOWER(INV.${lodash.snakeCase(f.name)}) LIKE '${f.value}'`
                   }
                 })
-                .join()}
+                .join(' ')}
               
             GROUP BY
               INV.batch_id,
