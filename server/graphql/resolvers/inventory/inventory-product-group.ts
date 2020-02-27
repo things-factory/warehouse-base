@@ -85,56 +85,58 @@ async function getWhereClause(
       i.status = 'STORED'
     AND i.bizplace_id = '${bizplace.id}'
   `
-  filters.map(async (filter: { name: string; operator: string; value: any }) => {
-    const name = filter.name
-    const operator = filter.operator.toLowerCase()
-    const value = filter.value
+  await Promise.all(
+    filters.map(async (filter: { name: string; operator: string; value: any }) => {
+      const name = filter.name
+      const operator = filter.operator.toLowerCase()
+      const value = filter.value
 
-    switch (name) {
-      case 'batchId':
-        whereClause += `
+      switch (name) {
+        case 'batchId':
+          whereClause += `
         AND LOWER(i.batch_id) LIKE '${value.toLowerCase()}'
       `
-        break
+          break
 
-      case 'productName':
-        const products: Product[] = await trxMgr.getRepository(Product).find({
-          select: ['id'],
-          where: {
-            bizplace,
-            name: Raw((alias: string) => `LOWER(${alias}) LIKE '${value.toLowerCase()}'`)
-          }
-        })
-        const productIds: string = products
-          .map((product: Product) => product.id)
-          .map((id: string) => `'${id}'`)
-          .join()
+        case 'productName':
+          const products: Product[] = await trxMgr.getRepository(Product).find({
+            select: ['id'],
+            where: {
+              bizplace,
+              name: Raw((alias: string) => `LOWER(${alias}) LIKE '${value.toLowerCase()}'`)
+            }
+          })
+          const productIds: string = products
+            .map((product: Product) => product.id)
+            .map((id: string) => `'${id}'`)
+            .join()
 
-        if (productIds.length) {
-          whereClause += `
+          if (productIds.length) {
+            whereClause += `
             AND i.product_id IN (${productIds})
           `
-        } else {
-          whereClause += `
+          } else {
+            whereClause += `
             AND i.product_id ISNULL
           `
-        }
-        break
-      case 'packingType':
-        whereClause += `
+          }
+          break
+        case 'packingType':
+          whereClause += `
           AND LOWER(i.packing_type) LIKE '${value.toLowerCase()}'
         `
-        break
+          break
 
-      case 'batch_product':
-        whereClause += `
+        case 'batch_product':
+          whereClause += `
           AND (i.batch_id, p.name) ${operator === 'in' ? 'IN' : 'NOT IN'} (${value
-          .map((v: { batchId: string; productName: string }) => `('${v.batchId}', '${v.productName}')`)
-          .join()})
+            .map((v: { batchId: string; productName: string }) => `('${v.batchId}', '${v.productName}')`)
+            .join()})
         `
-        break
-    }
-  })
+          break
+      }
+    })
+  )
 
   return whereClause
 }
