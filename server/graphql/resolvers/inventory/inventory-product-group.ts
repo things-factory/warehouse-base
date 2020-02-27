@@ -27,7 +27,8 @@ function getSelectQuery(whereClause: string): string {
         SUM(release_qty) as release_qty,
         SUM(release_weight) as release_weight,
         batch_id,
-        product_name
+        product_name,
+        packing_type
       FROM
         order_inventories
       WHERE
