@@ -34,9 +34,11 @@ function getSelectQuery(whereClause: string): string {
         status != 'TERMINATED'
         AND batch_id NOTNULL
         AND product_name NOTNULL
+        AND packing_type NOTNULL
       GROUP BY
         batch_id,
-        product_name
+        product_name,
+        packing_type
     )
     SELECT
       i.batch_id as "batchId",
@@ -47,7 +49,7 @@ function getSelectQuery(whereClause: string): string {
     FROM
       inventories i
       LEFT JOIN products p on i.product_id = p.id
-      LEFT JOIN oi on i.batch_id = oi.batch_id AND p.name = oi.product_name
+      LEFT JOIN oi on i.batch_id = oi.batch_id AND p.name = oi.product_name AND i.packing_type = oi.packing_type
     ${whereClause}
     GROUP BY
       i.batch_id,
