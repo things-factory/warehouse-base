@@ -32,7 +32,7 @@ function getSelectQuery(whereClause: string): string {
       FROM
         order_inventories
       WHERE
-        status != 'TERMINATED'
+        status NOT IN ('TERMINATED', 'REJECTED') 
         AND batch_id NOTNULL
         AND product_name NOTNULL
         AND packing_type NOTNULL
@@ -132,8 +132,11 @@ async function getWhereClause(
 
         case 'batch_product':
           whereClause += `
-          AND (i.batch_id, p.name) ${operator === 'in' ? 'IN' : 'NOT IN'} (${value
-            .map((v: { batchId: string; productName: string }) => `('${v.batchId}', '${v.productName}')`)
+          AND (i.batch_id, p.name, i.packing_type) ${operator === 'in' ? 'IN' : 'NOT IN'} (${value
+            .map(
+              (v: { batchId: string; productName: string; packingType: string }) =>
+                `('${v.batchId}', '${v.productName}', '${v.packingType}')`
+            )
             .join()})
         `
           break
