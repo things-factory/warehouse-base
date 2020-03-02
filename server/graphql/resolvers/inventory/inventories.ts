@@ -44,7 +44,7 @@ export const inventoriesResolver = {
         .andWhere('iv.qty - CASE WHEN iv.lockedQty IS NULL THEN 0 ELSE iv.lockedQty END > 0')
     }
 
-    if (sortings.length !== 0) {
+    if (sortings?.length !== 0) {
       const arrChildSortData = ['bizplace', 'product', 'location', 'warehouse', 'zone']
       const sort = (sortings || []).reduce(
         (acc, sort) => ({

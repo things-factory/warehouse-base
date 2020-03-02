@@ -36,7 +36,9 @@ export const locationOccupanciesResolver = {
     const total = locations.length
 
     const empty = total - occupied
-    const percentage = Math.round(occupied / total * 100)
+
+    let percentage = 0
+    if (occupied !== 0) percentage = Math.round(occupied / total * 100)
 
     return { total, occupied, empty, percentage }
   }
