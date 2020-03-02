@@ -1,14 +1,14 @@
-import { Bizplace, getMyBizplace } from '@things-factory/biz-base'
+import { Bizplace, getPermittedBizplaces } from '@things-factory/biz-base'
 import { Product } from '@things-factory/product-base'
 import { ListParam } from '@things-factory/shell'
-import { EntityManager, getManager, Raw } from 'typeorm'
+import { EntityManager, getManager, Raw, In } from 'typeorm'
 import { Inventory } from '../../../entities'
 
 export const inventoryProductGroupResolver = {
   async inventoryProductGroup(_: any, params: ListParam, context: any) {
     return getManager().transaction(async (trxMgr: EntityManager) => {
-      const myBizplace: Bizplace = await getMyBizplace(context.state.user)
-      const WHERE_CLAUSE = await getWhereClause(myBizplace, params.filters, trxMgr)
+      const bizplaces: Bizplace[] = await getPermittedBizplaces(context.state.domain, context.state.user)
+      const WHERE_CLAUSE = await getWhereClause(bizplaces, params.filters, trxMgr)
       const SELECT_QUERY = getSelectQuery(WHERE_CLAUSE)
       const COUNT_QUERY = getCountQuery(WHERE_CLAUSE)
 
@@ -79,14 +79,14 @@ function getCountQuery(whereClause: string): string {
 }
 
 async function getWhereClause(
-  bizplace: Bizplace,
+  bizplaces: Bizplace[],
   filters: [{ name: string; operator: string; value: any }],
   trxMgr: EntityManager
 ): Promise<string> {
   let whereClause = `
     WHERE
       i.status = 'STORED'
-    AND i.bizplace_id = '${bizplace.id}'
+    AND i.bizplace_id IN (${bizplaces.map((bizplace: Bizplace) => `'${bizplace.id}'`).join()})
   `
   await Promise.all(
     filters.map(async (filter: { name: string; operator: string; value: any }) => {
@@ -105,7 +105,7 @@ async function getWhereClause(
           const products: Product[] = await trxMgr.getRepository(Product).find({
             select: ['id'],
             where: {
-              bizplace,
+              bizplace: In(bizplaces),
               name: Raw((alias: string) => `LOWER(${alias}) LIKE '${value.toLowerCase()}'`)
             }
           })
