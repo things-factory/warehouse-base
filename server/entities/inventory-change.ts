@@ -27,36 +27,6 @@ export class InventoryChange {
   @Column({
     nullable: true
   })
-  oriBatchId: string
-
-  @ManyToOne(type => Bizplace)
-  oriBizplace: Bizplace
-
-  @ManyToOne(type => Product)
-  oriProduct: Product
-
-  @ManyToOne(type => Location)
-  oriLocation: Location
-
-  @Column()
-  oriPackingType: string
-
-  @Column({
-    nullable: true
-  })
-  oriUnit: string
-
-  @Column('float', {
-    nullable: true
-  })
-  oriWeight: number
-
-  @Column('float')
-  oriQty: number
-
-  @Column({
-    nullable: true
-  })
   batchId: string
 
   @ManyToOne(type => Bizplace)
@@ -91,7 +61,7 @@ export class InventoryChange {
   status: string
 
   @Column()
-  type: string
+  transactionType: string
 
   @CreateDateColumn()
   createdAt: Date
