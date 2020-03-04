@@ -7,6 +7,8 @@ import { createInventoryChange } from './create-inventory-change'
 import { deleteInventoryChange } from './delete-inventory-change'
 import { deleteInventoryChanges } from './delete-inventory-changes'
 import { submitInventoryChanges } from './submit-inventory-changes'
+import { approveInventoryChanges } from './approve-inventory-changes'
+import { rejectInventoryChanges } from './reject-inventory-changes'
 
 export const Query = {
   ...inventoryChangesResolver,
@@ -19,5 +21,7 @@ export const Mutation = {
   ...createInventoryChange,
   ...deleteInventoryChange,
   ...deleteInventoryChanges,
-  ...submitInventoryChanges
+  ...submitInventoryChanges,
+  ...approveInventoryChanges,
+  ...rejectInventoryChanges
 }
