@@ -107,7 +107,7 @@ async function getWhereClause(
           const products: Product[] = await trxMgr.getRepository(Product).find({
             select: ['id'],
             where: {
-              bizplace: In(bizplaces),
+              bizplace: In(bizplaces.map((bizplace: Bizplace) => bizplace.id)),
               name: Raw((alias: string) => `LOWER(${alias}) LIKE '${value.toLowerCase()}'`)
             }
           })
@@ -134,10 +134,10 @@ async function getWhereClause(
 
         case 'batch_product':
           whereClause += `
-          AND (i.batch_id, p.name, i.packing_type) ${operator === 'in' ? 'IN' : 'NOT IN'} (${value
+          AND (i.batch_id, p.id, i.packing_type) ${operator === 'in' ? 'IN' : 'NOT IN'} (${value
             .map(
-              (v: { batchId: string; productName: string; packingType: string }) =>
-                `('${v.batchId}', '${v.productName}', '${v.packingType}')`
+              (v: { batchId: string; productId: string; packingType: string }) =>
+                `('${v.batchId}', '${v.productId}', '${v.packingType}')`
             )
             .join()})
         `
