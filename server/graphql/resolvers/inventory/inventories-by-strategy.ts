@@ -9,6 +9,7 @@ export const inventoriesByStrategyResolver = {
       .andWhere('"INV"."batch_id" = :batchId')
       .andWhere('"PROD"."name" = :productName')
       .andWhere('"INV"."packing_type" = :packingType')
+      .andWhere('"INV"."status" = :status', { status: 'STORED' })
       .setParameters({
         batchId,
         productName,
