@@ -18,7 +18,7 @@ export class InventoryChange {
   @Column()
   name: string
 
-  @Column()
+  @Column({ nullable: true })
   palletId: string
 
   @ManyToOne(type => Domain)

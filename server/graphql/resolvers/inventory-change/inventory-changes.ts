@@ -27,7 +27,10 @@ export const inventoryChangesResolver = {
         'domain',
         'creator',
         'updater'
-      ]
+      ],
+      order: {
+        createdAt: 'DESC'
+      }
     })
 
     return { items, total }

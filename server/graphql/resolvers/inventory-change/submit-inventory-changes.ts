@@ -17,33 +17,28 @@ export const submitInventoryChanges = {
         for (let i = 0; i < _createRecords.length; i++) {
           const newRecord = _createRecords[i]
 
-          if (newRecord.location && newRecord.location.id) {
-            var location = await trxMgr.getRepository(Location).findOne({
-              where: { id: newRecord.location.id },
-              relations: ['warehouse']
-            })
-            newRecord.location = location
-            newRecord.zone = location.zone
-            newRecord.warehouse = location.warehouse
-          }
+          var location = await trxMgr.getRepository(Location).findOne({
+            where: { id: newRecord.location.id },
+            relations: ['warehouse']
+          })
+          newRecord.location = location
+          newRecord.zone = location.zone
+          newRecord.warehouse = location.warehouse
 
-          if (newRecord.bizplace && newRecord.bizplace.id) {
-            newRecord.bizplace = await trxMgr.getRepository(Bizplace).findOne(newRecord.bizplace.id)
-          }
+          newRecord.bizplace = await trxMgr.getRepository(Bizplace).findOne(newRecord.bizplace.id)
 
-          if (newRecord.product && newRecord.product.id) {
-            var product = await trxMgr.getRepository(Product).findOne(newRecord.product.id)
-            newRecord.product = product
-          }
+          var product = await trxMgr.getRepository(Product).findOne(newRecord.product.id)
+          newRecord.product = product
 
           newRecord.status = 'PENDING'
           newRecord.transactionType = 'NEW'
 
           await inventoryChangeRepo.save({
+            ...newRecord,
+            name: InventoryNoGenerator.inventoryName(),
             domain: context.state.domain,
             creator: context.state.user,
-            updater: context.state.user,
-            ...newRecord
+            updater: context.state.user
           })
         }
       }
