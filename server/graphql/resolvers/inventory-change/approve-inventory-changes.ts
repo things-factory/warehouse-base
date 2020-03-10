@@ -3,7 +3,7 @@ import { Product } from '@things-factory/product-base'
 import { getManager, MoreThan, In } from 'typeorm'
 import { Inventory, InventoryHistory, Location, InventoryChange } from '../../../entities'
 import { InventoryNoGenerator } from '../../../utils'
-import { INVENTORY_STATUS } from '../../../constants'
+import { INVENTORY_STATUS, LOCATION_STATUS } from '../../../constants'
 
 export const approveInventoryChanges = {
   async approveInventoryChanges(_: any, { patches }, context: any) {
@@ -23,13 +23,19 @@ export const approveInventoryChanges = {
       })
 
       if (_inventoryChanges.length > 0) {
+        let today = new Date()
+        let year = today.getFullYear()
+        let month = today.getMonth()
+        let date = today.getDate()
+
         for (let i = 0; i < _inventoryChanges.length; i++) {
           if (_inventoryChanges[i].status.toLocaleLowerCase() != 'pending') return true
 
+          const newRecord: Inventory = JSON.parse(JSON.stringify(_inventoryChanges[i]))
+          const newHistoryRecord: InventoryHistory = JSON.parse(JSON.stringify(_inventoryChanges[i]))
+
           if (_inventoryChanges[i].inventory != null) {
             let inventoryId = _inventoryChanges[i].inventory.id
-            const newRecord: Inventory = JSON.parse(JSON.stringify(_inventoryChanges[i]))
-            const newHistoryRecord: InventoryHistory = JSON.parse(JSON.stringify(_inventoryChanges[i]))
             let transactionType = ''
             let inventory: Inventory = _inventoryChanges[i].inventory
 
@@ -129,9 +135,61 @@ export const approveInventoryChanges = {
               updater: context.state.user,
               lastSeq: lastSeq
             })
+          } else {
+            const total = await trxMgr.getRepository(Inventory).count({
+              createdAt: MoreThan(new Date(year, month, date))
+            })
 
-            _inventoryChanges[i].status = 'APPROVED'
+            let palletId =
+              'P' +
+              year.toString().substr(year.toString().length - 2) +
+              ('0' + (month + 1).toString()).substr(('0' + (month + 1).toString()).toString().length - 2) +
+              ('0' + date.toString()).substr(('0' + date.toString()).length - 2) +
+              ('0000' + (total + 1).toString()).substr(('0000' + (total + 1).toString()).length - 4)
+
+            var location = await trxMgr.getRepository(Location).findOne({
+              where: { id: newRecord.location.id },
+              relations: ['warehouse']
+            })
+            newRecord.location = location
+            newRecord.zone = location.zone
+            newRecord.warehouse = location.warehouse
+
+            newRecord.status = INVENTORY_STATUS.STORED
+            newRecord.name = palletId
+            newRecord.palletId = palletId
+
+            let savedInventory = await trxMgr.getRepository(Inventory).save({
+              ...newRecord,
+              domain: context.state.domain,
+              creator: context.state.user,
+              updater: context.state.user,
+              lastSeq: 0
+            })
+
+            await trxMgr.getRepository(InventoryHistory).save({
+              ...newRecord,
+              domain: context.state.domain,
+              creator: context.state.user,
+              updater: context.state.user,
+              name: InventoryNoGenerator.inventoryHistoryName(),
+              seq: 0,
+              transactionType: 'NEW',
+              productId: newRecord.product.id,
+              warehouseId: newRecord.warehouse.id,
+              locationId: newRecord.location.id
+            })
+
+            await trxMgr.getRepository(Location).save({
+              ...location,
+              status: LOCATION_STATUS.OCCUPIED
+            })
+
+            _inventoryChanges[i].inventory = savedInventory
+            _inventoryChanges[i].palletId = savedInventory.palletId
           }
+
+          _inventoryChanges[i].status = 'APPROVED'
         }
 
         await trxMgr.getRepository(InventoryChange).save(_inventoryChanges)
