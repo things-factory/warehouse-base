@@ -1,6 +1,6 @@
 import { Bizplace } from '@things-factory/biz-base'
 import { Product } from '@things-factory/product-base'
-import { getManager, MoreThan, In } from 'typeorm'
+import { getManager, MoreThan, In, Not } from 'typeorm'
 import { Inventory, InventoryHistory, Location, InventoryChange } from '../../../entities'
 import { InventoryNoGenerator } from '../../../utils'
 import { INVENTORY_STATUS, LOCATION_STATUS } from '../../../constants'
@@ -8,6 +8,7 @@ import { INVENTORY_STATUS, LOCATION_STATUS } from '../../../constants'
 export const approveInventoryChanges = {
   async approveInventoryChanges(_: any, { patches }, context: any) {
     return await getManager().transaction(async trxMgr => {
+      // Get Selected Inventory Change Data
       const _inventoryChanges = await trxMgr.getRepository(InventoryChange).find({
         where: { id: In(patches.map(item => item.id)) },
         relations: [
@@ -34,6 +35,7 @@ export const approveInventoryChanges = {
           const newRecord: Inventory = JSON.parse(JSON.stringify(_inventoryChanges[i]))
           const newHistoryRecord: InventoryHistory = JSON.parse(JSON.stringify(_inventoryChanges[i]))
 
+          // Adjustment of existing Inventory
           if (_inventoryChanges[i].inventory != null) {
             let inventoryId = _inventoryChanges[i].inventory.id
             let transactionType = ''
@@ -41,6 +43,7 @@ export const approveInventoryChanges = {
 
             newHistoryRecord.openingQty = inventory.qty
             newHistoryRecord.openingWeight = inventory.weight
+
             // Get last sequence from InventoryHistory
             let latestEntry = await trxMgr.getRepository(InventoryHistory).find({
               where: { palletId: inventory.palletId },
@@ -49,12 +52,33 @@ export const approveInventoryChanges = {
             })
             let lastSeq = latestEntry[0].seq
 
+            let sameLocationInventory = await trxMgr.getRepository(Inventory).count({
+              where: { location: inventory.location, status: 'STORED' }
+            })
+
+            // Check Change of existing inventory location
             if (newRecord.location.id != inventory.location.id) {
               newRecord.zone = newRecord.location.zone
               newRecord.warehouse = newRecord.location.warehouse
               transactionType = 'RELOCATE'
+
+              // Check and set current location status
+              let currentLocationInventoryCount = await trxMgr.getRepository(Inventory).count({
+                where: { location: inventory.location, status: 'STORED', id: Not(inventory.id) }
+              })
+
+              if (currentLocationInventoryCount == 0) {
+                let currentLocation = await trxMgr.getRepository(Location).findOne({
+                  where: { id: inventory.location.id }
+                })
+                await trxMgr.getRepository(Location).save({
+                  ...currentLocation,
+                  status: LOCATION_STATUS.EMPTY
+                })
+              }
             }
 
+            // Check Change of existing inventory quantity
             if (newRecord.qty != inventory.qty) {
               newHistoryRecord.qty = newRecord.qty - inventory.qty
               if (newRecord.qty < 1) {
@@ -66,6 +90,7 @@ export const approveInventoryChanges = {
               newHistoryRecord.qty = 0
             }
 
+            // Check Change of existing inventory weight
             if (newRecord.weight != inventory.weight) {
               newHistoryRecord.weight = newRecord.weight - inventory.weight
               if (newRecord.weight < 1) {
@@ -76,6 +101,7 @@ export const approveInventoryChanges = {
               newHistoryRecord.weight = 0
             }
 
+            // Terminate current inventory history if there is change of bizplace, product, batchId, or packingType
             if (
               inventory.bizplace.id !== (newRecord.bizplace ? newRecord.bizplace.id : '') ||
               inventory.product.id !== (newRecord.product ? newRecord.product.id : '') ||
@@ -110,6 +136,8 @@ export const approveInventoryChanges = {
               newHistoryRecord.openingWeight = 0
               newHistoryRecord.batchId = newRecord.batchId || inventory.batchId || '-'
             }
+
+            // Set and update inventory and inventory history data
             lastSeq = lastSeq + 1
             let inventoryHistory = {
               ...inventory,
@@ -135,7 +163,33 @@ export const approveInventoryChanges = {
               updater: context.state.user,
               lastSeq: lastSeq
             })
-          } else {
+
+            //Check and set latest location status
+            if (newRecord.qty > 0) {
+              var location = await trxMgr.getRepository(Location).findOne({
+                where: { id: newRecord.location.id }
+              })
+              await trxMgr.getRepository(Location).save({
+                ...location,
+                status: LOCATION_STATUS.OCCUPIED
+              })
+            } else {
+              let latestLocationInventoryCount = await trxMgr.getRepository(Inventory).count({
+                where: { location: newRecord.location.id, status: 'STORED', id: Not(inventory.id) }
+              })
+              if (latestLocationInventoryCount == 0) {
+                let latestLocation = await trxMgr.getRepository(Location).findOne({
+                  where: { id: newRecord.location.id }
+                })
+                await trxMgr.getRepository(Location).save({
+                  ...latestLocation,
+                  status: LOCATION_STATUS.EMPTY
+                })
+              }
+            }
+          }
+          // Adding Inventory
+          else {
             const total = await trxMgr.getRepository(Inventory).count({
               createdAt: MoreThan(new Date(year, month, date))
             })
