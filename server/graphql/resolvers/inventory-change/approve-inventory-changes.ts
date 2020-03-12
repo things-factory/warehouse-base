@@ -52,10 +52,6 @@ export const approveInventoryChanges = {
             })
             let lastSeq = latestEntry[0].seq
 
-            let sameLocationInventory = await trxMgr.getRepository(Inventory).count({
-              where: { location: inventory.location, status: 'STORED' }
-            })
-
             // Check Change of existing inventory location
             if (newRecord.location.id != inventory.location.id) {
               newRecord.zone = newRecord.location.zone
