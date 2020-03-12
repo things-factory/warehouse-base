@@ -35,6 +35,7 @@ export const submitInventoryChanges = {
 
           await inventoryChangeRepo.save({
             ...newRecord,
+            id: undefined,
             name: InventoryNoGenerator.inventoryName(),
             domain: context.state.domain,
             creator: context.state.user,
