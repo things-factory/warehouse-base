@@ -1,6 +1,6 @@
 import { getRepository, Repository } from 'typeorm'
 import { Inventory } from '../../../entities'
-import { INVENTORY_STATUS } from 'server/constants'
+import { INVENTORY_STATUS } from '../../../constants'
 
 export const checkProductIdenticalityResolver = {
   async checkProductIdenticality(_: any, { palletA, palletB }, context: any) {
