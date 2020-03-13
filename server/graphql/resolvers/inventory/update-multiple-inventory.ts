@@ -102,7 +102,7 @@ export const updateMultipleInventory = {
           })
           let lastSeq = latestEntry[0].seq
 
-          // Condition 1: Change location (RELOCATION)
+          // Condition 1: Change location (RELOCATE)
           if (newRecord.location && newRecord.location.id) {
             var location = await trxMgr.getRepository(Location).findOne({
               where: { id: newRecord.location.id },
@@ -116,7 +116,7 @@ export const updateMultipleInventory = {
             newHistoryRecord.zone = location.zone
             newHistoryRecord.warehouse = location.warehouse
 
-            transactionType = 'RELOCATION'
+            transactionType = 'RELOCATE'
           }
 
           // Condition 2: Change of qty or weight.
@@ -196,7 +196,7 @@ export const updateMultipleInventory = {
             }
           }
 
-          //Transaction type will be Relocation if there is only location change. Any other changes will be considered Adjustment.
+          //Transaction type will be RELOCATE if there is only location change. Any other changes will be considered Adjustment.
           lastSeq = lastSeq + 1
           let inventoryHistory = {
             ...inventory,

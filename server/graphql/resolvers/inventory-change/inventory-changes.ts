@@ -19,26 +19,20 @@ export const inventoryChangesResolver = {
       relations: [
         'bizplace',
         'inventory',
+        'inventory.bizplace',
+        'inventory.product',
+        'inventory.location',
         'product',
         'location',
-        'oriBizplace',
-        'oriProduct',
-        'oriLocation',
         'domain',
         'creator',
         'updater'
-      ]
+      ],
+      order: {
+        createdAt: 'DESC'
+      }
     })
 
     return { items, total }
   }
-
-  // async inventoryChanges(_: any, params: ListParam, context: any) {
-  //   const convertedParams = convertListParams(params)
-  //   const [items, total] = await getRepository(InventoryChange).findAndCount({
-  //     ...convertedParams,
-  //     relations: ['domain', 'creator', 'updater']
-  //   })
-  //   return { items, total }
-  // }
 }

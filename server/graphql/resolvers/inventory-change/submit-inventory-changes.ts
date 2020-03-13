@@ -17,33 +17,29 @@ export const submitInventoryChanges = {
         for (let i = 0; i < _createRecords.length; i++) {
           const newRecord = _createRecords[i]
 
-          if (newRecord.location && newRecord.location.id) {
-            var location = await trxMgr.getRepository(Location).findOne({
-              where: { id: newRecord.location.id },
-              relations: ['warehouse']
-            })
-            newRecord.location = location
-            newRecord.zone = location.zone
-            newRecord.warehouse = location.warehouse
-          }
+          var location = await trxMgr.getRepository(Location).findOne({
+            where: { id: newRecord.location.id },
+            relations: ['warehouse']
+          })
+          newRecord.location = location
+          newRecord.zone = location.zone
+          newRecord.warehouse = location.warehouse
 
-          if (newRecord.bizplace && newRecord.bizplace.id) {
-            newRecord.bizplace = await trxMgr.getRepository(Bizplace).findOne(newRecord.bizplace.id)
-          }
+          newRecord.bizplace = await trxMgr.getRepository(Bizplace).findOne(newRecord.bizplace.id)
 
-          if (newRecord.product && newRecord.product.id) {
-            var product = await trxMgr.getRepository(Product).findOne(newRecord.product.id)
-            newRecord.product = product
-          }
+          var product = await trxMgr.getRepository(Product).findOne(newRecord.product.id)
+          newRecord.product = product
 
           newRecord.status = 'PENDING'
-          newRecord.type = 'NEW'
+          newRecord.transactionType = 'NEW'
 
           await inventoryChangeRepo.save({
+            ...newRecord,
+            id: undefined,
+            name: InventoryNoGenerator.inventoryName(),
             domain: context.state.domain,
             creator: context.state.user,
-            updater: context.state.user,
-            ...newRecord
+            updater: context.state.user
           })
         }
       }
@@ -74,22 +70,14 @@ export const submitInventoryChanges = {
             updateRecord.product = await trxMgr.getRepository(Product).findOne(updateRecord.product.id)
 
           updateRecord.status = 'PENDING'
-          updateRecord.transaction = 'CHANGES'
+          updateRecord.transactionType = 'CHANGES'
 
           await inventoryChangeRepo.save({
             ...existingRecord,
             ...updateRecord,
+            id: undefined,
             name: InventoryNoGenerator.inventoryName(),
             inventory: existingRecord,
-            oriBatchId: existingRecord.batchId,
-            oriBizplace: existingRecord.bizplace,
-            oriProduct: existingRecord.product,
-            oriWarehouse: existingRecord.warehouse,
-            oriLocation: existingRecord.location,
-            oriPackingType: existingRecord.packingType,
-            oriUnit: existingRecord.unit,
-            oriWeight: existingRecord.weight,
-            oriQty: existingRecord.qty,
             domain: context.state.domain,
             creator: context.state.user,
             updater: context.state.user

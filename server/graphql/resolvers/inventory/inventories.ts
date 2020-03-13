@@ -1,7 +1,7 @@
 import { getPermittedBizplaceIds } from '@things-factory/biz-base'
 import { buildQuery } from '@things-factory/shell'
 import { getRepository, SelectQueryBuilder } from 'typeorm'
-import { Inventory } from '../../../entities'
+import { Inventory, InventoryChange } from '../../../entities'
 
 export const inventoriesResolver = {
   async inventories(_: any, { filters, pagination, sortings, locationSortingRules }, context: any) {
@@ -66,16 +66,35 @@ export const inventoriesResolver = {
 
     let [items, total] = await qb.getManyAndCount()
 
-    items = items.map((item: Inventory) => {
-      const remainQty: number = item.qty && item.lockedQty ? item.qty - item.lockedQty : item.qty || 0
-      const remainWeight: number = item.weight && item.lockedWeight ? item.weight - item.lockedWeight : item.weight || 0
+    items = await Promise.all(
+      items.map(async (item: Inventory) => {
+        const remainQty: number = item.qty && item.lockedQty ? item.qty - item.lockedQty : item.qty || 0
+        const remainWeight: number =
+          item.weight && item.lockedWeight ? item.weight - item.lockedWeight : item.weight || 0
 
-      return {
-        ...item,
-        remainQty,
-        remainWeight
-      }
-    })
+        let inventoryChangeCount = await getRepository(InventoryChange).count({
+          where: { inventory: item.id }
+        })
+
+        return {
+          ...item,
+          changeCount: inventoryChangeCount,
+          remainQty,
+          remainWeight
+        }
+      })
+    )
+
+    // items = items.map((item: Inventory) => {
+    //   const remainQty: number = item.qty && item.lockedQty ? item.qty - item.lockedQty : item.qty || 0
+    //   const remainWeight: number = item.weight && item.lockedWeight ? item.weight - item.lockedWeight : item.weight || 0
+
+    //   return {
+    //     ...item,
+    //     remainQty,
+    //     remainWeight
+    //   }
+    // })
 
     return { items, total }
   }

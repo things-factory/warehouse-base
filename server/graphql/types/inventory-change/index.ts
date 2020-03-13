@@ -29,6 +29,14 @@ export const Mutation = `
   submitInventoryChanges (
     patches: [InventoryPatch]!
   ): Boolean @priviledge(category: "inventory", priviledge: "mutation")
+  
+  approveInventoryChanges (
+    patches: [InventoryChangePatch]!
+  ): Boolean @priviledge(category: "inventory_adjustment_approval", priviledge: "mutation")
+  
+  rejectInventoryChanges (
+    patches: [InventoryChangePatch]!
+  ): Boolean @priviledge(category: "inventory_adjustment_approval", priviledge: "mutation")
 `
 
 export const Query = `
