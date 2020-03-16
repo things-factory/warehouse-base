@@ -33,7 +33,7 @@ function getSelectQuery(whereClause: string): string {
       FROM
         order_inventories
       WHERE
-        status NOT IN ('TERMINATED', 'REJECTED') 
+      status IN ('PENDING', 'PENDING_RECEIVE', 'READY_TO_PICK', 'PICKING', 'PENDING_SPLIT') 
         AND batch_id NOTNULL
         AND product_name NOTNULL
         AND packing_type NOTNULL
