@@ -1,8 +1,19 @@
+import { Bizplace } from '@things-factory/biz-base'
+import { Worksheet } from '@things-factory/worksheet-base'
 import { getRepository } from 'typeorm'
 import { Inventory } from '../../../entities'
 
 export const inventoriesByStrategyResolver = {
-  async inventoriesByStrategy(_: any, { batchId, productName, packingType, pickingStrategy }, context: any) {
+  async inventoriesByStrategy(
+    _: any,
+    { worksheetNo, batchId, productName, packingType, pickingStrategy },
+    context: any
+  ) {
+    const worksheet: Worksheet = await getRepository(Worksheet).findOne({
+      where: { domain: context.state.domain, name: worksheetNo },
+      relations: ['bizplace']
+    })
+    const bizplace: Bizplace = worksheet.bizplace
     const qb = getRepository(Inventory).createQueryBuilder('INV')
     qb.leftJoinAndSelect('INV.product', 'PROD')
       .leftJoinAndSelect('INV.location', 'LOC')
@@ -24,6 +35,7 @@ export const inventoriesByStrategyResolver = {
       .andWhere('"PROD"."name" = :productName')
       .andWhere('"INV"."packing_type" = :packingType')
       .andWhere('"INV"."status" = :status', { status: 'STORED' })
+      .andWhere('"INV"."bizplace_id" = :bizplaceId', { bizplaceId: bizplace.id })
       .setParameters({
         batchId,
         productName,
