@@ -37,6 +37,7 @@ export const Query = `
   inventoryProductGroup(filters: [Filter], pagination: Pagination, sortings: [Sorting], locationSortingRules: [Sorting]): InventoryProductGroupList @priviledge(category: "inventory", priviledge: "query")
   inventoriesByStrategy(batchId: String!, productName: String!, packingType: String!, pickingStrategy: String!): InventoryList
   checkProductIdenticality(palletA: String!, palletB: String!): Boolean
+  checkProgressingPallet(palletId: String!): Boolean
 `
 
 export const Types = [
