@@ -22,14 +22,14 @@ export const inventoriesByStrategyResolver = {
           .select('COALESCE(SUM(release_qty), 0)', 'releaseQty')
           .from('order_inventories', 'OI')
           .where('"OI"."inventory_id" = "INV"."id"')
-          .andWhere('"OI"."status" NOT IN (\'TERMINATED\', \'REJECTED\')')
+          .andWhere('"OI"."status" IN (\'PENDING\', \'PENDING_RECEIVE\', \'READY_TO_PICK\', \'PICKING\', \'PENDING_SPLIT\')')
       )
       .addSelect(subQuery =>
         subQuery
           .select('COALESCE(SUM(release_weight), 0)', 'releaseWeight')
           .from('order_inventories', 'OI')
           .where('"OI"."inventory_id" = "INV"."id"')
-          .andWhere('"OI"."status" NOT IN (\'TERMINATED\', \'REJECTED\')')
+          .andWhere('"OI"."status" IN (\'PENDING\', \'PENDING_RECEIVE\', \'READY_TO_PICK\', \'PICKING\', \'PENDING_SPLIT\')')
       )
       .andWhere('"INV"."batch_id" = :batchId')
       .andWhere('"PROD"."name" = :productName')
