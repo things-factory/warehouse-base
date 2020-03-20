@@ -1,7 +1,8 @@
 import { getPermittedBizplaceIds } from '@things-factory/biz-base'
 import { buildQuery } from '@things-factory/shell'
-import { getRepository, SelectQueryBuilder } from 'typeorm'
+import { getRepository, SelectQueryBuilder, In } from 'typeorm'
 import { Inventory, InventoryChange } from '../../../entities'
+import { OrderInventory, ORDER_INVENTORY_STATUS } from '@things-factory/sales-base'
 
 export const inventoriesResolver = {
   async inventories(_: any, { filters, pagination, sortings, locationSortingRules }, context: any) {
@@ -68,9 +69,7 @@ export const inventoriesResolver = {
 
     items = await Promise.all(
       items.map(async (item: Inventory) => {
-        const remainQty: number = item.qty && item.lockedQty ? item.qty - item.lockedQty : item.qty || 0
-        const remainWeight: number =
-          item.weight && item.lockedWeight ? item.weight - item.lockedWeight : item.weight || 0
+        const { remainQty, remainWeight } = await getRemainAmount(item)
 
         let inventoryChangeCount = await getRepository(InventoryChange).count({
           where: { inventory: item.id }
@@ -98,4 +97,30 @@ export const inventoriesResolver = {
 
     return { items, total }
   }
+}
+
+async function getRemainAmount(inventory: Inventory): Promise<{ remainQty: number; remainWeight: number }> {
+  const orderInventories: OrderInventory = await getRepository(OrderInventory).find({
+    where: {
+      inventory,
+      status: In([
+        ORDER_INVENTORY_STATUS.PENDING,
+        ORDER_INVENTORY_STATUS.PENDING_RECEIVE,
+        ORDER_INVENTORY_STATUS.READY_TO_PICK,
+        ORDER_INVENTORY_STATUS.PICKING,
+        ORDER_INVENTORY_STATUS.PENDING_SPLIT
+      ])
+    }
+  })
+
+  const { releaseQty, releaseWeight } = orderInventories.reduce(
+    (releaseAmount: { releaseQty: number; releaseWeight: number }, orderInv: OrderInventory) => {
+      releaseAmount.releaseQty += orderInv.releaseQty
+      releaseAmount.releaseWeight += orderInv.releaseWeight
+      return releaseAmount
+    },
+    { releaseQty: 0, releaseWeight: 0 }
+  )
+
+  return { remainQty: inventory.qty - releaseQty, remainWeight: inventory.weight - releaseWeight }
 }
