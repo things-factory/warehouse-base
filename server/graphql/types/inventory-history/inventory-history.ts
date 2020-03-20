@@ -39,5 +39,6 @@ export const InventoryHistory = gql`
     inBalance: Float
     outBalance: Float
     closingBalance: Float
+    arrivalNoticeName: String
   }
 `

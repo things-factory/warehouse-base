@@ -9,6 +9,7 @@ import { bizplaceInventoryHistories } from './bizplace-inventory-histories'
 import { warehouseInventoryHistories } from './warehouse-inventory-histories'
 import { inventoryHistoryReport } from './inventory-history-report'
 import { inventoryHistoryPalletReport } from './inventory-history-pallet-report'
+import { inventoryHistoryPalletDetailReport } from './inventory-history-pallet-detail-report'
 
 export const Query = {
   ...inventoryHistoriesResolver,
@@ -16,7 +17,8 @@ export const Query = {
   ...bizplaceInventoryHistories,
   ...inventoryHistoryReport,
   ...warehouseInventoryHistories,
-  ...inventoryHistoryPalletReport
+  ...inventoryHistoryPalletReport,
+  ...inventoryHistoryPalletDetailReport
 }
 
 export const Mutation = {
