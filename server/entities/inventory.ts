@@ -2,9 +2,19 @@ import { User } from '@things-factory/auth-base'
 import { Bizplace } from '@things-factory/biz-base'
 import { Product } from '@things-factory/product-base'
 import { Domain } from '@things-factory/shell'
-import { Column, CreateDateColumn, Entity, Index, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm'
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  Index,
+  OneToMany,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn
+} from 'typeorm'
 import { Location } from './location'
 import { Warehouse } from './warehouse'
+import { InventoryChange } from './inventory-change'
 
 @Entity('inventories')
 @Index('ix_inventory_0', (inventory: Inventory) => [inventory.domain, inventory.id, inventory.palletId], {
@@ -111,6 +121,12 @@ export class Inventory {
     nullable: true
   })
   otherRef: string
+
+  @OneToMany(
+    type => InventoryChange,
+    inventoryChanges => inventoryChanges.inventory
+  )
+  inventoryChanges: InventoryChange[]
 
   @ManyToOne(type => User, {
     nullable: true
