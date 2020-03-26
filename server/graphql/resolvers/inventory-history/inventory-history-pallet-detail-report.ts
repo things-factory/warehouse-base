@@ -108,6 +108,7 @@ export const inventoryHistoryPalletDetailReport = {
         where invh.opening_balance >= 0
         and invh.in_balance >= 0
         and invh.out_balance >= 0
+        and (invh.opening_balance > 0 or invh.in_balance > 0)
         order by invh.product_name, invh.batch_id;
       `)
 
