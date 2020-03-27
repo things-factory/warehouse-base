@@ -2,6 +2,7 @@ import { movementResolver } from './movement'
 import { movementsResolver } from './movements'
 import { inboundMovementsCounterResolver } from './inbound-movements-counter'
 import { outboundMovementsCounterResolver } from './outbound-movements-counter'
+import { weeklyMovementsCounterResolver } from './weekly-movements-counter'
 
 import { updateMovement } from './update-movement'
 import { createMovement } from './create-movement'
@@ -11,7 +12,8 @@ export const Query = {
   ...movementsResolver,
   ...movementResolver,
   ...inboundMovementsCounterResolver,
-  ...outboundMovementsCounterResolver
+  ...outboundMovementsCounterResolver,
+  ...weeklyMovementsCounterResolver
 }
 
 export const Mutation = {
