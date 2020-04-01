@@ -4,7 +4,7 @@ export const MovementCount = gql`
   type MovementCount {
     date: String
     count: String
-    week: Int
+    week: String
     inbound: Int
     outbound: Int
   }

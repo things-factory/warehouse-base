@@ -51,10 +51,10 @@ export const weeklyMovementsCounterResolver = {
 
 		// pre-set the movements accordingly with initial value of in/outbound = 0
     let movements = [
-			{ week: 1, inbound: 0, outbound: 0 },
-			{ week: 2, inbound: 0, outbound: 0 },
-			{ week: 3, inbound: 0, outbound: 0 },
-			{ week: 4, inbound: 0, outbound: 0 }
+			{ week: 'Week 01', inbound: 0, outbound: 0 },
+			{ week: 'Week 02', inbound: 0, outbound: 0 },
+			{ week: 'Week 03', inbound: 0, outbound: 0 },
+			{ week: 'Week 04', inbound: 0, outbound: 0 }
 		]
 		
 		// loop through all date that were retrieved from database
@@ -66,19 +66,19 @@ export const weeklyMovementsCounterResolver = {
 				const inboundCount = parseInt(data[i].inbound_count)
 				const outboundCount = parseInt(data[i].outbound_count)
 				
-				if (movement.week == 1 && compareDate.getDate() > 0 && compareDate.getDate() <= 7) {
+				if (movement.week === 'Week 01' && compareDate.getDate() > 0 && compareDate.getDate() <= 7) {
 					movement.inbound += inboundCount
 					movement.outbound += outboundCount
 				}
-				else if (movement.week == 2 && compareDate.getDate() > 7 && compareDate.getDate() <= 14) {
+				else if (movement.week === 'Week 02' && compareDate.getDate() > 7 && compareDate.getDate() <= 14) {
 					movement.inbound += inboundCount
 					movement.outbound += outboundCount
 				}
-				else if (movement.week == 3 && compareDate.getDate() > 14 && compareDate.getDate() <= 21) {
+				else if (movement.week === 'Week 03' && compareDate.getDate() > 14 && compareDate.getDate() <= 21) {
 					movement.inbound += inboundCount
 					movement.outbound += outboundCount
 				}
-				else if (movement.week == 4 && compareDate.getDate() > 21) {
+				else if (movement.week === 'Week 04' && compareDate.getDate() > 21) {
 					movement.inbound += inboundCount
 					movement.outbound += outboundCount
 				}

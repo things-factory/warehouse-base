@@ -33,8 +33,11 @@ export const outboundMovementsCounterResolver = {
 
     let items = []
     for (let i=0; i<30; i++) {
+      const month = startDate.toLocaleString('default', { month: 'short' })
+      const day = startDate.getDate()
+
       items.push({
-        date: `${startDate.getDate()}/${startDate.getMonth()+1}`,
+        date: `${month} ${day.toString().padStart(2,'0')}`,
         count: '0'
       })
       startDate.setDate(startDate.getDate()+1)
