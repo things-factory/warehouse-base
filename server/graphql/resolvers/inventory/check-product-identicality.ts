@@ -17,8 +17,7 @@ export const checkProductIdenticalityResolver = {
 
     return (
       invA?.batchId === invB?.batchId &&
-      invA?.product?.id &&
-      invB?.product?.id &&
+      invA?.product?.id === invB?.product?.id &&
       invA?.packingType === invB?.packingType
     )
   }
