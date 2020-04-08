@@ -1,5 +1,6 @@
 import { Bizplace } from '@things-factory/biz-base'
 import { Product } from '@things-factory/product-base'
+import { generateId } from '@things-factory/id-rule-base'
 import { getManager, MoreThan, In, Not } from 'typeorm'
 import { Inventory, InventoryHistory, Location, InventoryChange } from '../../../entities'
 import { InventoryNoGenerator } from '../../../utils'
@@ -190,13 +191,20 @@ export const approveInventoryChanges = {
               createdAt: MoreThan(new Date(year, month, date))
             })
 
-            let palletId =
-              'P' +
+            const dateStr =
               year.toString().substr(year.toString().length - 2) +
               ('0' + (month + 1).toString()).substr(('0' + (month + 1).toString()).toString().length - 2) +
-              ('0' + date.toString()).substr(('0' + date.toString()).length - 2) +
-              ('0000' + (total + 1).toString()).substr(('0000' + (total + 1).toString()).length - 4)
+              ('0' + date.toString()).substr(('0' + date.toString()).length - 2)
 
+            let palletId = await generateId({
+								domain: context.state.domain,
+								type: 'pallet_id',
+								seed: {
+									batchId: newRecord.batchId,
+									date: dateStr
+								}
+              })
+              
             var location = await trxMgr.getRepository(Location).findOne({
               where: { id: newRecord.location.id },
               relations: ['warehouse']
