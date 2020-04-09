@@ -52,12 +52,13 @@ export const approveInventoryChanges = {
               take: 1
             })
             let lastSeq = latestEntry[0].seq
+            _inventoryChanges[i].lastInventoryHistory = latestEntry[0]
 
             // Check Change of existing inventory location
             if (newRecord.location.id != inventory.location.id) {
               newRecord.zone = newRecord.location.zone
               newRecord.warehouse = newRecord.location.warehouse
-              transactionType = 'RELOCATE'
+              transactionType = 'ADJUSTMENT'
 
               // Check and set current location status
               let currentLocationInventoryCount = await trxMgr.getRepository(Inventory).count({
@@ -197,14 +198,14 @@ export const approveInventoryChanges = {
               ('0' + date.toString()).substr(('0' + date.toString()).length - 2)
 
             let palletId = await generateId({
-								domain: context.state.domain,
-								type: 'pallet_id',
-								seed: {
-									batchId: newRecord.batchId,
-									date: dateStr
-								}
-              })
-              
+              domain: context.state.domain,
+              type: 'pallet_id',
+              seed: {
+                batchId: newRecord.batchId,
+                date: dateStr
+              }
+            })
+
             var location = await trxMgr.getRepository(Location).findOne({
               where: { id: newRecord.location.id },
               relations: ['warehouse']
