@@ -45,7 +45,7 @@ export const approveInventoryChanges = {
             newHistoryRecord.openingQty = inventory.qty
             newHistoryRecord.openingWeight = inventory.weight
 
-            // Get last sequence from InventoryHistory
+            // Get last row of InventoryHistory
             let latestEntry = await trxMgr.getRepository(InventoryHistory).find({
               where: { palletId: inventory.palletId },
               order: { seq: 'DESC' },
@@ -186,6 +186,7 @@ export const approveInventoryChanges = {
               }
             }
           }
+
           // Adding Inventory
           else {
             const total = await trxMgr.getRepository(Inventory).count({

@@ -25,8 +25,16 @@ export const rejectInventoryChanges = {
       if (_inventoryChanges.length > 0) {
         for (let i = 0; i < _inventoryChanges.length; i++) {
           if (_inventoryChanges[i].status.toLocaleLowerCase() != 'pending') return true
-
           _inventoryChanges[i].status = 'REJECTED'
+
+          // Get last row of InventoryHistory
+          let latestEntry = await trxMgr.getRepository(InventoryHistory).find({
+            where: { palletId: _inventoryChanges[i].palletId },
+            order: { seq: 'DESC' },
+            take: 1
+          })
+
+          if (latestEntry.length > 0) _inventoryChanges[i].lastInventoryHistory = latestEntry[0]
         }
 
         await trxMgr
