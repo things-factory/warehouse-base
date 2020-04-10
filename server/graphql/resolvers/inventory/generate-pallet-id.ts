@@ -11,11 +11,11 @@ export const generatePalletIdResolver = {
 		const month = today.getMonth()
 		const day = today.getDate()
 
-		const date =
-			year.toString().substr(year.toString().length - 2) +
-			('0' + (month + 1).toString()).substr(('0' + (month + 1).toString()).toString().length - 2) +
-			('0' + day.toString()).substr(('0' + day.toString()).length - 2)
+		const yy = String(year).substr(String(year).length - 2)
+		const mm = String(month + 1).padStart(2, '0')
+		const dd = String(day).padStart(2, '0')
 
+		const date = yy + mm + dd
 		let results = []
 
 		// 2. get worksheet detail
