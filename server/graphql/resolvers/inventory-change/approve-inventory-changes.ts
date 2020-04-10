@@ -193,10 +193,11 @@ export const approveInventoryChanges = {
               createdAt: MoreThan(new Date(year, month, date))
             })
 
-            const dateStr =
-              year.toString().substr(year.toString().length - 2) +
-              ('0' + (month + 1).toString()).substr(('0' + (month + 1).toString()).toString().length - 2) +
-              ('0' + date.toString()).substr(('0' + date.toString()).length - 2)
+            const yy = String(year).substr(String(year).length - 2)
+            const mm = String(month + 1).padStart(2, '0')
+            const dd = String(date).padStart(2, '0')
+
+            const dateStr = yy + mm + dd
 
             let palletId = await generateId({
               domain: context.state.domain,
