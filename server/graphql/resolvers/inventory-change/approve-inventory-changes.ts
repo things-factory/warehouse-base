@@ -147,9 +147,9 @@ export const approveInventoryChanges = {
               status: newRecord.qty > 0 ? 'STORED' : 'TERMINATED',
               seq: lastSeq,
               transactionType: transactionType == '' ? 'ADJUSTMENT' : transactionType,
-              productId: newRecord.product.productId ? newRecord.product.productId : inventory.product.id,
-              warehouseId: newRecord.warehouse.id ? newRecord.product.id : inventory.warehouse.id,
-              locationId: newRecord.location.id ? newRecord.product.id : inventory.location.id
+              productId: newRecord.product ? newRecord.product.id : inventory.product.id,
+              warehouseId: newRecord.warehouse ? newRecord.warehouse.id : inventory.warehouse.id,
+              locationId: newRecord.location.id != inventory.location.id ? newRecord.location.id : inventory.location.id
             }
             delete inventoryHistory.id
             await trxMgr.getRepository(InventoryHistory).save(inventoryHistory)
