@@ -1,19 +1,15 @@
 import { Bizplace } from '@things-factory/biz-base'
-import { Worksheet } from '@things-factory/worksheet-base'
+import { Product } from '@things-factory/product-base'
 import { getRepository } from 'typeorm'
 import { Inventory } from '../../../entities'
 
 export const inventoriesByStrategyResolver = {
-  async inventoriesByStrategy(
-    _: any,
-    { worksheetNo, batchId, productName, packingType, pickingStrategy },
-    context: any
-  ) {
-    const worksheet: Worksheet = await getRepository(Worksheet).findOne({
-      where: { domain: context.state.domain, name: worksheetNo },
+  async inventoriesByStrategy(_: any, { batchId, productName, packingType, pickingStrategy }, context: any) {
+    const foundProd: Product = await getRepository(Product).findOne({
+      where: { domain: context.state.domain, name: productName },
       relations: ['bizplace']
     })
-    const bizplace: Bizplace = worksheet.bizplace
+    const bizplace: Bizplace = foundProd.bizplace
     const qb = getRepository(Inventory).createQueryBuilder('INV')
     qb.leftJoinAndSelect('INV.product', 'PROD')
       .leftJoinAndSelect('INV.location', 'LOC')
@@ -22,14 +18,14 @@ export const inventoriesByStrategyResolver = {
           .select('COALESCE(SUM(release_qty), 0)', 'releaseQty')
           .from('order_inventories', 'OI')
           .where('"OI"."inventory_id" = "INV"."id"')
-          .andWhere('"OI"."status" IN (\'PENDING\', \'PENDING_RECEIVE\', \'READY_TO_PICK\', \'PICKING\', \'PENDING_SPLIT\')')
+          .andWhere("\"OI\".\"status\" IN ('PENDING', 'PENDING_RECEIVE', 'READY_TO_PICK', 'PICKING', 'PENDING_SPLIT')")
       )
       .addSelect(subQuery =>
         subQuery
           .select('COALESCE(SUM(release_weight), 0)', 'releaseWeight')
           .from('order_inventories', 'OI')
           .where('"OI"."inventory_id" = "INV"."id"')
-          .andWhere('"OI"."status" IN (\'PENDING\', \'PENDING_RECEIVE\', \'READY_TO_PICK\', \'PICKING\', \'PENDING_SPLIT\')')
+          .andWhere("\"OI\".\"status\" IN ('PENDING', 'PENDING_RECEIVE', 'READY_TO_PICK', 'PICKING', 'PENDING_SPLIT')")
       )
       .andWhere('"INV"."batch_id" = :batchId')
       .andWhere('"PROD"."name" = :productName')

@@ -28,8 +28,5 @@
     "@things-factory/product-base": "^2.4.0",
     "@things-factory/sales-base": "^2.4.0"
   },
-  "devDependencies": {
-    "@things-factory/auth-ui-jwt": "^2.0.0",
-    "@things-factory/worksheet-base": "^2.4.0"
-  }
+  "devDependencies": {}
 }
