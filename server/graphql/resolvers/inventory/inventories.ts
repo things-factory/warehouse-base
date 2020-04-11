@@ -1,8 +1,7 @@
 import { getPermittedBizplaceIds } from '@things-factory/biz-base'
 import { buildQuery } from '@things-factory/shell'
-import { getRepository, SelectQueryBuilder, In } from 'typeorm'
+import { getRepository, SelectQueryBuilder } from 'typeorm'
 import { Inventory, InventoryChange } from '../../../entities'
-import { OrderInventory, ORDER_INVENTORY_STATUS } from '@things-factory/sales-base'
 
 export const inventoriesResolver = {
   async inventories(_: any, { filters, pagination, sortings, locationSortingRules }, context: any) {
@@ -69,17 +68,20 @@ export const inventoriesResolver = {
 
     items = await Promise.all(
       items.map(async (item: Inventory) => {
-        const { remainQty, remainWeight } = await getRemainAmount(item)
+        // const { remainQty, remainWeight } = await getRemainAmount(item)
 
         let inventoryChangeCount = await getRepository(InventoryChange).count({
           where: { inventory: item.id }
         })
 
+        const selectedQty = item.lockedQty ? item.lockedQty : 0
+        const selectedWeight = item.lockedWeight ? item.lockedWeight : 0
+
         return {
           ...item,
           changeCount: inventoryChangeCount,
-          remainQty,
-          remainWeight
+          remainQty: item.qty - selectedQty,
+          remainWeight: item.weight - selectedWeight
         }
       })
     )
@@ -99,28 +101,28 @@ export const inventoriesResolver = {
   }
 }
 
-async function getRemainAmount(inventory: Inventory): Promise<{ remainQty: number; remainWeight: number }> {
-  const orderInventories: OrderInventory = await getRepository(OrderInventory).find({
-    where: {
-      inventory,
-      status: In([
-        ORDER_INVENTORY_STATUS.PENDING,
-        ORDER_INVENTORY_STATUS.PENDING_RECEIVE,
-        ORDER_INVENTORY_STATUS.READY_TO_PICK,
-        ORDER_INVENTORY_STATUS.PICKING,
-        ORDER_INVENTORY_STATUS.PENDING_SPLIT
-      ])
-    }
-  })
+// async function getRemainAmount(inventory: Inventory): Promise<{ remainQty: number; remainWeight: number }> {
+//   const orderInventories: OrderInventory = await getRepository(OrderInventory).find({
+//     where: {
+//       inventory,
+//       status: In([
+//         ORDER_INVENTORY_STATUS.PENDING,
+//         ORDER_INVENTORY_STATUS.PENDING_RECEIVE,
+//         ORDER_INVENTORY_STATUS.READY_TO_PICK,
+//         ORDER_INVENTORY_STATUS.PICKING,
+//         ORDER_INVENTORY_STATUS.PENDING_SPLIT
+//       ])
+//     }
+//   })
 
-  const { releaseQty, releaseWeight } = orderInventories.reduce(
-    (releaseAmount: { releaseQty: number; releaseWeight: number }, orderInv: OrderInventory) => {
-      releaseAmount.releaseQty += orderInv.releaseQty
-      releaseAmount.releaseWeight += orderInv.releaseWeight
-      return releaseAmount
-    },
-    { releaseQty: 0, releaseWeight: 0 }
-  )
+//   const { releaseQty, releaseWeight } = orderInventories.reduce(
+//     (releaseAmount: { releaseQty: number; releaseWeight: number }, orderInv: OrderInventory) => {
+//       releaseAmount.releaseQty += orderInv.releaseQty
+//       releaseAmount.releaseWeight += orderInv.releaseWeight
+//       return releaseAmount
+//     },
+//     { releaseQty: 0, releaseWeight: 0 }
+//   )
 
-  return { remainQty: inventory.qty - releaseQty, remainWeight: inventory.weight - releaseWeight }
-}
+//   return { remainQty: inventory.qty - releaseQty, remainWeight: inventory.weight - releaseWeight }
+// }
