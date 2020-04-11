@@ -25,7 +25,10 @@
   "dependencies": {
     "@things-factory/biz-base": "^2.2.0",
     "@things-factory/id-rule-base": "^0.0.8",
-    "@things-factory/product-base": "^2.4.0"
+    "@things-factory/product-base": "^2.4.0-beta.1"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "@things-factory/auth-ui-jwt": "^2.0.0",
+    "@things-factory/worksheet-base": "^2.4.0-beta.1"
+  }
 }
