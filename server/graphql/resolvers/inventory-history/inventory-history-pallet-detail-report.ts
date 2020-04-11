@@ -74,6 +74,7 @@ export const inventoryHistoryPalletDetailReport = {
             AND i2.bizplace_id = '${bizplace.id}'
             and (
             (ih.status = 'STORED' and ih.transaction_type = 'NEW') 
+            or (ih.status = 'STORED' and ih.transaction_type = 'CANCEL_ORDER')
             or (ih.status = 'STORED' and ih.transaction_type = 'PUTAWAY') 
             or (ih.status = 'TERMINATED')
             ) 
