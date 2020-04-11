@@ -1,5 +1,3 @@
-import * as Container from './container'
-import * as Dock from './dock'
 import * as Inventory from './inventory'
 import * as InventoryChange from './inventory-change'
 import * as InventoryHistory from './inventory-history'
@@ -17,8 +15,6 @@ export const queries = [
   InventoryHistory.Query,
   Warehouse.Query,
   Movement.Query,
-  Container.Query,
-  Dock.Query,
   Pallet.Query,
   PalletHistory.Query,
   PalletCount.Query
@@ -31,8 +27,6 @@ export const mutations = [
   InventoryHistory.Mutation,
   Warehouse.Mutation,
   Movement.Mutation,
-  Container.Mutation,
-  Dock.Mutation,
   Pallet.Mutation,
   PalletHistory.Mutation,
   PalletCount.Mutation

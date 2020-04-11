@@ -1,10 +1,8 @@
-import { Bizplace } from '@things-factory/biz-base'
-import { Product } from '@things-factory/product-base'
 import { generateId } from '@things-factory/id-rule-base'
-import { getManager, MoreThan, In, Not } from 'typeorm'
-import { Inventory, InventoryHistory, Location, InventoryChange } from '../../../entities'
-import { InventoryNoGenerator } from '../../../utils'
+import { getManager, In, MoreThan, Not } from 'typeorm'
 import { INVENTORY_STATUS, LOCATION_STATUS } from '../../../constants'
+import { Inventory, InventoryChange, InventoryHistory, Location } from '../../../entities'
+import { InventoryNoGenerator } from '../../../utils'
 
 export const approveInventoryChanges = {
   async approveInventoryChanges(_: any, { patches }, context: any) {

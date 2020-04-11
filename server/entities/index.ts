@@ -1,5 +1,3 @@
-import { Container } from './container'
-import { Dock } from './dock'
 import { Inventory } from './inventory'
 import { InventoryChange } from './inventory-change'
 import { InventoryHistory } from './inventory-history'
@@ -17,8 +15,6 @@ export const entities = [
   InventoryHistory,
   Warehouse,
   Movement,
-  Container,
-  Dock,
   Pallet,
   PalletHistory,
   PalletCount
@@ -31,8 +27,6 @@ export {
   InventoryHistory,
   Warehouse,
   Movement,
-  Container,
-  Dock,
   Pallet,
   PalletHistory,
   PalletCount
