@@ -17,6 +17,7 @@ export const InventoryChange = gql`
     unit: String
     status: String
     transactionType: String
+    lastInventoryHistory: InventoryHistory
     creator: User
     updater: User
     createdAt: String

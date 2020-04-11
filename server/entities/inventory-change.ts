@@ -4,8 +4,8 @@ import { Product } from '@things-factory/product-base'
 import { Domain } from '@things-factory/shell'
 import { Column, CreateDateColumn, Entity, Index, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm'
 import { Location } from './location'
-import { Warehouse } from './warehouse'
 import { Inventory } from './inventory'
+import { InventoryHistory } from './inventory-history'
 
 @Entity()
 @Index('ix_inventory-change_0', (inventoryChange: InventoryChange) => [inventoryChange.domain, inventoryChange.id], {
@@ -59,6 +59,11 @@ export class InventoryChange {
 
   @Column()
   status: string
+
+  @ManyToOne(type => InventoryHistory, {
+    nullable: true
+  })
+  lastInventoryHistory: InventoryHistory
 
   @Column()
   transactionType: string

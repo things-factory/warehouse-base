@@ -23,60 +23,89 @@ export const inventoryProductGroupResolver = {
 
 function getSelectQuery(whereClause: string): string {
   return `
-    WITH oi as (
+    SELECT * FROM (
+      WITH oi as (
+        SELECT
+          SUM(release_qty) as release_qty,
+          SUM(release_weight) as release_weight,
+          batch_id,
+          product_name,
+          packing_type
+        FROM
+          order_inventories
+        WHERE
+        status IN ('PENDING', 'PENDING_RECEIVE', 'READY_TO_PICK', 'PICKING', 'PENDING_SPLIT') 
+          AND batch_id NOTNULL
+          AND product_name NOTNULL
+          AND packing_type NOTNULL
+        GROUP BY
+          batch_id,
+          product_name,
+          packing_type
+      )
       SELECT
-        SUM(release_qty) as release_qty,
-        SUM(release_weight) as release_weight,
-        batch_id,
-        product_name,
-        packing_type
+        i.batch_id as "batchId",
+        i.packing_type as "packingType",
+        p.name as "productName",
+        p.id as "productId",
+        SUM(COALESCE(i.qty, 0)) - SUM(COALESCE(i.locked_qty, 0)) - MAX(COALESCE(oi.release_qty, 0)) as "remainQty",
+        SUM(COALESCE(i.weight, 0)) - SUM(COALESCE(i.locked_weight, 0)) - MAX(COALESCE(oi.release_weight, 0)) as "remainWeight"
       FROM
-        order_inventories
-      WHERE
-      status IN ('PENDING', 'PENDING_RECEIVE', 'READY_TO_PICK', 'PICKING', 'PENDING_SPLIT') 
-        AND batch_id NOTNULL
-        AND product_name NOTNULL
-        AND packing_type NOTNULL
+        inventories i
+        LEFT JOIN products p on i.product_id = p.id
+        LEFT JOIN oi on i.batch_id = oi.batch_id AND p.name = oi.product_name AND i.packing_type = oi.packing_type
+      ${whereClause}
       GROUP BY
-        batch_id,
-        product_name,
-        packing_type
-    )
-    SELECT
-      i.batch_id as "batchId",
-      i.packing_type as "packingType",
-      p.name as "productName",
-      p.id as "productId",
-      SUM(COALESCE(i.qty, 0)) - SUM(COALESCE(i.locked_qty, 0)) - MAX(COALESCE(oi.release_qty, 0)) as "remainQty",
-      SUM(COALESCE(i.weight, 0)) - SUM(COALESCE(i.locked_weight, 0)) - MAX(COALESCE(oi.release_weight, 0)) as "remainWeight"
-    FROM
-      inventories i
-      LEFT JOIN products p on i.product_id = p.id
-      LEFT JOIN oi on i.batch_id = oi.batch_id AND p.name = oi.product_name AND i.packing_type = oi.packing_type
-    ${whereClause}
-    GROUP BY
-      i.batch_id,
-      p.id,
-      i.packing_type
+        i.batch_id,
+        p.id,
+        i.packing_type
+    ) AS inv_prod_grp
+    WHERE
+      "inv_prod_grp"."remainQty" > 0
   `
 }
 
 function getCountQuery(whereClause: string): string {
   return `
-    SELECT
-      count(grouped_inv.batch_id) as "total"
-    FROM (
+    SELECT count(*) as total FROM (
+      WITH oi as (
+        SELECT
+          SUM(release_qty) as release_qty,
+          SUM(release_weight) as release_weight,
+          batch_id,
+          product_name,
+          packing_type
+        FROM
+          order_inventories
+        WHERE
+        status IN ('PENDING', 'PENDING_RECEIVE', 'READY_TO_PICK', 'PICKING', 'PENDING_SPLIT') 
+          AND batch_id NOTNULL
+          AND product_name NOTNULL
+          AND packing_type NOTNULL
+        GROUP BY
+          batch_id,
+          product_name,
+          packing_type
+      )
       SELECT
-        i.batch_id
+        i.batch_id as "batchId",
+        i.packing_type as "packingType",
+        p.name as "productName",
+        p.id as "productId",
+        SUM(COALESCE(i.qty, 0)) - SUM(COALESCE(i.locked_qty, 0)) - MAX(COALESCE(oi.release_qty, 0)) as "remainQty",
+        SUM(COALESCE(i.weight, 0)) - SUM(COALESCE(i.locked_weight, 0)) - MAX(COALESCE(oi.release_weight, 0)) as "remainWeight"
       FROM
         inventories i
-      LEFT JOIN products p on i.product_id = p.id
+        LEFT JOIN products p on i.product_id = p.id
+        LEFT JOIN oi on i.batch_id = oi.batch_id AND p.name = oi.product_name AND i.packing_type = oi.packing_type
       ${whereClause}
       GROUP BY
         i.batch_id,
-        i.product_id,
+        p.id,
         i.packing_type
-    ) as grouped_inv
+    ) AS inv_prod_grp
+    WHERE
+      "inv_prod_grp"."remainQty" > 0
   `
 }
 

@@ -1,7 +1,8 @@
 import { ListParam, convertListParams } from '@things-factory/shell'
 import { getPermittedBizplaceIds } from '@things-factory/biz-base'
 import { getRepository, SelectQueryBuilder } from 'typeorm'
-import { InventoryChange } from '../../../entities'
+import { Product } from '@things-factory/product-base'
+import { InventoryChange, Warehouse, Location } from '../../../entities'
 
 export const inventoryChangesResolver = {
   async inventoryChanges(_: any, params: ListParam, context: any) {
@@ -14,7 +15,7 @@ export const inventoryChangesResolver = {
     }
 
     const convertedParams = convertListParams(params, context.state.domain.id)
-    const [items, total] = await getRepository(InventoryChange).findAndCount({
+    let [items, total] = await getRepository(InventoryChange).findAndCount({
       ...convertedParams,
       relations: [
         'bizplace',
@@ -25,6 +26,8 @@ export const inventoryChangesResolver = {
         'product',
         'location',
         'domain',
+        'lastInventoryHistory',
+        'lastInventoryHistory.bizplace',
         'creator',
         'updater'
       ],
@@ -32,6 +35,20 @@ export const inventoryChangesResolver = {
         createdAt: 'DESC'
       }
     })
+
+    items = await Promise.all(
+      items.map(async item => {
+        if (item.lastInventoryHistory != null) {
+          item.lastInventoryHistory = {
+            ...item.lastInventoryHistory,
+            product: await getRepository(Product).findOne(item.lastInventoryHistory.productId),
+            warehouse: await getRepository(Warehouse).findOne(item.lastInventoryHistory.warehouseId),
+            location: await getRepository(Location).findOne(item.lastInventoryHistory.locationId)
+          } as any
+        }
+        return item
+      })
+    )
 
     return { items, total }
   }

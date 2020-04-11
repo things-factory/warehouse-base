@@ -1,5 +1,6 @@
 import { Bizplace } from '@things-factory/biz-base'
 import { Product } from '@things-factory/product-base'
+import { generateId } from '@things-factory/id-rule-base'
 import { getManager, MoreThan, In, Not } from 'typeorm'
 import { Inventory, InventoryHistory, Location, InventoryChange } from '../../../entities'
 import { InventoryNoGenerator } from '../../../utils'
@@ -44,19 +45,20 @@ export const approveInventoryChanges = {
             newHistoryRecord.openingQty = inventory.qty
             newHistoryRecord.openingWeight = inventory.weight
 
-            // Get last sequence from InventoryHistory
+            // Get last row of InventoryHistory
             let latestEntry = await trxMgr.getRepository(InventoryHistory).find({
               where: { palletId: inventory.palletId },
               order: { seq: 'DESC' },
               take: 1
             })
             let lastSeq = latestEntry[0].seq
+            _inventoryChanges[i].lastInventoryHistory = latestEntry[0]
 
             // Check Change of existing inventory location
             if (newRecord.location.id != inventory.location.id) {
               newRecord.zone = newRecord.location.zone
               newRecord.warehouse = newRecord.location.warehouse
-              transactionType = 'RELOCATE'
+              transactionType = 'ADJUSTMENT'
 
               // Check and set current location status
               let currentLocationInventoryCount = await trxMgr.getRepository(Inventory).count({
@@ -145,9 +147,9 @@ export const approveInventoryChanges = {
               status: newRecord.qty > 0 ? 'STORED' : 'TERMINATED',
               seq: lastSeq,
               transactionType: transactionType == '' ? 'ADJUSTMENT' : transactionType,
-              productId: newHistoryRecord.productId ? newHistoryRecord.productId : inventory.product.id,
-              warehouseId: newHistoryRecord.warehouseId ? newHistoryRecord.warehouseId : inventory.warehouse.id,
-              locationId: newHistoryRecord.locationId ? newHistoryRecord.locationId : inventory.location.id
+              productId: newRecord.product ? newRecord.product.id : inventory.product.id,
+              warehouseId: newRecord.warehouse ? newRecord.warehouse.id : inventory.warehouse.id,
+              locationId: newRecord.location.id != inventory.location.id ? newRecord.location.id : inventory.location.id
             }
             delete inventoryHistory.id
             await trxMgr.getRepository(InventoryHistory).save(inventoryHistory)
@@ -184,18 +186,27 @@ export const approveInventoryChanges = {
               }
             }
           }
+
           // Adding Inventory
           else {
             const total = await trxMgr.getRepository(Inventory).count({
               createdAt: MoreThan(new Date(year, month, date))
             })
 
-            let palletId =
-              'P' +
-              year.toString().substr(year.toString().length - 2) +
-              ('0' + (month + 1).toString()).substr(('0' + (month + 1).toString()).toString().length - 2) +
-              ('0' + date.toString()).substr(('0' + date.toString()).length - 2) +
-              ('0000' + (total + 1).toString()).substr(('0000' + (total + 1).toString()).length - 4)
+            const yy = String(year).substr(String(year).length - 2)
+            const mm = String(month + 1).padStart(2, '0')
+            const dd = String(date).padStart(2, '0')
+
+            const dateStr = yy + mm + dd
+
+            let palletId = await generateId({
+              domain: context.state.domain,
+              type: 'pallet_id',
+              seed: {
+                batchId: newRecord.batchId,
+                date: dateStr
+              }
+            })
 
             var location = await trxMgr.getRepository(Location).findOne({
               where: { id: newRecord.location.id },
