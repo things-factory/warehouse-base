@@ -2,7 +2,6 @@ import { checkProductIdenticalityResolver } from './check-product-identicality'
 import { createInventory } from './create-inventory'
 import { deleteInventories } from './delete-inventories'
 import { deleteInventory } from './delete-inventory'
-import { generatePalletIdResolver } from './generate-pallet-id'
 import { inventoriesResolver } from './inventories'
 import { inventoriesByProduct } from './inventories-by-product'
 import { inventoriesByStrategyResolver } from './inventories-by-strategy'
@@ -15,7 +14,6 @@ export const Query = {
   ...inventoriesResolver,
   ...inventoryResolver,
   ...inventoriesByProduct,
-  ...generatePalletIdResolver,
   ...inventoryProductGroupResolver,
   ...inventoriesByStrategyResolver,
   ...checkProductIdenticalityResolver
