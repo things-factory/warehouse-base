@@ -1,16 +1,13 @@
-import { Bizplace } from '@things-factory/biz-base'
-import { Product } from '@things-factory/product-base'
 import { getRepository } from 'typeorm'
 import { Inventory } from '../../../entities'
 
 export const inventoriesByStrategyResolver = {
-  async inventoriesByStrategy(_: any, { batchId, productName, packingType, pickingStrategy }, context: any) {
-    const foundProd: Product = await getRepository(Product).findOne({
-      where: { domain: context.state.domain, name: productName },
-      relations: ['bizplace']
-    })
-    const bizplace: Bizplace = foundProd.bizplace
-    const qb = getRepository(Inventory).createQueryBuilder('INV')
+  async inventoriesByStrategy(
+    _: any,
+    { batchId, bizplaceId, productName, packingType, pickingStrategy },
+    context: any
+  ) {
+    const qb = await getRepository(Inventory).createQueryBuilder('INV')
     qb.leftJoinAndSelect('INV.product', 'PROD')
       .leftJoinAndSelect('INV.location', 'LOC')
       .addSelect(subQuery =>
@@ -31,7 +28,7 @@ export const inventoriesByStrategyResolver = {
       .andWhere('"PROD"."name" = :productName')
       .andWhere('"INV"."packing_type" = :packingType')
       .andWhere('"INV"."status" = :status', { status: 'STORED' })
-      .andWhere('"INV"."bizplace_id" = :bizplaceId', { bizplaceId: bizplace.id })
+      .andWhere('"INV"."bizplace_id" = :bizplaceId', { bizplaceId: bizplaceId })
       .setParameters({
         batchId,
         productName,
