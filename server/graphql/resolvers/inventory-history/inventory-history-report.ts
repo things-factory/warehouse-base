@@ -66,7 +66,7 @@ export const inventoryHistoryReport = {
           FROM inventory_histories invh
           INNER JOIN products prd ON cast(prd.id AS VARCHAR) = invh.product_id
           WHERE
-          invh.transaction_type IN ('NEW', 'ADJUSTMENT', 'UNLOADING', 'PICKING', 'LOADING', 'UNDO_UNLOADING', 'CANCEL_ORDER')
+          invh.transaction_type IN ('NEW', 'ADJUSTMENT', 'UNLOADING', 'PICKING', 'LOADING', 'UNDO_UNLOADING', 'CANCEL_ORDER', 'RETURN')
           AND invh.domain_id = '${context.state.domain.id}'
           AND invh.bizplace_id = '${bizplace.id}'
           AND invh.created_at BETWEEN '${new Date(fromDate.value).toLocaleDateString()} 00:00:00'
@@ -99,7 +99,7 @@ export const inventoryHistoryReport = {
           src.bizplace_id = invh.bizplace_id AND 
           src.domain_id = invh.domain_id AND
           invh.created_at < '${new Date(fromDate.value).toLocaleDateString()} 00:00:00' AND
-          invh.transaction_type IN ('NEW', 'ADJUSTMENT', 'UNLOADING', 'PICKING', 'LOADING', 'UNDO_UNLOADING', 'CANCEL_ORDER')
+          invh.transaction_type IN ('NEW', 'ADJUSTMENT', 'UNLOADING', 'PICKING', 'LOADING', 'UNDO_UNLOADING', 'CANCEL_ORDER', 'RETURN')
           GROUP BY src.product_name, src.product_description, src.batch_id, src.product_id, src.packing_type, src.bizplace_id, 
           src.domain_id
           UNION ALL
