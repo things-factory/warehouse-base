@@ -49,16 +49,16 @@ export const inventoriesByStrategyResolver = {
     const items = entities
       .map((inv: Inventory, idx: number) => {
         const qty: number = inv.qty || 0
-        const lockedQty: number = inv.lockedQty || 0
+        // const lockedQty: number = inv.lockedQty || 0
         const weight: number = inv.weight || 0
-        const lockedWeight: number = inv.lockedWeight || 0
+        // const lockedWeight: number = inv.lockedWeight || 0
         const releaseQty: number = parseInt(raw[idx].releaseQty) || 0
         const releaseWeight: number = parseFloat(raw[idx].releaseWeight) || 0
 
         return {
           ...inv,
-          qty: qty - lockedQty - releaseQty,
-          weight: weight - lockedWeight - releaseWeight
+          qty: qty - releaseQty,
+          weight: weight - releaseWeight
         }
       })
       .filter((inv: Inventory) => inv.qty)
