@@ -1,6 +1,6 @@
 {
   "name": "@things-factory/warehouse-base",
-  "version": "2.4.5",
+  "version": "2.5.0-beta.1",
   "main": "dist-server/index.js",
   "browser": "client/index.js",
   "things-factory": true,
@@ -25,7 +25,7 @@
   "dependencies": {
     "@things-factory/biz-base": "^2.2.0",
     "@things-factory/id-rule-base": "^0.0.8",
-    "@things-factory/product-base": "^2.4.0"
+    "@things-factory/product-base": "^2.5.0-beta"
   },
   "devDependencies": {}
 }
