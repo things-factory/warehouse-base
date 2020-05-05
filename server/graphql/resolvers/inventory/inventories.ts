@@ -27,6 +27,18 @@ export const inventoriesResolver = {
       )
     }
 
+    const unlockOnlyParam: { name: string; operator: string; value: boolean } = params?.filters?.find(
+      (f: { name: string; operator: string; value: any }) => f.name === 'unlockOnly'
+    )
+
+    let unlockOnly: boolean = false
+    if (typeof unlockOnlyParam?.value !== 'undefined') {
+      unlockOnly = unlockOnlyParam.value
+      params.filters = params.filters.filter(
+        (f: { name: string; operator: string; value: any }) => f.name !== 'unlockOnly'
+      )
+    }
+
     const qb: SelectQueryBuilder<Inventory> = getRepository(Inventory).createQueryBuilder('iv')
     buildQuery(qb, params, context)
 
@@ -42,6 +54,10 @@ export const inventoriesResolver = {
       qb.andWhere('iv.qty > 0')
         .andWhere('CASE WHEN iv.lockedQty IS NULL THEN 0 ELSE iv.lockedQty END >= 0')
         .andWhere('iv.qty - CASE WHEN iv.lockedQty IS NULL THEN 0 ELSE iv.lockedQty END > 0')
+    }
+
+    if (unlockOnly) {
+      qb.andWhere('CASE WHEN iv.lockedQty IS NULL THEN 0 ELSE iv.lockedQty END = 0')
     }
 
     if (sortings?.length !== 0) {
