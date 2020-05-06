@@ -51,7 +51,7 @@ export const inventoryHistoryPalletReport = {
           product.value
             .split(',')
             .map(prod => {
-              return "'%" + prod.trim() + "%'"
+              return "'%" + prod.trim().replace(/'/g, "''") + "%'"
             })
             .join(',') +
           '])'
