@@ -29,19 +29,29 @@ export class InventoryChange {
   })
   batchId: string
 
-  @ManyToOne(type => Bizplace)
+  @ManyToOne(type => Bizplace, {
+    nullable: true
+  })
   bizplace: Bizplace
 
-  @ManyToOne(type => Inventory)
+  @ManyToOne(type => Inventory, {
+    nullable: true
+  })
   inventory: Inventory
 
-  @ManyToOne(type => Product)
+  @ManyToOne(type => Product, {
+    nullable: true
+  })
   product: Product
 
-  @ManyToOne(type => Location)
+  @ManyToOne(type => Location, {
+    nullable: true
+  })
   location: Location
 
-  @Column()
+  @Column({
+    nullable: true
+  })
   packingType: string
 
   @Column({
@@ -54,7 +64,9 @@ export class InventoryChange {
   })
   weight: number
 
-  @Column('float')
+  @Column('float', {
+    nullable: true
+  })
   qty: number
 
   @Column()
