@@ -25,6 +25,8 @@ export const approveInventoryChanges = {
         }
       })
 
+      let arrLockedInventory: InventoryChange[] = []
+
       if (_inventoryChanges.length > 0) {
         let today = new Date()
         let year = today.getFullYear()
@@ -32,7 +34,7 @@ export const approveInventoryChanges = {
         let date = today.getDate()
 
         for (let i = 0; i < _inventoryChanges.length; i++) {
-          if (_inventoryChanges[i].status.toLocaleLowerCase() != 'pending') return true
+          if (_inventoryChanges[i].status.toLocaleLowerCase() != 'pending') continue
 
           const newRecord: Inventory = JSON.parse(JSON.stringify(_inventoryChanges[i]))
           const newHistoryRecord: InventoryHistory = JSON.parse(JSON.stringify(_inventoryChanges[i]))
@@ -44,6 +46,11 @@ export const approveInventoryChanges = {
               where: { id: inventoryId },
               relations: ['domain', 'bizplace', 'product', 'warehouse', 'location', 'creator', 'updater']
             })
+
+            if (inventory.lockedQty > 0) {
+              arrLockedInventory.push(_inventoryChanges[i])
+              continue
+            }
 
             let lastSeq = inventory.lastSeq
 
@@ -272,7 +279,7 @@ export const approveInventoryChanges = {
         await trxMgr.getRepository(InventoryChange).save(_inventoryChanges)
       }
 
-      return true
+      return { items: arrLockedInventory, total: arrLockedInventory.length }
     })
   }
 }

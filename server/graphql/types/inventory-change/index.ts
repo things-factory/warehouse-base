@@ -32,7 +32,7 @@ export const Mutation = `
   
   approveInventoryChanges (
     patches: [InventoryChangePatch]!
-  ): Boolean @priviledge(category: "inventory_adjustment_approval", priviledge: "mutation")
+  ): InventoryChangeList @priviledge(category: "inventory_adjustment_approval", priviledge: "mutation")
   
   rejectInventoryChanges (
     patches: [InventoryChangePatch]!
