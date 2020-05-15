@@ -121,7 +121,7 @@ export const inventoryHistoryReport = {
           WHERE (invh.qty <> 0 OR invh.weight <> 0)
           AND invh.created_at BETWEEN '${new Date(fromDate.value).toLocaleDateString()} 00:00:00'
             AND '${new Date(toDate.value).toLocaleDateString()} 23:59:59'
-        ) AS reportData ORDER BY product_name asc, packing_type asc, batch_id asc, rn asc, created_at asc
+        ) AS reportData ORDER BY product_name asc, product_description asc, packing_type asc, batch_id asc, rn asc, created_at asc
       `)
 
       let items = result as any
