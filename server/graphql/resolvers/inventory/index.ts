@@ -6,6 +6,7 @@ import { inventoriesResolver } from './inventories'
 import { inventoriesByProduct } from './inventories-by-product'
 import { inventoriesByStrategyResolver } from './inventories-by-strategy'
 import { inventoryResolver } from './inventory'
+import { inventoryByPalletResolver } from './inventory-by-pallet'
 import { inventoryProductGroupResolver } from './inventory-product-group'
 import { updateInventory } from './update-inventory'
 import { updateMultipleInventory } from './update-multiple-inventory'
@@ -16,7 +17,8 @@ export const Query = {
   ...inventoriesByProduct,
   ...inventoryProductGroupResolver,
   ...inventoriesByStrategyResolver,
-  ...checkProductIdenticalityResolver
+  ...checkProductIdenticalityResolver,
+  ...inventoryByPalletResolver
 }
 
 export const Mutation = {

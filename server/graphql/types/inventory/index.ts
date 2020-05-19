@@ -5,7 +5,7 @@ import { InventoryProductGroup } from './inventory-product-group'
 import { InventoryProductGroupList } from './inventory-product-group-list'
 import { NewInventory } from './new-inventory'
 
-export const Mutation = `
+export const Mutation = /* GraphQL */ `
   createInventory (
     inventory: NewInventory!
   ): Inventory @priviledge(category: "inventory", priviledge: "mutation")
@@ -28,9 +28,10 @@ export const Mutation = `
   ): Boolean @priviledge(category: "inventory", priviledge: "mutation")
 `
 
-export const Query = `
+export const Query = /* GraphQL */ `
   inventories(filters: [Filter], pagination: Pagination, sortings: [Sorting], locationSortingRules: [Sorting]): InventoryList @priviledge(category: "inventory", priviledge: "query")
   inventory(id: String!): Inventory @priviledge(category: "inventory", priviledge: "query")
+  inventoryByPallet(palletId: String!): Inventory @priviledge(category: "inventory", priviledge: "query")
   inventoriesByProduct(filters: [Filter], pagination: Pagination, sortings: [Sorting]): InventoryList @priviledge(category: "inventory", priviledge: "query")
   inventoryProductGroup(filters: [Filter], pagination: Pagination, sortings: [Sorting], locationSortingRules: [Sorting]): InventoryProductGroupList @priviledge(category: "inventory", priviledge: "query")
   inventoriesByStrategy(batchId: String!, bizplaceId: String!, productName: String!, packingType: String!, pickingStrategy: String!): InventoryList
