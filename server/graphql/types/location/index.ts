@@ -1,10 +1,10 @@
 import { Location } from './location'
 import { LocationList } from './location-list'
+import { LocationOccupancy } from './location-occupancy'
 import { LocationPatch } from './location-patch'
 import { NewLocation } from './new-location'
-import { LocationOccupancy } from './location-occupancy'
 
-export const Mutation = `
+export const Mutation = /* GraphQL */ `
   createLocation (
     location: NewLocation!
   ): Location @priviledge(category: "warehouse", priviledge: "mutation")
@@ -31,10 +31,11 @@ export const Mutation = `
   ): Boolean @priviledge(category: "warehouse", priviledge: "mutation")
 `
 
-export const Query = `
+export const Query = /* GraphQL */ `
   locations(filters: [Filter], pagination: Pagination, sortings: [Sorting]): LocationList @priviledge(category: "warehouse", priviledge: "query")
   locationOccupancies(warehouse: String): LocationOccupancy @priviledge(category: "warehouse", priviledge: "query")
   location(id: String!): Location @priviledge(category: "warehouse", priviledge: "query")
+  locationByName(name: String!): Location @priviledge(category: "warehouse", priviledge: "query")
 `
 
 export const Types = [Location, NewLocation, LocationPatch, LocationList, LocationOccupancy]
