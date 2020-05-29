@@ -73,7 +73,7 @@ export const submitInventoryChanges = {
           updateRecord.transactionType = 'CHANGES'
 
           await inventoryChangeRepo.save({
-            ...existingRecord,
+            palletId: existingRecord.palletId,
             ...updateRecord,
             id: undefined,
             name: InventoryNoGenerator.inventoryName(),

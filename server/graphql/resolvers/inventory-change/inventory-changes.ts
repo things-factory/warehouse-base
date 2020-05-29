@@ -6,9 +6,9 @@ import { InventoryChange, Warehouse, Location } from '../../../entities'
 
 export const inventoryChangesResolver = {
   async inventoryChanges(_: any, params: ListParam, context: any) {
-    if (!params.filters.find((filter: any) => filter.name === 'bizplace')) {
+    if (!params.filters.find((filter: any) => filter.name === 'inventory.bizplace')) {
       params.filters.push({
-        name: 'bizplace',
+        name: 'inventory.bizplace',
         operator: 'in',
         value: await getPermittedBizplaceIds(context.state.domain, context.state.user)
       })

@@ -16,15 +16,6 @@ export const bizplaceInventoryHistories = {
     const convertedParams = convertListParams({ filters, pagination, sortings })
     let where = { domain: context.state.domain }
 
-    if (inventoryHistory && inventoryHistory.productName) {
-      const _products: Product[] = await getRepository(Product).find({
-        domain: context.state.domain,
-        bizplace: customerBizplace,
-        name: Raw(alias => `LOWER(${alias}) LIKE '${inventoryHistory.productName.toLowerCase()}'`)
-      })
-      where['productId'] = In(_products.map((product: Product) => product.id))
-    }
-
     if (inventoryHistory && inventoryHistory.warehouseName) {
       const _warehouses: Warehouse[] = await getRepository(Warehouse).find({
         domain: context.state.domain,

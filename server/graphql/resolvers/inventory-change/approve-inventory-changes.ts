@@ -19,8 +19,13 @@ export const approveInventoryChanges = {
           'bizplace',
           'product',
           'location'
-        ]
+        ],
+        order: {
+          createdAt: 'ASC'
+        }
       })
+
+      let arrLockedInventory: InventoryChange[] = []
 
       if (_inventoryChanges.length > 0) {
         let today = new Date()
@@ -29,7 +34,7 @@ export const approveInventoryChanges = {
         let date = today.getDate()
 
         for (let i = 0; i < _inventoryChanges.length; i++) {
-          if (_inventoryChanges[i].status.toLocaleLowerCase() != 'pending') return true
+          if (_inventoryChanges[i].status.toLocaleLowerCase() != 'pending') continue
 
           const newRecord: Inventory = JSON.parse(JSON.stringify(_inventoryChanges[i]))
           const newHistoryRecord: InventoryHistory = JSON.parse(JSON.stringify(_inventoryChanges[i]))
@@ -37,23 +42,33 @@ export const approveInventoryChanges = {
           // Adjustment of existing Inventory
           if (_inventoryChanges[i].inventory != null) {
             let inventoryId = _inventoryChanges[i].inventory.id
+            let inventory: Inventory = await trxMgr.getRepository(Inventory).findOne({
+              where: { id: inventoryId },
+              relations: ['domain', 'bizplace', 'product', 'warehouse', 'location', 'creator', 'updater']
+            })
+
+            if (inventory.lockedQty > 0) {
+              arrLockedInventory.push(_inventoryChanges[i])
+              continue
+            }
+
+            let lastSeq = inventory.lastSeq
+
             let transactionType = ''
-            let inventory: Inventory = _inventoryChanges[i].inventory
 
             newHistoryRecord.openingQty = inventory.qty
             newHistoryRecord.openingWeight = inventory.weight
 
             // Get last row of InventoryHistory
             let latestEntry = await trxMgr.getRepository(InventoryHistory).find({
-              where: { palletId: inventory.palletId },
+              where: { palletId: inventory.palletId, domain: context.state.domain },
               order: { seq: 'DESC' },
               take: 1
             })
-            let lastSeq = latestEntry[0].seq
             _inventoryChanges[i].lastInventoryHistory = latestEntry[0]
 
             // Check Change of existing inventory location
-            if (newRecord.location.id != inventory.location.id) {
+            if (newRecord.location && newRecord.location.id != inventory.location.id) {
               newRecord.zone = newRecord.location.zone
               newRecord.warehouse = newRecord.location.warehouse
               transactionType = 'ADJUSTMENT'
@@ -75,7 +90,7 @@ export const approveInventoryChanges = {
             }
 
             // Check Change of existing inventory quantity
-            if (newRecord.qty != inventory.qty) {
+            if (newRecord.qty && newRecord.qty != inventory.qty) {
               newHistoryRecord.qty = newRecord.qty - inventory.qty
               if (newRecord.qty < 1) {
                 newRecord.qty = 0
@@ -87,7 +102,7 @@ export const approveInventoryChanges = {
             }
 
             // Check Change of existing inventory weight
-            if (newRecord.weight != inventory.weight) {
+            if (newRecord.weight && newRecord.weight != inventory.weight) {
               newHistoryRecord.weight = newRecord.weight - inventory.weight
               if (newRecord.weight < 1) {
                 newRecord.weight = 0
@@ -99,10 +114,10 @@ export const approveInventoryChanges = {
 
             // Terminate current inventory history if there is change of bizplace, product, batchId, or packingType
             if (
-              inventory.bizplace.id !== (newRecord.bizplace ? newRecord.bizplace.id : '') ||
-              inventory.product.id !== (newRecord.product ? newRecord.product.id : '') ||
-              inventory.batchId !== newRecord.batchId ||
-              inventory.packingType !== newRecord.packingType
+              (newRecord.bizplace && inventory.bizplace.id !== newRecord.bizplace.id) ||
+              (newRecord.product && inventory.product.id !== newRecord.product.id) ||
+              (newRecord.batchId && inventory.batchId !== newRecord.batchId) ||
+              (newRecord.packingType && inventory.packingType !== newRecord.packingType)
             ) {
               transactionType = 'ADJUSTMENT'
               lastSeq = lastSeq + 1
@@ -121,20 +136,21 @@ export const approveInventoryChanges = {
                 productId: inventory.product.id,
                 warehouseId: inventory.warehouse.id,
                 locationId: inventory.location.id,
+                packingType: inventory.packingType,
                 creator: context.state.user,
                 updater: context.state.user
               }
               delete inventoryHistory.id
               await trxMgr.getRepository(InventoryHistory).save(inventoryHistory)
-              newHistoryRecord.qty = newRecord.qty || inventory.qty
-              newHistoryRecord.weight = newRecord.weight || inventory.weight || 0
+              newHistoryRecord.qty = newRecord.qty ? newRecord.qty : inventory.qty || 0
+              newHistoryRecord.weight = newRecord.weight ? newRecord.weight : inventory.weight || 0
               newHistoryRecord.openingQty = 0
               newHistoryRecord.openingWeight = 0
-              newHistoryRecord.batchId = newRecord.batchId || inventory.batchId || '-'
             }
 
             // Set and update inventory and inventory history data
             lastSeq = lastSeq + 1
+            clean(newHistoryRecord)
             let inventoryHistory = {
               ...inventory,
               ...newHistoryRecord,
@@ -142,28 +158,33 @@ export const approveInventoryChanges = {
               creator: context.state.user,
               updater: context.state.user,
               name: InventoryNoGenerator.inventoryHistoryName(),
-              status: newRecord.qty > 0 ? 'STORED' : 'TERMINATED',
+              status: (newRecord.qty ? newRecord.qty : inventory.qty) > 0 ? 'STORED' : 'TERMINATED',
               seq: lastSeq,
               transactionType: transactionType == '' ? 'ADJUSTMENT' : transactionType,
               productId: newRecord.product ? newRecord.product.id : inventory.product.id,
               warehouseId: newRecord.warehouse ? newRecord.warehouse.id : inventory.warehouse.id,
-              locationId: newRecord.location.id != inventory.location.id ? newRecord.location.id : inventory.location.id
+              locationId:
+                newRecord.location && newRecord.location.id != inventory.location.id
+                  ? newRecord.location.id
+                  : inventory.location.id
             }
             delete inventoryHistory.id
             await trxMgr.getRepository(InventoryHistory).save(inventoryHistory)
+
+            clean(newRecord)
             await trxMgr.getRepository(Inventory).save({
               ...inventory,
               ...newRecord,
               id: inventoryId,
-              status: newRecord.qty > 0 ? 'STORED' : 'TERMINATED',
+              status: (newRecord.qty ? newRecord.qty : inventory.qty) > 0 ? 'STORED' : 'TERMINATED',
               updater: context.state.user,
               lastSeq: lastSeq
             })
 
             //Check and set latest location status
-            if (newRecord.qty > 0) {
+            if (newRecord.qty ? newRecord.qty : inventory.qty > 0) {
               var location = await trxMgr.getRepository(Location).findOne({
-                where: { id: newRecord.location.id }
+                where: { id: newRecord.location ? newRecord.location.id : inventory.location.id }
               })
               await trxMgr.getRepository(Location).save({
                 ...location,
@@ -171,11 +192,15 @@ export const approveInventoryChanges = {
               })
             } else {
               let latestLocationInventoryCount = await trxMgr.getRepository(Inventory).count({
-                where: { location: newRecord.location.id, status: 'STORED', id: Not(inventory.id) }
+                where: {
+                  location: newRecord.location ? newRecord.location.id : inventory.location.id,
+                  status: 'STORED',
+                  id: Not(inventory.id)
+                }
               })
               if (latestLocationInventoryCount == 0) {
                 let latestLocation = await trxMgr.getRepository(Location).findOne({
-                  where: { id: newRecord.location.id }
+                  where: { id: newRecord.location ? newRecord.location.id : inventory.location.id }
                 })
                 await trxMgr.getRepository(Location).save({
                   ...latestLocation,
@@ -254,7 +279,17 @@ export const approveInventoryChanges = {
         await trxMgr.getRepository(InventoryChange).save(_inventoryChanges)
       }
 
-      return true
+      return { items: arrLockedInventory, total: arrLockedInventory.length }
     })
+  }
+}
+
+function clean(obj) {
+  var propNames = Object.getOwnPropertyNames(obj)
+  for (var i = 0; i < propNames.length; i++) {
+    var propName = propNames[i]
+    if (obj[propName] === null || obj[propName] === undefined) {
+      delete obj[propName]
+    }
   }
 }

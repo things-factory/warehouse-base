@@ -16,6 +16,7 @@ export const Inventory = gql`
     packingType: String
     qty: Int
     remainQty: Int
+    lockedQty: Int
     otherRef: String
     lastSeq: Int
     weight: Float
