@@ -42,7 +42,7 @@ export const inventoriesByProduct = {
       .leftJoin('Inventory.product', 'Product')
       .leftJoin('Product.productRef', 'ProductRef')
       .innerJoin('Product.bizplace', 'Bizplace')
-      .where('Inventory.qty >= :qty', { qty: 0 })
+      .where('Inventory.qty > :qty', { qty: 0 })
       .andWhere('Inventory.domain_id = :domainId', { domainId: context.state.domain.id })
       .andWhere('Inventory.bizplace_id IN (:...bizplaceIds)', { bizplaceIds: permittedBizplaceIds })
       .offset((page - 1) * limit)
