@@ -104,6 +104,7 @@ export const approveInventoryChanges = {
             // Check Change of existing inventory weight
             if (newRecord.weight && newRecord.weight != inventory.weight) {
               newHistoryRecord.weight = newRecord.weight - inventory.weight
+              Math.round(newHistoryRecord.weight * 100) / 100
               if (newRecord.weight < 1) {
                 newRecord.weight = 0
               }
