@@ -90,7 +90,7 @@ export const approveInventoryChanges = {
             }
 
             // Check Change of existing inventory quantity
-            if (newRecord.qty && newRecord.qty != inventory.qty) {
+            if (newRecord.qty != null && newRecord.qty != inventory.qty) {
               newHistoryRecord.qty = newRecord.qty - inventory.qty
               if (newRecord.qty < 1) {
                 newRecord.qty = 0
@@ -102,7 +102,7 @@ export const approveInventoryChanges = {
             }
 
             // Check Change of existing inventory weight
-            if (newRecord.weight && newRecord.weight != inventory.weight) {
+            if (newRecord.weight != null && newRecord.weight != inventory.weight) {
               newHistoryRecord.weight = newRecord.weight - inventory.weight
               Math.round(newHistoryRecord.weight * 100) / 100
               if (newRecord.weight < 1) {
@@ -143,8 +143,8 @@ export const approveInventoryChanges = {
               }
               delete inventoryHistory.id
               await trxMgr.getRepository(InventoryHistory).save(inventoryHistory)
-              newHistoryRecord.qty = newRecord.qty ? newRecord.qty : inventory.qty || 0
-              newHistoryRecord.weight = newRecord.weight ? newRecord.weight : inventory.weight || 0
+              newHistoryRecord.qty = newRecord.qty != null ? newRecord.qty : inventory.qty || 0
+              newHistoryRecord.weight = newRecord.weight != null ? newRecord.weight : inventory.weight || 0
               newHistoryRecord.openingQty = 0
               newHistoryRecord.openingWeight = 0
             }
@@ -159,7 +159,7 @@ export const approveInventoryChanges = {
               creator: context.state.user,
               updater: context.state.user,
               name: InventoryNoGenerator.inventoryHistoryName(),
-              status: (newRecord.qty ? newRecord.qty : inventory.qty) > 0 ? 'STORED' : 'TERMINATED',
+              status: 'STORED',
               seq: lastSeq,
               transactionType: transactionType == '' ? 'ADJUSTMENT' : transactionType,
               productId: newRecord.product ? newRecord.product.id : inventory.product.id,
@@ -172,12 +172,30 @@ export const approveInventoryChanges = {
             delete inventoryHistory.id
             await trxMgr.getRepository(InventoryHistory).save(inventoryHistory)
 
+            if (newRecord.qty != null && newRecord.qty == 0) {
+              ++lastSeq
+              delete inventoryHistory.id
+              inventoryHistory = {
+                ...inventoryHistory,
+                name: InventoryNoGenerator.inventoryHistoryName(),
+                qty: 0,
+                weight: 0,
+                openingQty: 0,
+                openingWeight: 0,
+                seq: lastSeq,
+                transactionType: 'TERMINATED',
+                status: 'TERMINATED'
+              }
+
+              await trxMgr.getRepository(InventoryHistory).save(inventoryHistory)
+            }
+
             clean(newRecord)
             await trxMgr.getRepository(Inventory).save({
               ...inventory,
               ...newRecord,
               id: inventoryId,
-              status: (newRecord.qty ? newRecord.qty : inventory.qty) > 0 ? 'STORED' : 'TERMINATED',
+              status: (newRecord.qty != null ? newRecord.qty : inventory.qty) > 0 ? 'STORED' : 'TERMINATED',
               updater: context.state.user,
               lastSeq: lastSeq
             })
