@@ -201,7 +201,7 @@ export const approveInventoryChanges = {
             })
 
             //Check and set latest location status
-            if (newRecord.qty ? newRecord.qty : inventory.qty > 0) {
+            if (newRecord.qty != null ? newRecord.qty : inventory.qty > 0) {
               var location = await trxMgr.getRepository(Location).findOne({
                 where: { id: newRecord.location ? newRecord.location.id : inventory.location.id }
               })
