@@ -88,7 +88,7 @@ export const inventoryHistoryPalletDetailReport = {
             or (ih.status = 'STORED' and ih.transaction_type = 'CANCEL_ORDER')
             or (ih.status = 'STORED' and ih.transaction_type = 'RETURN')
             or (ih.status = 'STORED' and ih.transaction_type = 'PUTAWAY') 
-            or (ih.status = 'TERMINATED')
+            or (ih.status = 'TERMINATED' and ih.transaction_type = 'TERMINATED')
             ) 
             ${bizplaceQuery}
             ${productQuery}
