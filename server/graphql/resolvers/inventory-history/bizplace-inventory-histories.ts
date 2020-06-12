@@ -44,7 +44,11 @@ export const bizplaceInventoryHistories = {
 
     const result = await getRepository(InventoryHistory).findAndCount({
       ...convertedParams,
-      relations: ['domain', 'bizplace', 'updater']
+      relations: ['domain', 'bizplace', 'updater'],
+      order: {
+        palletId: 'ASC',
+        seq: 'ASC'
+      }
     })
 
     let items = result[0] as any
@@ -59,7 +63,10 @@ export const bizplaceInventoryHistories = {
           bizplace: item.bizplace,
           orderRefNo: item.orderRefNo || '',
           orderNo: item.orderNo,
+          openingQty: item.openingQty,
+          openingWeight: item.openingWeight,
           qty: item.qty,
+          weight: item.weight,
           status: item.status,
           transactionType: item.transactionType,
           product: await getRepository(Product).findOne({
