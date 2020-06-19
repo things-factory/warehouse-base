@@ -34,6 +34,7 @@ export const Query = `
   inventoryHistoryReport(filters: [Filter], pagination: Pagination, sortings: [Sorting]): [InventoryHistory]
   inventoryHistoryPalletReport(filters: [Filter], pagination: Pagination, sortings: [Sorting]): [InventoryHistory]
   inventoryHistoryPalletDetailReport(filters: [Filter], pagination: Pagination, sortings: [Sorting]): [InventoryHistory]
+  inventoryHistoryPalletStorageReport(filters: [Filter], pagination: Pagination, sortings: [Sorting]): [InventoryHistory]
 `
 
 export const Types = [InventoryHistory, NewInventoryHistory, InventoryHistoryPatch, InventoryHistoryList]
