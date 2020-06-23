@@ -42,6 +42,20 @@ export const inventoryHistoryPalletStorageReport = {
         id: bizplaceFilter.value
       })
 
+      let queryFilter = ``
+      let queryParams = []
+      let locationType = params.filters.find(data => data.name === 'locationType')
+      if (locationType) {
+        queryFilter = queryFilter + `AND location_type = $` + (queryParams.length + 1)
+        queryParams.push(locationType.value)
+      }
+
+      let zone = params.filters.find(data => data.name === 'zone')
+      if (zone) {
+        queryFilter = queryFilter + `AND location_zone ilike '$` + (queryParams.length + 1) + `'`
+        queryParams.push(zone.value)
+      }
+
       return await getManager().transaction(async (trxMgr: EntityManager) => {
         await trxMgr.query(
           `
@@ -71,20 +85,26 @@ export const inventoryHistoryPalletStorageReport = {
           create temp table temp_pallet_storage_history as (
             with palletData as (
               select distinct on (inHistory.pallet_id) 
-              inHistory.pallet_id, inHistory.created_at as in_at, loc.name as location_name, loc."type" as location_type,
+              inHistory.pallet_id, inHistory.created_at as in_at, loc.name as location_name, loc."type" as location_type, loc."zone"  as location_zone,
               bz.name as bizplace_name
               from temp_history inHistory
               inner join inventories inv on inv.pallet_id = inhistory.pallet_id  and inv.domain_id = inhistory.domain_id
               inner join locations loc on loc.id = inv.location_id
               inner join bizplaces bz on bz.id = inv.bizplace_id 
               order by inHistory.pallet_id, inHistory.seq
-            )          
-            select bizplace_name, location_type, location_name, string_agg(pallet_id, ', ') as pallet_id from palletData where location_type = 'SHELF' group by bizplace_name, location_name, location_type
-            union 
-            select bizplace_name, location_type, location_name, pallet_id from palletData where location_type = 'FLOOR'
+            )
+            select * from (
+              select bizplace_name, location_type, location_zone, location_name, string_agg(pallet_id, ', ') as pallet_id from palletData where location_type = 'SHELF' group by bizplace_name, location_name, location_type, location_zone
+              union 
+              select bizplace_name, location_type, location_zone, location_name, pallet_id from palletData where location_type = 'FLOOR'
+            ) as src where 1 = 1
+            ${queryFilter} 
           )
-        `
+        `,
+          queryParams
         )
+
+        const total: any = await trxMgr.query(`select count(*) from temp_pallet_storage_history`)
 
         const result: any = await trxMgr.query(
           ` 
@@ -92,8 +112,6 @@ export const inventoryHistoryPalletStorageReport = {
         `,
           [(params.pagination.page - 1) * params.pagination.limit, params.pagination.limit]
         )
-
-        const total: any = await trxMgr.query(`select count(*) from temp_pallet_storage_history`)
 
         trxMgr.query(`
           drop table temp_history, temp_pallet_storage_history
@@ -107,7 +125,8 @@ export const inventoryHistoryPalletStorageReport = {
             },
             location: {
               name: itm.location_name,
-              type: itm.location_type
+              type: itm.location_type,
+              zone: itm.location_zone
             },
             palletId: itm.pallet_id
           }
