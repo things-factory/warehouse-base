@@ -52,7 +52,7 @@ export const inventoryHistoryPalletStorageReport = {
 
       let zone = params.filters.find(data => data.name === 'zone')
       if (zone) {
-        queryFilter = queryFilter + `AND location_zone ilike '$` + (queryParams.length + 1) + `'`
+        queryFilter = queryFilter + `AND location_zone ilike $` + (queryParams.length + 1)
         queryParams.push(zone.value)
       }
 
