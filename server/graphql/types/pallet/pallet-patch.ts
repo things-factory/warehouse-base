@@ -7,6 +7,7 @@ export const PalletPatch = gql`
     seq: Int
     owner: ObjectRef
     holder: ObjectRef
+    inventory: ObjectRef
     status: String
     cuFlag: String
   }

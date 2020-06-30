@@ -1,0 +1,5 @@
+export const PALLET_STATUS = {
+  ACTIVE: 'ACTIVE',
+  LOST: 'LOST',
+  DAMAGED: 'DAMAGED'
+}

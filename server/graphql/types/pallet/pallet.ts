@@ -7,6 +7,7 @@ export const Pallet = gql`
     seq: Int
     owner: Bizplace
     holder: Bizplace
+    inventory: Inventory
     status: String
     domain: Domain
     updater: User
