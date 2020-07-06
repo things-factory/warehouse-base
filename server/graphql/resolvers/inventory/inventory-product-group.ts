@@ -123,7 +123,7 @@ async function getWhereClause(
     filters.map(async (filter: { name: string; operator: string; value: any }) => {
       const name = filter.name
       const operator = filter.operator.toLowerCase()
-      let value = filter.value.trim().replace(/'/g, "''")
+      const value = filter.value
 
       switch (name) {
         case 'batchId':
