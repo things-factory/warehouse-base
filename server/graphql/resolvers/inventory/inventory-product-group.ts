@@ -123,7 +123,8 @@ async function getWhereClause(
     filters.map(async (filter: { name: string; operator: string; value: any }) => {
       const name = filter.name
       const operator = filter.operator.toLowerCase()
-      const value = filter.value
+      // const value = filter.value
+      let value = filter.value
 
       switch (name) {
         case 'batchId':
@@ -137,7 +138,7 @@ async function getWhereClause(
             select: ['id'],
             where: {
               bizplace: In(bizplaces.map((bizplace: Bizplace) => bizplace.id)),
-              name: Raw((alias: string) => `LOWER(${alias}) LIKE '${value.toLowerCase()}'`)
+              name: Raw((alias: string) => `LOWER(${alias}) LIKE '${value.toLowerCase().trim().replace(/'/g, "''")}'`)
             }
           })
           const productIds: string = products
