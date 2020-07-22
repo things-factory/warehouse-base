@@ -7,5 +7,6 @@ export const LOCATION_STATUS = {
 export const LOCATION_TYPE = {
   BUFFER: 'BUFFER',
   SHELF: 'SHELF',
-  FLOOR: 'FLOOR'
+  FLOOR: 'FLOOR',
+  MIXED: 'MIXED'
 }
