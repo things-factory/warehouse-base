@@ -26,22 +26,27 @@ function getSelectQuery(whereClause: string): string {
     SELECT * FROM (
       WITH oi as (
         SELECT
-          SUM(release_qty) as release_qty,
-          SUM(release_weight) as release_weight,
-          batch_id,
-          product_name,
-          packing_type
+          SUM(oi.release_qty) as release_qty,
+          SUM(oi.release_weight) as release_weight,
+          oi.batch_id,
+          p.name as product_name,
+          oi.packing_type
         FROM
-          order_inventories
+          order_inventories oi
+        LEFT JOIN
+          products p
+        ON
+          oi.product_id = p.id
         WHERE
         status IN ('PENDING', 'PENDING_RECEIVE', 'READY_TO_PICK', 'PICKING', 'PENDING_SPLIT') 
-          AND batch_id NOTNULL
-          AND product_name NOTNULL
-          AND packing_type NOTNULL
+          AND oi.batch_id NOTNULL
+          AND oi.product_id NOTNULL
+          AND oi.packing_type NOTNULL
         GROUP BY
-          batch_id,
-          product_name,
-          packing_type
+          oi.batch_id,
+          oi.product_id,
+          oi.packing_type,
+          p.name
       )
       SELECT
         i.batch_id as "batchId",
@@ -70,22 +75,27 @@ function getCountQuery(whereClause: string): string {
     SELECT count(*) as total FROM (
       WITH oi as (
         SELECT
-          SUM(release_qty) as release_qty,
-          SUM(release_weight) as release_weight,
-          batch_id,
-          product_name,
-          packing_type
+          SUM(oi.release_qty) as release_qty,
+          SUM(oi.release_weight) as release_weight,
+          oi.batch_id,
+          p.name as product_name,
+          oi.packing_type
         FROM
-          order_inventories
+          order_inventories oi
+        LEFT JOIN
+          products p
+        ON
+          oi.product_id = p.id
         WHERE
         status IN ('PENDING', 'PENDING_RECEIVE', 'READY_TO_PICK', 'PICKING', 'PENDING_SPLIT') 
-          AND batch_id NOTNULL
-          AND product_name NOTNULL
-          AND packing_type NOTNULL
+          AND oi.batch_id NOTNULL
+          AND oi.product_id NOTNULL
+          AND oi.packing_type NOTNULL
         GROUP BY
-          batch_id,
-          product_name,
-          packing_type
+          oi.batch_id,
+          oi.product_id,
+          oi.packing_type,
+          p.name
       )
       SELECT
         i.batch_id as "batchId",
