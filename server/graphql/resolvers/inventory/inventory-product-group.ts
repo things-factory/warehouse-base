@@ -38,7 +38,7 @@ function getSelectQuery(whereClause: string): string {
         ON
           oi.product_id = p.id
         WHERE
-        status IN ('PENDING', 'PENDING_RECEIVE', 'READY_TO_PICK', 'PICKING', 'PENDING_SPLIT') 
+        status = 'PENDING_SPLIT'
           AND oi.batch_id NOTNULL
           AND oi.product_id NOTNULL
           AND oi.packing_type NOTNULL
@@ -87,7 +87,7 @@ function getCountQuery(whereClause: string): string {
         ON
           oi.product_id = p.id
         WHERE
-        status IN ('PENDING', 'PENDING_RECEIVE', 'READY_TO_PICK', 'PICKING', 'PENDING_SPLIT') 
+        status = 'PENDING_SPLIT'
           AND oi.batch_id NOTNULL
           AND oi.product_id NOTNULL
           AND oi.packing_type NOTNULL
