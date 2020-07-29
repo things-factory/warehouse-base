@@ -7,6 +7,7 @@ import { Warehouse } from './warehouse'
 import { Pallet } from './pallet'
 import { PalletHistory } from './pallet-history'
 import { PalletCount } from './pallet-count'
+import { PickingBin } from './picking-bin'
 
 export const entities = [
   Location,
@@ -17,7 +18,8 @@ export const entities = [
   Movement,
   Pallet,
   PalletHistory,
-  PalletCount
+  PalletCount,
+  PickingBin
 ]
 
 export {
@@ -29,5 +31,6 @@ export {
   Movement,
   Pallet,
   PalletHistory,
-  PalletCount
+  PalletCount,
+  PickingBin
 }
