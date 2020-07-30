@@ -38,7 +38,7 @@ function getSelectQuery(whereClause: string): string {
         ON
           oi.product_id = p.id
         WHERE
-        status = 'PENDING_SPLIT'
+          oi.status IN ('PENDING', 'PENDING_RECEIVE', 'READY_TO_PICK', 'PICKING', 'PENDING_SPLIT') 
           AND oi.batch_id NOTNULL
           AND oi.product_id NOTNULL
           AND oi.packing_type NOTNULL
