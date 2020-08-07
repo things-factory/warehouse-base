@@ -89,8 +89,7 @@ export const inventoryHistoryReport = {
           FROM reduced_inventory_histories invh
           INNER JOIN products prd ON cast(prd.id AS VARCHAR) = invh.product_id
           WHERE
-          invh.transaction_type IN ('NEW', 'ADJUSTMENT', 'UNLOADING', 'PICKING', 'LOADING', 'UNDO_UNLOADING', 'CANCEL_ORDER', 'RETURN')
-          AND invh.domain_id = $1
+          invh.domain_id = $1
           AND invh.bizplace_id = $2
           AND invh.created_at::date <= $3
           ${batchNoQuery}
@@ -126,7 +125,7 @@ export const inventoryHistoryReport = {
             src.bizplace_id = invh.bizplace_id AND 
             src.domain_id = invh.domain_id AND
             invh.created_at < $1::timestamp AND
-            invh.transaction_type IN ('NEW', 'ADJUSTMENT', 'UNLOADING', 'PICKING', 'LOADING', 'UNDO_UNLOADING', 'CANCEL_ORDER', 'RETURN')
+            invh.transaction_type IN ('NEW', 'ADJUSTMENT', 'UNLOADING', 'PICKING', 'LOADING')
             GROUP BY src.product_name, src.product_description, src.batch_id, src.product_id, src.packing_type, src.bizplace_id, 
             src.domain_id
             UNION ALL
