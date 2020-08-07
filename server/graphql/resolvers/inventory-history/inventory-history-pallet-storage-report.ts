@@ -60,7 +60,7 @@ export const inventoryHistoryPalletStorageReport = {
         await trxMgr.query(
           `
           create temp table temp_history as (
-            select ih.* , inv.bizplace_id as bz_id from inventory_histories ih 
+            select ih.* , inv.bizplace_id as bz_id from reduced_inventory_histories ih 
             inner join inventories inv on inv.pallet_id = ih.pallet_id and inv.domain_id = ih.domain_id 
             where ih.domain_id = $1
             and inv.bizplace_id = $2

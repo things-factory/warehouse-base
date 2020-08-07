@@ -86,7 +86,7 @@ export const inventoryHistoryReport = {
           invh.packing_type, invh.bizplace_id, invh.domain_id,
           invh.ref_order_id, invh.order_no, invh.order_ref_no, invh.transaction_type, invh.created_at,
           invh.qty, invh.opening_qty, COALESCE(invh.weight, 0) as weight, COALESCE(invh.opening_weight, 0) as opening_weight
-          FROM inventory_histories invh
+          FROM reduced_inventory_histories invh
           INNER JOIN products prd ON cast(prd.id AS VARCHAR) = invh.product_id
           WHERE
           invh.transaction_type IN ('NEW', 'ADJUSTMENT', 'UNLOADING', 'PICKING', 'LOADING', 'UNDO_UNLOADING', 'CANCEL_ORDER', 'RETURN')
