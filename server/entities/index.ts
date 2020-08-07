@@ -1,6 +1,7 @@
 import { Inventory } from './inventory'
 import { InventoryChange } from './inventory-change'
 import { InventoryHistory } from './inventory-history'
+import { ReducedInventoryHistory } from './reduced-inventory-history'
 import { Location } from './location'
 import { Movement } from './movement'
 import { Warehouse } from './warehouse'
@@ -14,6 +15,7 @@ export const entities = [
   Inventory,
   InventoryChange,
   InventoryHistory,
+  ReducedInventoryHistory,
   Warehouse,
   Movement,
   Pallet,
@@ -27,6 +29,7 @@ export {
   Inventory,
   InventoryChange,
   InventoryHistory,
+  ReducedInventoryHistory,
   Warehouse,
   Movement,
   Pallet,
