@@ -26,6 +26,12 @@ export const Mutation = /* GraphQL */ `
   deleteInventories (
     id: [String]!
   ): Boolean @priviledge(category: "inventory", priviledge: "mutation")
+
+  inventoryTransfer (
+    palletId: String!
+    fromLocation: String!
+    toLocation: String!
+  ): Boolean @priviledge(category: "inventory", priviledge: "mutation")
 `
 
 export const Query = /* GraphQL */ `

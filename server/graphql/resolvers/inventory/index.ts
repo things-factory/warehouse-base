@@ -10,6 +10,7 @@ import { inventoryByPalletResolver } from './inventory-by-pallet'
 import { inventoryProductGroupResolver } from './inventory-product-group'
 import { updateInventory } from './update-inventory'
 import { updateMultipleInventory } from './update-multiple-inventory'
+import { inventoryTransfer } from './inventory-transfer'
 
 export const Query = {
   ...inventoriesResolver,
@@ -26,5 +27,6 @@ export const Mutation = {
   ...createInventory,
   ...deleteInventory,
   ...updateMultipleInventory,
-  ...deleteInventories
+  ...deleteInventories,
+  ...inventoryTransfer
 }
