@@ -1,7 +1,7 @@
 import { ListParam } from '@things-factory/shell'
 import { getManager, In } from 'typeorm'
 import { Location, Inventory } from '../../../entities'
-import { generateInventoryHistory } from '../../../utils'
+import { generateInventoryHistory, switchLocationStatus } from '../../../utils'
 import { INVENTORY_TRANSACTION_TYPE } from '../../../constants'
 
 export const inventoryTransfer = {
@@ -26,15 +26,22 @@ export const inventoryTransfer = {
 
         if (!foundInventory) throw new Error('Pallet Id not found')
 
-        const locationId = await trxMgr.getRepository(Location).findOne({
+        const fromLocationId = await trxMgr.getRepository(Location).findOne({
+          where: { domain: context.state.domain, name: fromLocation }
+        })
+
+        const toLocationId = await trxMgr.getRepository(Location).findOne({
           where: { domain: context.state.domain, name: toLocation }
         })
 
         const inventory: Inventory = await trxMgr.getRepository(Inventory).save({
           ...foundInventory,
-          location: locationId,
+          location: toLocationId,
           updater: context.state.user
         })
+
+        //Update fromLocation status
+        await switchLocationStatus(context.state.domain, fromLocationId, context.state.user, trxMgr)
 
         // Generate inventory history
         await generateInventoryHistory(
