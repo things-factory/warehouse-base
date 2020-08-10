@@ -29,8 +29,8 @@ export const Mutation = /* GraphQL */ `
 
   inventoryTransfer (
     palletId: String!
-    fromLocation: String!
-    toLocation: String!
+    fromLocationName: String!
+    toLocationName: String!
   ): Boolean @priviledge(category: "inventory", priviledge: "mutation")
 `
 
