@@ -39,6 +39,7 @@ export const inventoryHistoryReport = {
       let toDate = params.filters.find(data => data.name === 'toDate')
       let batchNo = params.filters.find(data => data.name === 'batch_no')
       let product = params.filters.find(data => data.name === 'product')
+      let productDesc = params.filters.find(data => data.name === 'product_description')
 
       if (!bizplaceFilter || !fromDate || !toDate) throw 'Invalid input'
 
@@ -49,8 +50,9 @@ export const inventoryHistoryReport = {
       let batchNoQuery = ''
       if (batchNo) {
         batchNoQuery =
-          'AND invh.batch_id ILIKE ANY(ARRAY[' +
+          'AND Lower(invh.batch_id) LIKE ANY(ARRAY[' +
           batchNo.value
+            .toLowerCase()
             .split(',')
             .map(prod => {
               return "'%" + prod.trim().replace(/'/g, "''") + "%'"
@@ -62,14 +64,20 @@ export const inventoryHistoryReport = {
       let productQuery = ''
       if (product) {
         productQuery =
-          'AND prd.name ILIKE ANY(ARRAY[' +
+          'AND Lower(name) LIKE ANY(ARRAY[' +
           product.value
+            .toLowerCase()
             .split(',')
             .map(prod => {
               return "'%" + prod.trim().replace(/'/g, "''") + "%'"
             })
             .join(',') +
           '])'
+      }
+
+      let productDescQuery = ''
+      if (productDesc) {
+        productDescQuery = "AND Lower(description) LIKE '%" + productDesc.value.toLowerCase() + "%'"
       }
 
       let hasTransactionOrBalanceQuery = ''
@@ -80,6 +88,18 @@ export const inventoryHistoryReport = {
       return await getManager().transaction(async (trxMgr: EntityManager) => {
         await trxMgr.query(
           `
+        create temp table temp_products AS 
+        (
+          select *, prd.id::varchar as product_id from products prd where 
+          prd.bizplace_id = $1
+          ${productQuery}
+          ${productDescQuery}
+        )`,
+          [bizplace.id]
+        )
+
+        await trxMgr.query(
+          `
         create temp table temp_data_src AS
         (
           SELECT prd.name AS product_name, prd.description AS product_description, trim(invh.batch_id) as batch_id, invh.product_id,
@@ -87,13 +107,12 @@ export const inventoryHistoryReport = {
           invh.ref_order_id, invh.order_no, invh.order_ref_no, invh.transaction_type, invh.created_at,
           invh.qty, invh.opening_qty, COALESCE(invh.weight, 0) as weight, COALESCE(invh.opening_weight, 0) as opening_weight
           FROM reduced_inventory_histories invh
-          INNER JOIN products prd ON cast(prd.id AS VARCHAR) = invh.product_id
+          INNER JOIN temp_products prd ON prd.product_id = invh.product_id
           WHERE
           invh.domain_id = $1
           AND invh.bizplace_id = $2
           AND invh.created_at::date <= $3
           ${batchNoQuery}
-          ${productQuery}
         ) 
       `,
           [context.state.domain.id, bizplace.id, new Date(toDate.value).toISOString()]
@@ -119,7 +138,7 @@ export const inventoryHistoryReport = {
               GROUP BY src.product_name, src.product_description, src.batch_id, src.product_id, src.packing_type, src.bizplace_id, 
               src.domain_id
             ) AS src 
-            LEFT JOIN inventory_histories invh ON src.batch_id = trim(invh.batch_id) AND 
+            LEFT JOIN reduced_inventory_histories invh ON src.batch_id = trim(invh.batch_id) AND 
             src.product_id = invh.product_id AND 
             src.packing_type = invh.packing_type AND 
             src.bizplace_id = invh.bizplace_id AND 
@@ -174,7 +193,7 @@ export const inventoryHistoryReport = {
 
         trxMgr.query(
           `
-          drop table temp_data_src, temp_inv_history
+          drop table temp_products, temp_data_src, temp_inv_history
         `
         )
 
