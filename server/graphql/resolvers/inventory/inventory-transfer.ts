@@ -9,14 +9,11 @@ export const inventoryTransfer = {
     try {
       return await getManager().transaction(async trxMgr => {
         // 1. check toLocation exist
-        const location: Location = await trxMgr.getRepository(Location).findOne({
-          where: {
-            domain: context.state.domain,
-            name: toLocationName
-          },
-          relations: ['warehouse']
+        const toLocation = await trxMgr.getRepository(Location).findOne({
+          where: { domain: context.state.domain, name: toLocationName },
+          relations: ['domain', 'warehouse']
         })
-        if (!location) throw new Error(`Location doesn't exists`)
+        if (!toLocation) throw new Error(`Location doesn't exists`)
 
         // 2. search for related inventory
         const foundInventory: Inventory = await trxMgr.getRepository(Inventory).findOne({
@@ -31,15 +28,11 @@ export const inventoryTransfer = {
           relations: ['domain', 'warehouse']
         })
 
-        const toLocation = await trxMgr.getRepository(Location).findOne({
-          where: { domain: context.state.domain, name: toLocationName },
-          relations: ['domain', 'warehouse']
-        })
-
         const inventory: Inventory = await trxMgr.getRepository(Inventory).save({
           ...foundInventory,
           warehouse: toLocation.warehouse,
           location: toLocation,
+          zone: toLocation.zone,
           updater: context.state.user
         })
 
