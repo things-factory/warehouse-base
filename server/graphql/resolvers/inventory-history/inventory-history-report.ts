@@ -37,9 +37,9 @@ export const inventoryHistoryReport = {
 
       let fromDate = params.filters.find(data => data.name === 'fromDate')
       let toDate = params.filters.find(data => data.name === 'toDate')
-      let batchNo = params.filters.find(data => data.name === 'batch_no')
+      let batchNo = params.filters.find(data => data.name === 'batchNo')
       let product = params.filters.find(data => data.name === 'product')
-      let productDesc = params.filters.find(data => data.name === 'product_description')
+      let productDesc = params.filters.find(data => data.name === 'productDescription')
 
       if (!bizplaceFilter || !fromDate || !toDate) throw 'Invalid input'
 
