@@ -142,9 +142,9 @@ async function massageInventoryPalletSummary(
   await trxMgr.query(
     `
     create temp table temp_inventory_pallet_summary as (
-      select prd.name as product_name, prd.description as product_description, invh.*,
+      select invh.*,
       invh.opening_qty + invh.total_in_qty - invh.total_out_qty as closing_qty from (
-        select product_id, packing_type,
+        select product_id, packing_type, product_name, product_description,
         SUM(case when invHistory.created_at <= $1 then
             case when invHistory.status = 'STORED' then 1 else -1 end
           else 0 end) as opening_qty,
@@ -158,19 +158,25 @@ async function massageInventoryPalletSummary(
           else 0 end) as total_out_qty,
         0 as adjustment_qty
         from(
-          select pallet_id, seq, status, transaction_type, product_id,
+          select pallet_id, seq, status, transaction_type, product_id, product_name, product_description,
           inventory_history_id, packing_type, qty, opening_qty, weight, opening_weight, created_at from (
-            select row_number() over(partition by pallet_id order by created_at asc) as rn, *  from temp_inv_history where status = 'STORED'
-          )as invIn where rn = 1
+            select row_number() over(partition by invh.pallet_id order by invh.created_at asc) as rn, invh.* ,
+            prd.name as product_name, prd.description as product_description 
+            from temp_inv_history invh
+            inner join temp_products prd on prd.id = invh.product_id
+            where status = 'STORED'
+          ) as invIn where rn = 1
           union all
-          select pallet_id, seq, status, transaction_type, product_id,
+          select pallet_id, seq, status, transaction_type, product_id, product_name, product_description,
           inventory_history_id, packing_type, qty, opening_qty, weight, opening_weight, created_at from (
-            select row_number() over(partition by pallet_id order by created_at desc) as rn, *  from temp_inv_history
-          )as invOut where rn = 1 and status = 'TERMINATED'
+            select row_number() over(partition by invh.pallet_id order by invh.created_at desc, invh.status desc) as rn, invh.*,
+            prd.name as product_name, prd.description as product_description
+            from temp_inv_history invh
+            inner join temp_products prd on prd.id = invh.product_id
+          ) as invOut where rn = 1 and status = 'TERMINATED'
         ) as invHistory         
-        group by product_id, packing_type
+        group by product_id, product_name, product_description, packing_type
       ) invh
-      inner join temp_products prd on prd.id = invh.product_id
       where 1=1
       ${hasTransactionOrBalanceQuery}
     )    
