@@ -6,11 +6,13 @@ import { InventoryHistory } from '../../../entities'
 export const inventoryHistoryReport = {
   async inventoryHistoryReport(_: any, params: ListParam, context: any) {
     try {
-      const convertedParams = convertListParams(params)
-      let userFilter = params.filters.find(data => data.name === 'user')
-
       let bizplaceFilter = { name: '', operator: '', value: '' }
-
+      let userFilter = params.filters.find(data => data.name === 'user')
+      let fromDate = params.filters.find(data => data.name === 'fromDate')
+      let toDate = params.filters.find(data => data.name === 'toDate')
+      let batchNo = params.filters.find(data => data.name === 'batchNo')
+      let product = params.filters.find(data => data.name === 'product')
+      let productDesc = params.filters.find(data => data.name === 'productDescription')
       let hasTransactionOrBalanceFilter = params.filters.find(data => data.name === 'hasTransactionOrBalance')
 
       if (userFilter) {
@@ -34,12 +36,6 @@ export const inventoryHistoryReport = {
       } else {
         bizplaceFilter = params.filters.find(data => data.name === 'bizplace')
       }
-
-      let fromDate = params.filters.find(data => data.name === 'fromDate')
-      let toDate = params.filters.find(data => data.name === 'toDate')
-      let batchNo = params.filters.find(data => data.name === 'batchNo')
-      let product = params.filters.find(data => data.name === 'product')
-      let productDesc = params.filters.find(data => data.name === 'productDescription')
 
       if (!bizplaceFilter || !fromDate || !toDate) throw 'Invalid input'
 

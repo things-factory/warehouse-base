@@ -11,6 +11,7 @@ import { inventoryHistoryReport } from './inventory-history-report'
 import { inventoryHistoryPalletReport } from './inventory-history-pallet-report'
 import { inventoryHistoryPalletDetailReport } from './inventory-history-pallet-detail-report'
 import { inventoryHistoryPalletStorageReport } from './inventory-history-pallet-storage-report'
+import { inventoryHistorySummaryReport } from './inventory-history-summary-report'
 
 export const Query = {
   ...inventoryHistoriesResolver,
@@ -20,7 +21,8 @@ export const Query = {
   ...warehouseInventoryHistories,
   ...inventoryHistoryPalletReport,
   ...inventoryHistoryPalletDetailReport,
-  ...inventoryHistoryPalletStorageReport
+  ...inventoryHistoryPalletStorageReport,
+  ...inventoryHistorySummaryReport
 }
 
 export const Mutation = {
