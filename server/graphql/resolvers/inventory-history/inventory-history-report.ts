@@ -139,7 +139,7 @@ export const inventoryHistoryReport = {
             src.packing_type = invh.packing_type AND 
             src.bizplace_id = invh.bizplace_id AND 
             src.domain_id = invh.domain_id AND
-            invh.created_at < $1::timestamp AND
+            invh.created_at::date < $1 AND
             invh.transaction_type IN ('NEW', 'ADJUSTMENT', 'UNLOADING', 'PICKING', 'LOADING')
             GROUP BY src.product_name, src.product_description, src.batch_id, src.product_id, src.packing_type, src.bizplace_id, 
             src.domain_id
@@ -164,7 +164,7 @@ export const inventoryHistoryReport = {
               LEFT JOIN release_goods rel ON cast(rel.id AS VARCHAR) = cast(wks.release_good_id AS VARCHAR) AND 
                 invh.transaction_type = 'PICKING'
               WHERE (invh.qty <> 0 OR invh.weight <> 0)
-              AND invh.created_at BETWEEN $1::timestamp AND $2::timestamp
+              AND invh.created_at::date BETWEEN $1 AND $2
             ) AS inv_movement 
             GROUP BY product_name, product_description, batch_id, product_id, packing_type, bizplace_id, 
             domain_id, order_name, ref_no, rn

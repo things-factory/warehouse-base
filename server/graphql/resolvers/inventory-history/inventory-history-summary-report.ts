@@ -144,7 +144,7 @@ async function massageInventoryPalletSummary(
     create temp table temp_inventory_pallet_summary as (
       select invh.*,
       invh.opening_qty + invh.total_in_qty - invh.total_out_qty as closing_qty from (
-        select product_id, packing_type, product_name, product_description,
+        select product_id, product_name, product_description,
         SUM(case when invHistory.created_at <= $1 then
             case when invHistory.status = 'STORED' then 1 else -1 end
           else 0 end) as opening_qty,
@@ -175,7 +175,7 @@ async function massageInventoryPalletSummary(
             inner join temp_products prd on prd.id = invh.product_id
           ) as invOut where rn = 1 and status = 'TERMINATED'
         ) as invHistory         
-        group by product_id, product_name, product_description, packing_type
+        group by product_id, product_name, product_description
       ) invh
       where 1=1
       ${hasTransactionOrBalanceQuery}
@@ -188,7 +188,7 @@ async function massageInventoryPalletSummary(
 
   const result: any = await trxMgr.query(
     ` 
-    select * from temp_inventory_pallet_summary ORDER BY product_name, product_description, packing_type OFFSET $1 LIMIT $2
+    select *, 'PALLET' as packing_type from temp_inventory_pallet_summary ORDER BY product_name, product_description OFFSET $1 LIMIT $2
   `,
     [(params.pagination.page - 1) * params.pagination.limit, params.pagination.limit]
   )
