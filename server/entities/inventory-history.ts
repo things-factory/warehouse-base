@@ -45,6 +45,11 @@ export class InventoryHistory {
   })
   batchId: string
 
+  @Column({
+    nullable: true
+  })
+  reusablePalletId: string
+
   @Column()
   productId: string
 

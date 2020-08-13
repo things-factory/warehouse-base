@@ -15,6 +15,7 @@ import {
 import { Location } from './location'
 import { Warehouse } from './warehouse'
 import { InventoryChange } from './inventory-change'
+import { Pallet } from '.'
 
 @Entity('inventories')
 @Index('ix_inventory_0', (inventory: Inventory) => [inventory.domain, inventory.id, inventory.palletId], {
@@ -63,6 +64,11 @@ export class Inventory {
     nullable: true
   })
   orderProductId: string
+
+  @ManyToOne(type => Pallet, {
+    nullable: true
+  })
+  reusablePallet: Pallet
 
   @ManyToOne(type => Product)
   product: Product
@@ -122,10 +128,7 @@ export class Inventory {
   })
   otherRef: string
 
-  @OneToMany(
-    type => InventoryChange,
-    inventoryChanges => inventoryChanges.inventory
-  )
+  @OneToMany(type => InventoryChange, inventoryChanges => inventoryChanges.inventory)
   inventoryChanges: InventoryChange[]
 
   @ManyToOne(type => User, {
