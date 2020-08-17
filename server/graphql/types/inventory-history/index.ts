@@ -4,6 +4,7 @@ import { InventoryHistoryPatch } from './inventory-history-patch'
 import { NewInventoryHistory } from './new-inventory-history'
 import { InventoryHistorySummary } from './inventory-history-summary'
 import { InventoryHistorySummaryList } from './inventory-history-summary-list'
+import { InventoryHistoryPalletReportList } from './inventory-history-pallet-report-list'
 
 export const Mutation = `
   createInventoryHistory (
@@ -36,7 +37,7 @@ export const Query = `
   inventoryHistoryReport(filters: [Filter], pagination: Pagination, sortings: [Sorting]): [InventoryHistory]
   inventoryHistoryPalletReport(filters: [Filter], pagination: Pagination, sortings: [Sorting]): [InventoryHistory]
   inventoryHistoryPalletDetailReport(filters: [Filter], pagination: Pagination, sortings: [Sorting]): [InventoryHistory]
-  inventoryHistoryPalletStorageReport(filters: [Filter], pagination: Pagination, sortings: [Sorting]): InventoryHistoryList
+  inventoryHistoryPalletStorageReport(filters: [Filter], pagination: Pagination, sortings: [Sorting]): InventoryHistoryPalletReportList
   inventoryHistorySummaryReport(filters: [Filter], pagination: Pagination, sortings: [Sorting]): InventoryHistorySummaryList
 `
 
@@ -46,5 +47,6 @@ export const Types = [
   InventoryHistoryPatch,
   InventoryHistoryList,
   InventoryHistorySummary,
-  InventoryHistorySummaryList
+  InventoryHistorySummaryList,
+  InventoryHistoryPalletReportList
 ]

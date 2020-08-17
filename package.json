@@ -1,6 +1,6 @@
 {
   "name": "@things-factory/warehouse-base",
-  "version": "2.6.17",
+  "version": "2.6.18",
   "main": "dist-server/index.js",
   "browser": "client/index.js",
   "things-factory": true,

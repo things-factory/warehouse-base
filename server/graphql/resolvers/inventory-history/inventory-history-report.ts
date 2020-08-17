@@ -129,7 +129,7 @@ export const inventoryHistoryReport = {
             $1::timestamp AS created_at,
             $1::date AS created_date  
             FROM temp_data_src src
-            WHERE src.created_at < $1::timestamp
+            WHERE src.created_at::date < $1::date
             GROUP BY src.product_name, src.product_description, src.batch_id, src.product_id, src.packing_type,
             src.bizplace_id, src.domain_id
             UNION ALL
@@ -148,7 +148,7 @@ export const inventoryHistoryReport = {
               WHERE (invh.qty <> 0 OR invh.weight <> 0) AND 
               invh.transaction_type <> 'ADJUSTMENT' AND 
               invh.transaction_type <>'NEW'
-              AND invh.created_at >= $1::timestamp
+              AND invh.created_at::date >= $1::date
             ) AS inv_movement 
             GROUP BY product_name, product_description, batch_id, product_id, packing_type, bizplace_id, 
             domain_id, order_name, ref_no, rn
@@ -168,7 +168,7 @@ export const inventoryHistoryReport = {
               WHERE (invh.qty <> 0 OR invh.weight <> 0) AND 
               (invh.transaction_type = 'ADJUSTMENT' OR 
               invh.transaction_type = 'NEW')
-              AND invh.created_at >= $1::timestamp
+              AND invh.created_at::date >= $1::date
             ) AS inv_movement 
             GROUP BY product_name, product_description, batch_id, product_id, packing_type, bizplace_id, 
             domain_id, order_name, ref_no, rn, created_at
