@@ -119,57 +119,61 @@ export const inventoryHistoryReport = {
           create temp table temp_inv_history as (
             SELECT src.product_name, src.product_description, src.batch_id, src.product_id, src.packing_type, 
             src.bizplace_id, src.domain_id,
-            SUM(COALESCE(invh.qty,0)) AS qty,
-            0 AS opening_qty,
-            SUM(COALESCE(invh.weight,0)) AS weight,
-            0 AS opening_weight,
+            SUM(COALESCE(src.qty,0)) AS qty,
+            SUM(COALESCE(src.opening_qty,0)) AS opening_qty,
+            SUM(COALESCE(src.weight,0)) AS weight,
+            SUM(COALESCE(src.opening_weight,0)) AS opening_weight,
             'Opening Balance' AS order_name,
             '-' AS ref_no,
             0 AS rn,
-            $1 AS created_at
-            FROM (
-              SELECT src.product_name, src.product_description, src.batch_id, src.product_id, src.packing_type, src.bizplace_id, 
-              src.domain_id
-              FROM temp_data_src src
-              GROUP BY src.product_name, src.product_description, src.batch_id, src.product_id, src.packing_type, src.bizplace_id, 
-              src.domain_id
-            ) AS src 
-            LEFT JOIN reduced_inventory_histories invh ON src.batch_id = trim(invh.batch_id) AND 
-            src.product_id = invh.product_id AND 
-            src.packing_type = invh.packing_type AND 
-            src.bizplace_id = invh.bizplace_id AND 
-            src.domain_id = invh.domain_id AND
-            invh.created_at::date < $1 AND
-            invh.transaction_type IN ('NEW', 'ADJUSTMENT', 'UNLOADING', 'PICKING', 'LOADING')
-            GROUP BY src.product_name, src.product_description, src.batch_id, src.product_id, src.packing_type, src.bizplace_id, 
-            src.domain_id
+            $1::timestamp AS created_at,
+            $1::date AS created_date  
+            FROM temp_data_src src
+            WHERE src.created_at < $1::timestamp
+            GROUP BY src.product_name, src.product_description, src.batch_id, src.product_id, src.packing_type,
+            src.bizplace_id, src.domain_id
             UNION ALL
             SELECT product_name, product_description, batch_id, product_id, packing_type, bizplace_id, 
-            domain_id, sum(qty) as qty, sum(opening_qty) as qty, sum(weight) as weight, sum(opening_weight) as opening_weight, order_name, ref_no, rn, MIN(created_at) as created_at
+            domain_id, sum(qty) as qty, sum(opening_qty) as opening_qty, sum(weight) as weight, sum(opening_weight) as opening_weight, 
+            order_name, ref_no, 1 AS rn, MIN(created_at) as created_at, MIN(created_at)::DATE as created_date
             FROM (
               SELECT invh.product_name, invh.product_description, invh.batch_id, invh.product_id, invh.packing_type, invh.bizplace_id, 
               invh.domain_id,
               invh.qty, invh.opening_qty,	invh.weight, invh.opening_weight,
-              CASE WHEN invh.transaction_type = 'ADJUSTMENT' THEN 'ADJUSTMENT'
-                WHEN invh.transaction_type = 'NEW' THEN 'NEW'
-                ELSE COALESCE(order_no, '-') END AS order_name,
-              CASE WHEN invh.transaction_type = 'ADJUSTMENT' THEN 'ADJUSTMENT' 
-                WHEN invh.transaction_type = 'NEW' THEN 'NEW'
-                ELSE COALESCE(order_ref_no, '-') END AS ref_no,
-              1 AS rn, invh.created_at
+              COALESCE(order_no, '-') AS order_name,
+              COALESCE(order_ref_no, '-') AS ref_no,
+              invh.created_at,
+              invh.created_at::date as created_date
               FROM temp_data_src invh
-              LEFT JOIN arrival_notices arrNo ON cast(arrNo.id AS VARCHAR) = invh.ref_order_id AND (invh.transaction_type = 'UNLOADING' OR 
-                invh.transaction_type = 'UNDO_UNLOADING')
-              LEFT JOIN worksheets wks ON cast(wks.id AS VARCHAR) = invh.ref_order_id AND invh.transaction_type = 'PICKING'
-              LEFT JOIN release_goods rel ON cast(rel.id AS VARCHAR) = cast(wks.release_good_id AS VARCHAR) AND 
-                invh.transaction_type = 'PICKING'
-              WHERE (invh.qty <> 0 OR invh.weight <> 0)
-              AND invh.created_at::date BETWEEN $1 AND $2
+              WHERE (invh.qty <> 0 OR invh.weight <> 0) AND 
+              invh.transaction_type <> 'ADJUSTMENT' AND 
+              invh.transaction_type <>'NEW'
+              AND invh.created_at >= $1::timestamp
             ) AS inv_movement 
             GROUP BY product_name, product_description, batch_id, product_id, packing_type, bizplace_id, 
             domain_id, order_name, ref_no, rn
+            UNION ALL
+            SELECT product_name, product_description, batch_id, product_id, packing_type, bizplace_id, 
+            domain_id, sum(qty) as qty, sum(opening_qty) as opening_qty, sum(weight) as weight, sum(opening_weight) as opening_weight,
+            order_name, ref_no, 1 AS rn, created_at, created_at::date as created_date
+            FROM (
+              SELECT invh.product_name, invh.product_description, invh.batch_id, invh.product_id, invh.packing_type, invh.bizplace_id, 
+              invh.domain_id,
+              invh.qty, invh.opening_qty,	invh.weight, invh.opening_weight,
+              invh.transaction_type AS order_name,
+              invh.transaction_type AS ref_no,
+              invh.created_at,
+              invh.created_at:: date as created_date
+              FROM temp_data_src invh
+              WHERE (invh.qty <> 0 OR invh.weight <> 0) AND 
+              (invh.transaction_type = 'ADJUSTMENT' OR 
+              invh.transaction_type = 'NEW')
+              AND invh.created_at >= $1::timestamp
+            ) AS inv_movement 
+            GROUP BY product_name, product_description, batch_id, product_id, packing_type, bizplace_id, 
+            domain_id, order_name, ref_no, rn, created_at
           )`,
-          [new Date(fromDate.value).toISOString(), new Date(toDate.value).toISOString()]
+          [new Date(fromDate.value).toISOString()]
         )
 
         const result: any = await trxMgr.query(
@@ -179,9 +183,11 @@ export const inventoryHistoryReport = {
           from temp_inv_history invh where
           exists (
             select * from (
-              select batch_id, product_name, packing_type, sum(qty) as totalQty, count(*) as totalRow from temp_inv_history ih2 group by batch_id, product_name, packing_type
-              ) src where src.batch_id = invh.batch_id and src.product_name = invh.product_name and src.packing_type = invh.packing_type
-              ${hasTransactionOrBalanceQuery}
+              select batch_id, product_name, packing_type, sum(qty) as totalQty, count(*) as totalRow from temp_inv_history ih2 
+              group by batch_id, product_name, packing_type
+            ) src 
+            where src.batch_id = invh.batch_id and src.product_name = invh.product_name and src.packing_type = invh.packing_type
+            ${hasTransactionOrBalanceQuery}
           )
           ORDER BY invh.product_name asc, invh.product_description asc, invh.packing_type asc, invh.batch_id asc, invh.rn asc, invh.created_at asc
         `
