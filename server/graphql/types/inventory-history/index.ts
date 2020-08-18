@@ -4,6 +4,7 @@ import { InventoryHistoryPatch } from './inventory-history-patch'
 import { NewInventoryHistory } from './new-inventory-history'
 import { InventoryHistorySummary } from './inventory-history-summary'
 import { InventoryHistorySummaryList } from './inventory-history-summary-list'
+import { InventoryHistoryPalletReport } from './inventory-history-pallet-report'
 import { InventoryHistoryPalletReportList } from './inventory-history-pallet-report-list'
 
 export const Mutation = `
@@ -48,5 +49,6 @@ export const Types = [
   InventoryHistoryList,
   InventoryHistorySummary,
   InventoryHistorySummaryList,
+  InventoryHistoryPalletReport,
   InventoryHistoryPalletReportList
 ]

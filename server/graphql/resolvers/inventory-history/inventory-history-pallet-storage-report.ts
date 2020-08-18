@@ -43,7 +43,7 @@ export const inventoryHistoryPalletStorageReport = {
       })
 
       let queryFilter = ``
-      let queryParams = []
+      let queryParams = [fromDate.value, toDate.value]
       let locationType = params.filters.find(data => data.name === 'locationType')
       if (locationType) {
         queryFilter = queryFilter + `AND location_type = $` + (queryParams.length + 1)
@@ -52,29 +52,34 @@ export const inventoryHistoryPalletStorageReport = {
 
       let zone = params.filters.find(data => data.name === 'zone')
       if (zone) {
-        queryFilter = queryFilter + `AND location_zone ilike $` + (queryParams.length + 1)
-        queryParams.push(zone.value)
+        queryFilter = queryFilter + `AND LOWER(location_zone) like $` + (queryParams.length + 1)
+        queryParams.push(zone.value.toLowerCase())
       }
 
       return await getManager().transaction(async (trxMgr: EntityManager) => {
         await trxMgr.query(
           `
           create temp table temp_history as (
-            select ih.* , inv.bizplace_id as bz_id from reduced_inventory_histories ih 
+            select distinct on (ih.pallet_id) 
+            ih.pallet_id, ih.created_at as in_at, loc.name as location_name, loc."type" as location_type, loc."zone"  as location_zone,
+            bz.name as bizplace_name
+            from reduced_inventory_histories ih 
             inner join inventories inv on inv.pallet_id = ih.pallet_id and inv.domain_id = ih.domain_id 
+            inner join locations loc on loc.id = inv.location_id
+            inner join bizplaces bz on bz.id = inv.bizplace_id 
             where ih.domain_id = $1
             and inv.bizplace_id = $2
             and not exists(
-              select * from (
-                SELECT DISTINCT ON (pallet_id) ih2.*
-                FROM inventory_histories ih2
-                where ih2.domain_id = $1
-                and ih2.created_at < $3
-                ORDER BY pallet_id , seq desc
-              ) as foo where foo.status = 'TERMINATED' and foo.pallet_id = ih.pallet_id 
+              SELECT domain_id, pallet_id 
+              FROM reduced_inventory_histories ih2
+              where ih2.domain_id = $1
+              and ih2.created_at < $3
+              and ih2.transaction_type = 'TERMINATED' and ih2.status ='TERMINATED'
+              and ih2.pallet_id = ih.pallet_id
+              group by ih2.domain_id , ih2.pallet_id
             )
             and ih.created_at <= $4
-            order by ih.pallet_id , ih.seq 
+            order by ih.pallet_id , ih.seq
           )      
         `,
           [context.state.domain.id, bizplace.id, fromDate.value, toDate.value]
@@ -83,20 +88,21 @@ export const inventoryHistoryPalletStorageReport = {
         await trxMgr.query(
           `          
           create temp table temp_pallet_storage_history as (
-            with palletData as (
-              select distinct on (inHistory.pallet_id) 
-              inHistory.pallet_id, inHistory.created_at as in_at, loc.name as location_name, loc."type" as location_type, loc."zone"  as location_zone,
-              bz.name as bizplace_name
-              from temp_history inHistory
-              inner join inventories inv on inv.pallet_id = inhistory.pallet_id  and inv.domain_id = inhistory.domain_id
-              inner join locations loc on loc.id = inv.location_id
-              inner join bizplaces bz on bz.id = inv.bizplace_id 
-              order by inHistory.pallet_id, inHistory.seq
-            )
             select * from (
-              select bizplace_name, location_type, location_zone, location_name, string_agg(pallet_id, ', ') as pallet_id from palletData where location_type = 'SHELF' group by bizplace_name, location_name, location_type, location_zone
+              select bizplace_name, location_type, location_zone, location_name, 
+              COUNT(pallet_id) filter (where in_at between $1 and $2) as inbound_qty,
+              COUNT(*) as total_qty,
+              string_agg(case when in_at between $1 and $2 then pallet_id end, ', ')  as inbound_pallet_id,
+              string_agg(case when in_at not between $1 and $2 then pallet_id end, ', ') as pallet_id
+              from temp_history where location_type = 'SHELF' 
+              group by bizplace_name, location_name, location_type, location_zone
               union 
-              select bizplace_name, location_type, location_zone, location_name, pallet_id from palletData where location_type = 'FLOOR'
+              select bizplace_name, location_type, location_zone, location_name, 
+              case when in_at between $1 and $2 then 1 else 0 end as inbound_qty,
+              1 as total_qty,
+              case when in_at between $1 and $2 then pallet_id end as inbound_pallet_id,
+              case when in_at not between $1 and $2 then pallet_id end pallet_id 
+              from temp_history where location_type = 'FLOOR'
             ) as src where 1 = 1
             ${queryFilter} 
           )
@@ -106,9 +112,13 @@ export const inventoryHistoryPalletStorageReport = {
 
         const total: any = await trxMgr.query(`select count(*) from temp_pallet_storage_history`)
 
+        const totalWithoutInbound: any = await trxMgr.query(
+          `select count(*) from temp_pallet_storage_history where inbound_qty = 0`
+        )
+
         const result: any = await trxMgr.query(
           ` 
-          select * from temp_pallet_storage_history OFFSET $1 LIMIT $2
+          select * from temp_pallet_storage_history order by location_type OFFSET $1 LIMIT $2
         `,
           [(params.pagination.page - 1) * params.pagination.limit, params.pagination.limit]
         )
@@ -128,11 +138,14 @@ export const inventoryHistoryPalletStorageReport = {
               type: itm.location_type,
               zone: itm.location_zone
             },
-            palletId: itm.pallet_id
+            palletId: itm.pallet_id,
+            inboundPalletId: itm.inbound_pallet_id,
+            inboundQty: itm.inbound_qty,
+            totalQty: itm.total_qty
           }
         })
 
-        return { items, total: total[0].count }
+        return { items, total: total[0].count, totalWithoutInbound: totalWithoutInbound[0].count }
       })
     } catch (ex) {
       throw ex
