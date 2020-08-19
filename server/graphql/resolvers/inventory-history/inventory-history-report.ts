@@ -86,7 +86,7 @@ export const inventoryHistoryReport = {
           `
         create temp table temp_products AS 
         (
-          select *, prd.id::varchar as product_id from products prd where 
+          select * from products prd where 
           prd.bizplace_id = $1
           ${productQuery}
           ${productDescQuery}
@@ -103,7 +103,7 @@ export const inventoryHistoryReport = {
           invh.ref_order_id, invh.order_no, invh.order_ref_no, invh.transaction_type, invh.created_at,
           invh.qty, invh.opening_qty, COALESCE(invh.weight, 0) as weight, COALESCE(invh.opening_weight, 0) as opening_weight
           FROM reduced_inventory_histories invh
-          INNER JOIN temp_products prd ON prd.product_id = invh.product_id
+          INNER JOIN temp_products prd ON prd.id = invh.product_id::uuid
           WHERE
           invh.domain_id = $1
           AND invh.bizplace_id = $2
