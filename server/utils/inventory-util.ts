@@ -64,7 +64,7 @@ export async function generateInventoryHistory(
     orderNo: refOrder?.name || null,
     orderRefNo: refOrder?.refNo || null,
     productId: inventory.product.id,
-    reusablePalletId: inventory.reusablePallet.id,
+    reusablePallet: inventory.reusablePallet,
     warehouseId: inventory.warehouse.id,
     locationId: inventory.location.id,
     qty,

@@ -2,6 +2,7 @@ import { User } from '@things-factory/auth-base'
 import { Bizplace } from '@things-factory/biz-base'
 import { Domain } from '@things-factory/shell'
 import { Column, CreateDateColumn, Entity, Index, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm'
+import { Pallet } from '.'
 
 @Entity()
 @Index(
@@ -45,10 +46,10 @@ export class InventoryHistory {
   })
   batchId: string
 
-  @Column({
+  @ManyToOne(type => Pallet, {
     nullable: true
   })
-  reusablePalletId: string
+  reusablePallet: Pallet
 
   @Column()
   productId: string
