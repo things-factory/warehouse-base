@@ -7,6 +7,7 @@ export const NewInventory = gql`
     palletId: String
     batchId: String
     product: ObjectRef
+    reusablePallet: ObjectRef
     location: ObjectRef
     warehouse: ObjectRef
     packingType: String

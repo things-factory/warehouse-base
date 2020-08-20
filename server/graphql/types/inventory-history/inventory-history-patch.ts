@@ -11,6 +11,8 @@ export const InventoryHistoryPatch = gql`
     batchId: String
     productId: String
     productName: String
+    reusablePalletId: String
+    reusablePalletName: String
     locationId: String
     locationName: String
     warehouseId: String

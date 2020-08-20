@@ -10,6 +10,7 @@ export const Inventory = gql`
     palletId: String
     batchId: String
     product: Product
+    reusablePallet: Pallet
     location: Location
     warehouse: Warehouse
     zone: String

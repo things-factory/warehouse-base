@@ -11,6 +11,8 @@ export const InventoryHistory = gql`
     batchId: String
     productId: String
     product: Product
+    reusablePalletId: String
+    reusablePallet: Pallet
     locationId: String
     location: Location
     warehouseId: String

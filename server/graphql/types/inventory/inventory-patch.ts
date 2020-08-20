@@ -11,6 +11,8 @@ export const InventoryPatch = gql`
     batchId: String
     product: ObjectRef
     productName: String
+    reusablePallet: ObjectRef
+    reusablePalletId: String
     location: ObjectRef
     locationName: String
     warehouse: ObjectRef
