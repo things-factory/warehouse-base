@@ -173,7 +173,7 @@ async function massageInventoryPalletSummary(
             prd.name as product_name, prd.description as product_description
             from temp_inv_history invh
             inner join temp_products prd on prd.id = invh.product_id
-          ) as invOut where rn = 1 and status = 'TERMINATED'
+          ) as invOut where rn = 1 and status = 'TERMINATED' and transaction_type = 'TERMINATED'
         ) as invHistory         
         group by product_id, product_name, product_description
       ) invh

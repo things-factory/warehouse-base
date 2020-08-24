@@ -49,7 +49,8 @@ export const inventoryHistoriesResolver = {
           ...item,
           orderRefNo: item.orderRefNo,
           orderNo: item.orderNo,
-          qty: item.openingQty + item.qty,
+          qty: item.qty,
+          openingQty: item.openingQty,
           product: await getRepository(Product).findOne(item.productId),
           warehouse: await getRepository(Warehouse).findOne(item.warehouseId),
           location: await getRepository(Location).findOne(item.locationId)
