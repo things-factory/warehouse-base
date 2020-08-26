@@ -112,8 +112,8 @@ export const inventoryHistoryPalletStorageReport = {
 
         const total: any = await trxMgr.query(`select count(*) from temp_pallet_storage_history`)
 
-        const totalWithoutInbound: any = await trxMgr.query(
-          `select count(*) from temp_pallet_storage_history where inbound_qty = 0`
+        const totalWithOpeningBalance: any = await trxMgr.query(
+          `select count(*) from temp_pallet_storage_history where pallet_id notnull`
         )
 
         const result: any = await trxMgr.query(
@@ -145,7 +145,7 @@ export const inventoryHistoryPalletStorageReport = {
           }
         })
 
-        return { items, total: total[0].count, totalWithoutInbound: totalWithoutInbound[0].count }
+        return { items, total: total[0].count, totalWithOpeningBalance: totalWithOpeningBalance[0].count }
       })
     } catch (ex) {
       throw ex

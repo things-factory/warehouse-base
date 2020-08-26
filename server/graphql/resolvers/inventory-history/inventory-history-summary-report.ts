@@ -169,11 +169,11 @@ async function massageInventoryPalletSummary(
           union all
           select pallet_id, seq, status, transaction_type, product_id, product_name, product_description,
           inventory_history_id, packing_type, qty, opening_qty, weight, opening_weight, created_at from (
-            select row_number() over(partition by invh.pallet_id order by invh.created_at desc, invh.status desc) as rn, invh.*,
+            select row_number() over(partition by invh.pallet_id order by invh.seq desc) as rn, invh.*,
             prd.name as product_name, prd.description as product_description
             from temp_inv_history invh
             inner join temp_products prd on prd.id = invh.product_id
-          ) as invOut where rn = 1 and status = 'TERMINATED' and transaction_type = 'TERMINATED'
+          ) as invOut where rn = 1 and status = 'TERMINATED'
         ) as invHistory         
         group by product_id, product_name, product_description
       ) invh
