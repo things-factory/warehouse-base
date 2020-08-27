@@ -42,6 +42,7 @@ export const Query = `
   pallet(name: String!): Pallet
   palletInboundValidate(name: String!): PalletValidate
   palletOutboundValidate(name: String!): PalletValidate
+  palletByStatus(name: String!, status: String!): Pallet
 `
 
 export const Types = [Pallet, NewPallet, PalletPatch, PalletList, PalletValidate]
