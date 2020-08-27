@@ -8,8 +8,6 @@ export const palletByStatusResolver = {
       relations: ['owner', 'holder', 'domain', 'creator', 'updater']
     })
 
-    if (!records) throw new Error(`Reusable Pallet not exist`)
-
     return records
   }
 }
