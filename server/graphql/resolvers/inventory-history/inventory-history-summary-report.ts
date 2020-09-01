@@ -64,7 +64,7 @@ export const inventoryHistorySummaryReport = {
           }
         })
 
-        return { items, total: total[0].count }
+        return { items, total: total[0].count, totalInboundQty: total[0].totalinqty || 0 }
       })
     } catch (error) {
       throw error
@@ -184,7 +184,9 @@ async function massageInventoryPalletSummary(
     [fromDate.value, toDate.value]
   )
 
-  const total: any = await trxMgr.query(`select count(*) from temp_inventory_pallet_summary`)
+  const total: any = await trxMgr.query(
+    `select count(*) as count, sum(total_in_qty) as totalInQty from temp_inventory_pallet_summary`
+  )
 
   const result: any = await trxMgr.query(
     ` 

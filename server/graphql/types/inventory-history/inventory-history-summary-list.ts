@@ -4,5 +4,6 @@ export const InventoryHistorySummaryList = gql`
   type InventoryHistorySummaryList {
     items: [InventoryHistorySummary]
     total: Int
+    totalInboundQty: Int
   }
 `
