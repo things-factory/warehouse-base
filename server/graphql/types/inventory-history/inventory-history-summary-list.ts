@@ -5,5 +5,6 @@ export const InventoryHistorySummaryList = gql`
     items: [InventoryHistorySummary]
     total: Int
     totalInboundQty: Int
+    totalOpeningBal: Int
   }
 `
