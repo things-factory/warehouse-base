@@ -52,7 +52,7 @@ function getSelectQuery(whereClause: string): string {
       SELECT
         i.batch_id as "batchId",
         i.packing_type as "packingType",
-        p.name as "productName",
+        concat(p.name, ' (', p.description, ')') as "productName",
         p.id as "productId",
         SUM(COALESCE(i.qty, 0)) - SUM(COALESCE(i.locked_qty, 0)) - MAX(COALESCE(oi.release_qty, 0)) as "remainQty",
         SUM(COALESCE(i.weight, 0)) - SUM(COALESCE(i.locked_weight, 0)) - MAX(COALESCE(oi.release_weight, 0)) as "remainWeight"
@@ -102,7 +102,7 @@ function getCountQuery(whereClause: string): string {
       SELECT
         i.batch_id as "batchId",
         i.packing_type as "packingType",
-        p.name as "productName",
+        concat(p.name, ' (', p.description, ')') as "productName",
         p.id as "productId",
         SUM(COALESCE(i.qty, 0)) - SUM(COALESCE(i.locked_qty, 0)) - MAX(COALESCE(oi.release_qty, 0)) as "remainQty",
         SUM(COALESCE(i.weight, 0)) - SUM(COALESCE(i.locked_weight, 0)) - MAX(COALESCE(oi.release_weight, 0)) as "remainWeight"
