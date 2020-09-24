@@ -148,10 +148,22 @@ async function getWhereClause(
         case 'productName':
           const products: Product[] = await trxMgr.getRepository(Product).find({
             select: ['id'],
-            where: {
-              bizplace: In(bizplaces.map((bizplace: Bizplace) => bizplace.id)),
-              name: Raw((alias: string) => `LOWER(${alias}) LIKE '${value.toLowerCase().trim().replace(/'/g, "''")}'`)
-            }
+            where: [
+              {
+                bizplace: In(bizplaces.map((bizplace: Bizplace) => bizplace.id)),
+                name: Raw((alias: string) => `LOWER(${alias}) LIKE '${value.toLowerCase().trim().replace(/'/g, "''")}'`)
+              },
+              {
+                bizplace: In(bizplaces.map((bizplace: Bizplace) => bizplace.id)),
+                sku: Raw((alias: string) => `LOWER(${alias}) LIKE '${value.toLowerCase().trim().replace(/'/g, "''")}'`)
+              },
+              {
+                bizplace: In(bizplaces.map((bizplace: Bizplace) => bizplace.id)),
+                description: Raw(
+                  (alias: string) => `LOWER(${alias}) LIKE '${value.toLowerCase().trim().replace(/'/g, "''")}'`
+                )
+              }
+            ]
           })
           const productIds: string = products
             .map((product: Product) => product.id)
