@@ -68,6 +68,24 @@ export const inventoryHistoryReport = {
               return "'%" + prod.trim().replace(/'/g, "''") + "%'"
             })
             .join(',') +
+          ']) ' +
+          'OR Lower(sku) LIKE ANY(ARRAY[' +
+          product.value
+            .toLowerCase()
+            .split(',')
+            .map(prod => {
+              return "'%" + prod.trim().replace(/'/g, "''") + "%'"
+            })
+            .join(',') +
+          ']) ' +
+          'OR Lower(description) LIKE ANY(ARRAY[' +
+          product.value
+            .toLowerCase()
+            .split(',')
+            .map(prod => {
+              return "'%" + prod.trim().replace(/'/g, "''") + "%'"
+            })
+            .join(',') +
           '])'
       }
 
@@ -89,7 +107,6 @@ export const inventoryHistoryReport = {
           select * from products prd where 
           prd.bizplace_id = $1
           ${productQuery}
-          ${productDescQuery}
         )`,
           [bizplace.id]
         )

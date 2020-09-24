@@ -64,7 +64,12 @@ export const inventoryHistorySummaryReport = {
           }
         })
 
-        return { items, total: total[0].count, totalInboundQty: total[0].totalinqty || 0, totalOpeningBal: total[0].totalopeningbal || 0 }
+        return {
+          items,
+          total: total[0].count,
+          totalInboundQty: total[0].totalinqty || 0,
+          totalOpeningBal: total[0].totalopeningbal || 0
+        }
       })
     } catch (error) {
       throw error
@@ -217,6 +222,24 @@ async function productsQuery(trxMgr: EntityManager, params: ListParam, bizplace:
           return "'%" + prod.trim().replace(/'/g, "''") + "%'"
         })
         .join(',') +
+      ']) ' +
+      'OR Lower(sku) LIKE ANY(ARRAY[' +
+      product.value
+        .toLowerCase()
+        .split(',')
+        .map(prod => {
+          return "'%" + prod.trim().replace(/'/g, "''") + "%'"
+        })
+        .join(',') +
+      ']) ' +
+      'OR Lower(description) LIKE ANY(ARRAY[' +
+      product.value
+        .toLowerCase()
+        .split(',')
+        .map(prod => {
+          return "'%" + prod.trim().replace(/'/g, "''") + "%'"
+        })
+        .join(',') +
       '])'
   }
 
@@ -232,7 +255,6 @@ async function productsQuery(trxMgr: EntityManager, params: ListParam, bizplace:
       select *, prd.id::varchar as product_id from products prd where 
       prd.bizplace_id = $1
       ${productQuery}
-      ${productDescQuery}
     )`,
     [bizplace.id]
   )
