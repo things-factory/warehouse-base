@@ -11,6 +11,7 @@ import { inventoryProductGroupResolver } from './inventory-product-group'
 import { updateInventory } from './update-inventory'
 import { updateMultipleInventory } from './update-multiple-inventory'
 import { inventoryTransfer } from './inventory-transfer'
+import { onhandInventoryCountResolver } from './onhand-inventory-count'
 
 export const Query = {
   ...inventoriesResolver,
@@ -19,7 +20,8 @@ export const Query = {
   ...inventoryProductGroupResolver,
   ...inventoriesByStrategyResolver,
   ...checkProductIdenticalityResolver,
-  ...inventoryByPalletResolver
+  ...inventoryByPalletResolver,
+  ...onhandInventoryCountResolver
 }
 
 export const Mutation = {
