@@ -130,7 +130,10 @@ export const inventoryHistoryPalletReport = {
       items = items.map(item => {
         return {
           bizplace: bizplace,
-          product: { name: item.product_name.trim() + ' ( ' + item.product_description.trim() + ' )' },
+          product: {
+            name:
+              item.product_name.trim() + ' ( ' + item.product_description ? item.product_description.trim() : '' + ' )'
+          },
           openingBalance: item.opening_balance,
           inBalance: item.in_balance,
           outBalance: item.out_balance,

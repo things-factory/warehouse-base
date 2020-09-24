@@ -58,7 +58,7 @@ export const inventoryHistorySummaryReport = {
             totalOutQty: itm.total_out_qty,
             product: {
               id: itm.product_id,
-              name: itm.product_name + '( ' + itm.product_description + ' )',
+              name: itm.product_name + '( ' + itm.product_description ? itm.product_description : '' + ' )',
               description: itm.product_description
             }
           }

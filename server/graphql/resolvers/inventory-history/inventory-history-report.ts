@@ -224,7 +224,7 @@ export const inventoryHistoryReport = {
             packingType: item.packing_type,
             product: {
               id: item.product_id,
-              name: item.product_name + ' ( ' + item.product_description + ' )'
+              name: item.product_name + ' ( ' + item.product_description ? item.product_description : '' + ' )'
             },
             qty: item.qty,
             weight: item.weight,
