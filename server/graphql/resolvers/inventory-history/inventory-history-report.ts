@@ -59,34 +59,20 @@ export const inventoryHistoryReport = {
 
       let productQuery = ''
       if (product) {
+        let productValue =
+          product.value
+            .split(',')
+            .map(prod => {
+              return "'%" + prod.trim().replace(/'/g, "''") + "%'"
+            })
+            .join(',') + ']) '
         productQuery =
           'AND Lower(name) LIKE ANY(ARRAY[' +
-          product.value
-            .toLowerCase()
-            .split(',')
-            .map(prod => {
-              return "'%" + prod.trim().replace(/'/g, "''") + "%'"
-            })
-            .join(',') +
-          ']) ' +
+          productValue +
           'OR Lower(sku) LIKE ANY(ARRAY[' +
-          product.value
-            .toLowerCase()
-            .split(',')
-            .map(prod => {
-              return "'%" + prod.trim().replace(/'/g, "''") + "%'"
-            })
-            .join(',') +
-          ']) ' +
+          productValue +
           'OR Lower(description) LIKE ANY(ARRAY[' +
-          product.value
-            .toLowerCase()
-            .split(',')
-            .map(prod => {
-              return "'%" + prod.trim().replace(/'/g, "''") + "%'"
-            })
-            .join(',') +
-          '])'
+          productValue
       }
 
       let productDescQuery = ''

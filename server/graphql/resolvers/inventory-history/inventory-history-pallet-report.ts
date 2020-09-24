@@ -46,31 +46,20 @@ export const inventoryHistoryPalletReport = {
 
       let productQuery = ''
       if (product) {
+        let productValue =
+          product.value
+            .split(',')
+            .map(prod => {
+              return "'%" + prod.trim().replace(/'/g, "''") + "%'"
+            })
+            .join(',') + ']) '
         productQuery =
           'AND prd.name ILIKE ANY(ARRAY[' +
-          product.value
-            .split(',')
-            .map(prod => {
-              return "'%" + prod.trim().replace(/'/g, "''") + "%'"
-            })
-            .join(',') +
-          ']) ' +
+          productValue +
           'OR prd.sku ILIKE ANY(ARRAY[' +
-          product.value
-            .split(',')
-            .map(prod => {
-              return "'%" + prod.trim().replace(/'/g, "''") + "%'"
-            })
-            .join(',') +
-          ']) ' +
+          productValue +
           'OR prd.description ILIKE ANY(ARRAY[' +
-          product.value
-            .split(',')
-            .map(prod => {
-              return "'%" + prod.trim().replace(/'/g, "''") + "%'"
-            })
-            .join(',') +
-          '])'
+          productValue
       }
 
       const result = await getRepository(InventoryHistory).query(`
