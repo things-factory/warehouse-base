@@ -215,6 +215,7 @@ async function productsQuery(trxMgr: EntityManager, params: ListParam, bizplace:
   if (product) {
     let productValue =
       product.value
+        .toLowerCase()
         .split(',')
         .map(prod => {
           return "'%" + prod.trim().replace(/'/g, "''") + "%'"
