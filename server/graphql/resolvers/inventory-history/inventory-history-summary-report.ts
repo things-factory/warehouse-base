@@ -155,7 +155,7 @@ async function massageInventoryPalletSummary(
           else 0 end) as opening_qty,
         SUM(case when invHistory.created_at >= $1
               and invHistory.created_at <= $2 then
-            case when invHistory.status = 'UNLOADED or (invhHistory.status = 'STORED' and invhHistory.transaction_type = 'NEW') then 1 else 0 end
+            case when invHistory.status = 'UNLOADED' or (invhHistory.status = 'STORED' and invhHistory.transaction_type = 'NEW') then 1 else 0 end
           else 0 end) as total_in_qty,
         SUM(case when invHistory.created_at >= $1
               and invHistory.created_at <= $2 then
