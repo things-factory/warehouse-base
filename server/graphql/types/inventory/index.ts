@@ -42,6 +42,7 @@ export const Query = /* GraphQL */ `
   inventoryProductGroup(filters: [Filter], pagination: Pagination, sortings: [Sorting], locationSortingRules: [Sorting]): InventoryProductGroupList @priviledge(category: "inventory", priviledge: "query")
   inventoriesByStrategy(batchId: String!, bizplaceId: String!, productName: String!, packingType: String!, pickingStrategy: String! locationSortingRules: [Sorting]): InventoryList
   checkProductIdenticality(palletA: String!, palletB: String!): Boolean
+  onhandInventories(filters: [Filter], pagination: Pagination, sortings: [Sorting], locationSortingRules: [Sorting]): InventoryList @priviledge(category: "inventory", priviledge: "query")
 `
 
 export const Types = [

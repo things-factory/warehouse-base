@@ -59,16 +59,21 @@ export const inventoryHistoryReport = {
 
       let productQuery = ''
       if (product) {
-        productQuery =
-          'AND Lower(name) LIKE ANY(ARRAY[' +
+        let productValue =
           product.value
             .toLowerCase()
             .split(',')
             .map(prod => {
               return "'%" + prod.trim().replace(/'/g, "''") + "%'"
             })
-            .join(',') +
-          '])'
+            .join(',') + ']) '
+        productQuery =
+          'AND Lower(name) LIKE ANY(ARRAY[' +
+          productValue +
+          'OR Lower(sku) LIKE ANY(ARRAY[' +
+          productValue +
+          'OR Lower(description) LIKE ANY(ARRAY[' +
+          productValue
       }
 
       let productDescQuery = ''
@@ -89,7 +94,6 @@ export const inventoryHistoryReport = {
           select * from products prd where 
           prd.bizplace_id = $1
           ${productQuery}
-          ${productDescQuery}
         )`,
           [bizplace.id]
         )

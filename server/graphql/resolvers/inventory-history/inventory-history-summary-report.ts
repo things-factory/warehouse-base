@@ -64,7 +64,12 @@ export const inventoryHistorySummaryReport = {
           }
         })
 
-        return { items, total: total[0].count, totalInboundQty: total[0].totalinqty || 0, totalOpeningBal: total[0].totalopeningbal || 0 }
+        return {
+          items,
+          total: total[0].count,
+          totalInboundQty: total[0].totalinqty || 0,
+          totalOpeningBal: total[0].totalopeningbal || 0
+        }
       })
     } catch (error) {
       throw error
@@ -87,7 +92,7 @@ async function massageInventorySummary(trxMgr: EntityManager, params: ListParam,
     `
     create temp table temp_inventory_summary as (
       select prd.name as product_name, prd.description as product_description , src.*,
-      opening_qty + adjustment_qty + total_in_qty + total_out_qty as closing_qty 
+      opening_qty + adjustment_qty + total_in_qty + total_out_qty as closing_qty
       from (
         select ih.packing_type,
         sum(case when ih.created_at > $1 and ih.transaction_type = 'ADJUSTMENT' then ih.qty else 0 end) as adjustment_qty,
@@ -109,7 +114,7 @@ async function massageInventorySummary(trxMgr: EntityManager, params: ListParam,
   const total: any = await trxMgr.query(`select count(*) from temp_inventory_summary`)
 
   const result: any = await trxMgr.query(
-    ` 
+    `
     select * from temp_inventory_summary ORDER BY product_name, product_description, packing_type OFFSET $1 LIMIT $2
   `,
     [(params.pagination.page - 1) * params.pagination.limit, params.pagination.limit]
@@ -149,11 +154,11 @@ async function massageInventoryPalletSummary(
             case when invHistory.status = 'STORED' then 1 else -1 end
           else 0 end) as opening_qty,
         SUM(case when invHistory.created_at >= $1
-              and invHistory.created_at <= $2 then 
-            case when invHistory.status = 'STORED' then 1 else 0 end
+              and invHistory.created_at <= $2 then
+            case when invHistory.status = 'UNLOADED' or (invhHistory.status = 'STORED' and invhHistory.transaction_type = 'NEW') then 1 else 0 end
           else 0 end) as total_in_qty,
         SUM(case when invHistory.created_at >= $1
-              and invHistory.created_at <= $2 then 
+              and invHistory.created_at <= $2 then
             case when invHistory.status = 'TERMINATED' then 1 else 0 end
           else 0 end) as total_out_qty,
         0 as adjustment_qty
@@ -161,7 +166,7 @@ async function massageInventoryPalletSummary(
           select pallet_id, seq, status, transaction_type, product_id, product_name, product_description,
           inventory_history_id, packing_type, qty, opening_qty, weight, opening_weight, created_at from (
             select row_number() over(partition by invh.pallet_id order by invh.created_at asc) as rn, invh.* ,
-            prd.name as product_name, prd.description as product_description 
+            prd.name as product_name, prd.description as product_description
             from temp_inv_history invh
             inner join temp_products prd on prd.id = invh.product_id
             where status = 'STORED'
@@ -174,12 +179,12 @@ async function massageInventoryPalletSummary(
             from temp_inv_history invh
             inner join temp_products prd on prd.id = invh.product_id
           ) as invOut where rn = 1 and status = 'TERMINATED'
-        ) as invHistory         
+        ) as invHistory
         group by product_id, product_name, product_description
       ) invh
       where 1=1
       ${hasTransactionOrBalanceQuery}
-    )    
+    )
   `,
     [fromDate.value, toDate.value]
   )
@@ -189,7 +194,7 @@ async function massageInventoryPalletSummary(
   )
 
   const result: any = await trxMgr.query(
-    ` 
+    `
     select *, 'PALLET' as packing_type from temp_inventory_pallet_summary ORDER BY product_name, product_description OFFSET $1 LIMIT $2
   `,
     [(params.pagination.page - 1) * params.pagination.limit, params.pagination.limit]
@@ -208,16 +213,21 @@ async function productsQuery(trxMgr: EntityManager, params: ListParam, bizplace:
 
   let productQuery = ''
   if (product) {
-    productQuery =
-      'AND Lower(name) LIKE ANY(ARRAY[' +
+    let productValue =
       product.value
         .toLowerCase()
         .split(',')
         .map(prod => {
           return "'%" + prod.trim().replace(/'/g, "''") + "%'"
         })
-        .join(',') +
-      '])'
+        .join(',') + ']) '
+    productQuery =
+      'AND Lower(name) LIKE ANY(ARRAY[' +
+      productValue +
+      'OR Lower(sku) LIKE ANY(ARRAY[' +
+      productValue +
+      'OR Lower(description) LIKE ANY(ARRAY[' +
+      productValue
   }
 
   let productDescQuery = ''
@@ -227,12 +237,11 @@ async function productsQuery(trxMgr: EntityManager, params: ListParam, bizplace:
 
   await trxMgr.query(
     `
-    create temp table temp_products AS 
+    create temp table temp_products AS
     (
-      select *, prd.id::varchar as product_id from products prd where 
+      select *, prd.id::varchar as product_id from products prd where
       prd.bizplace_id = $1
       ${productQuery}
-      ${productDescQuery}
     )`,
     [bizplace.id]
   )
@@ -261,9 +270,9 @@ async function filterInventoryQuery(trxMgr: EntityManager, params: ListParam, bi
     create temp table temp_inv_history as (
       select i2.pallet_id, i2.product_id, i2.packing_type, i2.batch_id,
       ih.id as inventory_history_id, ih.seq, ih.status, ih.transaction_type, ih.qty, ih.opening_qty, ih.weight, ih.opening_weight, ih.created_at
-      from inventories i2 
+      from inventories i2
       inner join reduced_inventory_histories ih on ih.pallet_id = i2.pallet_id and ih.domain_id = i2.domain_id
-      where 
+      where
       i2.domain_id = $1
       and i2.bizplace_id = $2
       and ih.created_at < $3

@@ -46,15 +46,21 @@ export const inventoryHistoryPalletReport = {
 
       let productQuery = ''
       if (product) {
-        productQuery =
-          'AND prd.name ILIKE ANY(ARRAY[' +
+        let productValue =
           product.value
+            .toLowerCase()
             .split(',')
             .map(prod => {
               return "'%" + prod.trim().replace(/'/g, "''") + "%'"
             })
-            .join(',') +
-          '])'
+            .join(',') + ']) '
+        productQuery =
+          'AND prd.name ILIKE ANY(ARRAY[' +
+          productValue +
+          'OR prd.sku ILIKE ANY(ARRAY[' +
+          productValue +
+          'OR prd.description ILIKE ANY(ARRAY[' +
+          productValue
       }
 
       const result = await getRepository(InventoryHistory).query(`
@@ -114,7 +120,9 @@ export const inventoryHistoryPalletReport = {
       items = items.map(item => {
         return {
           bizplace: bizplace,
-          product: { name: item.product_name.trim() + ' ( ' + item.product_description.trim() + ' )' },
+          product: {
+            name: item.product_name.trim() + ' ( ' + item.product_description.trim() + ' )'
+          },
           openingBalance: item.opening_balance,
           inBalance: item.in_balance,
           outBalance: item.out_balance,
