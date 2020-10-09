@@ -95,10 +95,10 @@ async function massageInventorySummary(trxMgr: EntityManager, params: ListParam,
       opening_qty + adjustment_qty + total_in_qty + total_out_qty as closing_qty
       from (
         select ih.packing_type,
-        sum(case when ih.created_at > $1 and ih.transaction_type = 'ADJUSTMENT' then ih.qty else 0 end) as adjustment_qty,
+        sum(case when ih.created_at >= $1 and ih.transaction_type = 'ADJUSTMENT' then ih.qty else 0 end) as adjustment_qty,
         sum(case when ih.created_at < $1 then qty else 0 end) as opening_qty,
-        sum(case when ih.created_at > $1 then case when ih.qty > 0 and ih.transaction_type <> 'ADJUSTMENT' then ih.qty else 0 end else 0 end) as total_in_qty,
-        sum(case when ih.created_at > $1 then case when ih.qty < 0 and ih.transaction_type <> 'ADJUSTMENT' then ih.qty else 0 end else 0 end) as total_out_qty,
+        sum(case when ih.created_at >= $1 then case when ih.qty > 0 and ih.transaction_type <> 'ADJUSTMENT' then ih.qty else 0 end else 0 end) as total_in_qty,
+        sum(case when ih.created_at >= $1 then case when ih.qty < 0 and ih.transaction_type <> 'ADJUSTMENT' then ih.qty else 0 end else 0 end) as total_out_qty,
         ih.product_id
         from temp_inv_history ih
         group by ih.product_id, ih.packing_type
@@ -148,29 +148,37 @@ async function massageInventoryPalletSummary(
     `
     create temp table temp_inventory_pallet_summary as (
       select invh.*,
-      invh.opening_qty + invh.total_in_qty - invh.total_out_qty as closing_qty from (
+      invh.opening_qty + invh.total_in_qty + invh.total_out_qty as closing_qty from (
         select product_id, product_name, product_description,
-        SUM(case when invHistory.created_at <= $1 then
-            case when invHistory.status = 'STORED' then 1 else -1 end
-          else 0 end) as opening_qty,
-        SUM(case when invHistory.created_at >= $1
-              and invHistory.created_at <= $2 then
-            case when invHistory.status = 'UNLOADED' or (invhHistory.status = 'STORED' and invhHistory.transaction_type = 'NEW') then 1 else 0 end
-          else 0 end) as total_in_qty,
-        SUM(case when invHistory.created_at >= $1
-              and invHistory.created_at <= $2 then
-            case when invHistory.status = 'TERMINATED' then 1 else 0 end
-          else 0 end) as total_out_qty,
+        SUM(case when invHistory.created_at < $1 then
+          case when invHistory.status = 'STORED' then 1 else -1 end
+            else 0 end) as opening_qty,
+        SUM(case when invHistory.created_at >= $1 and invHistory.created_at <= $2 then 
+          case when invHistory.status = 'UNLOADED' or (invhistory.status = 'STORED' and invhistory.transaction_type = 'NEW' ) then 1 else 0 end
+            else 0 end) as total_in_qty,
+        SUM(case when invHistory.created_at >= $1 and invHistory.created_at <= $2 then 
+          case when invHistory.status = 'TERMINATED' then -1 else 0 end
+            else 0 end) as total_out_qty,
         0 as adjustment_qty
         from(
           select pallet_id, seq, status, transaction_type, product_id, product_name, product_description,
           inventory_history_id, packing_type, qty, opening_qty, weight, opening_weight, created_at from (
             select row_number() over(partition by invh.pallet_id order by invh.created_at asc) as rn, invh.* ,
-            prd.name as product_name, prd.description as product_description
+            prd.name as product_name, prd.description as product_description 
             from temp_inv_history invh
             inner join temp_products prd on prd.id = invh.product_id
-            where status = 'STORED'
+            where (status = 'UNLOADED' or (invh.status = 'STORED' and invh.transaction_type = 'NEW')) 
+              and invh.created_at >= $1
           ) as invIn where rn = 1
+          union all
+          select pallet_id, seq, status, transaction_type, product_id, product_name, product_description,
+          inventory_history_id, packing_type, qty, opening_qty, weight, opening_weight, created_at from (
+            select row_number() over(partition by invh.pallet_id order by invh.created_at asc) as rn, invh.* ,
+            prd.name as product_name, prd.description as product_description 
+            from temp_inv_history invh
+            inner join temp_products prd on prd.id = invh.product_id
+            where status = 'STORED' and invh.created_at < $1
+          ) as invStored where rn = 1
           union all
           select pallet_id, seq, status, transaction_type, product_id, product_name, product_description,
           inventory_history_id, packing_type, qty, opening_qty, weight, opening_weight, created_at from (
@@ -179,7 +187,7 @@ async function massageInventoryPalletSummary(
             from temp_inv_history invh
             inner join temp_products prd on prd.id = invh.product_id
           ) as invOut where rn = 1 and status = 'TERMINATED'
-        ) as invHistory
+        ) as invHistory         
         group by product_id, product_name, product_description
       ) invh
       where 1=1
@@ -275,7 +283,7 @@ async function filterInventoryQuery(trxMgr: EntityManager, params: ListParam, bi
       where
       i2.domain_id = $1
       and i2.bizplace_id = $2
-      and ih.created_at < $3
+      and ih.created_at <= $3
       ${batchNoQuery}
     )
   `,
