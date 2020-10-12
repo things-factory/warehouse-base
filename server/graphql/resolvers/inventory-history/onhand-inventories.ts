@@ -13,6 +13,7 @@ export const onhandInventoriesResolver = {
     let batchId = filters.find(data => data.name === 'batchId')
     let palletId = filters.find(data => data.name === 'palletId')
     let packingType = filters.find(data => data.name === 'packingType')
+    let timezoneOffset = filters.find(data => data.name === 'timezoneOffset')
 
     let bizplaceFilter = { name: '', operator: '', value: [] }
 
@@ -98,6 +99,11 @@ export const onhandInventoriesResolver = {
       )`
     }
 
+    let timeoffset = `min(ih.created_at)`
+    if (timezoneOffset) {
+      timeoffset = `${timeoffset} + '${-timezoneOffset.value} minutes'::interval`
+    }
+
     if (batchId) queryFilter = queryFilter + ` and lower(rih.batch_id) like '${batchId.value.toLowerCase()}' `
 
     if (palletId) queryFilter = queryFilter + ` and rih.pallet_id like '${palletId.value}' `
@@ -112,7 +118,7 @@ export const onhandInventoriesResolver = {
           select domain_id, pallet_id, seq, qty, weight, packing_type, batch_id, created_at, status,
           product_id::uuid as product_id, bizplace_id::uuid as bizplace_id, location_id::uuid as location_id 
           from reduced_inventory_histories rih 
-          where domain_id = $1 and created_at <=$2::date
+          where domain_id = $1 and created_at::date <=$2::date
         )  
       `,
         [context.state.domain.id, createdAt.value]
@@ -122,7 +128,8 @@ export const onhandInventoriesResolver = {
         `          
         create temp table tmp_data as (
           select dt.*, rih.batch_id, rih.product_id, rih.packing_type, rih.bizplace_id, rih.location_id from(
-            select ih.domain_id, ih.pallet_id, sum(ih.qty) as qty, sum(ih.weight) as weight, max(ih.seq) as last_seq, max(ih.created_at) as created_at
+            select ih.domain_id, ih.pallet_id, sum(ih.qty) as qty, sum(ih.weight) as weight, max(ih.seq) as last_seq, max(ih.created_at) as created_at,
+            ${timeoffset} as initial_inbound_at
             from tmp_src ih
             group by ih.domain_id, ih.pallet_id
           ) dt
@@ -137,12 +144,18 @@ export const onhandInventoriesResolver = {
 
       const result: any = await trxMgr.query(
         ` 
-        select rih.*,
+        select 
+        rih.domain_id, rih.pallet_id, rih.qty, rih.weight, rih.last_seq, rih.created_at,
+        rih.initial_inbound_at,
+        case when iv.reusable_pallet_id is not null then concat(rih.batch_id, ' (', plt.name, ')') else rih.batch_id end as batch_id,
+        rih.product_id, rih.packing_type, rih.bizplace_id, rih.location_id,
         prd.name as product_name, prd.sku as product_sku, prd.description as product_description,
         bz.name as bizplace_name,
         loc.name as location_name, loc."zone" as location_zone, loc."row" as location_row, loc."column" as location_column, loc.shelf as location_shelf,
-        wh.name as warehouse_name
+        wh.name as warehouse_name, plt.name as reusable_pallet_name
         from tmp_data rih
+        inner join inventories iv on iv.domain_id = rih.domain_id and iv.pallet_id = rih.pallet_id
+        left join pallets plt on plt.id = iv.reusable_pallet_id
         inner join products prd on prd.id = rih.product_id
         inner join bizplaces bz on bz.id = rih.bizplace_id
         inner join locations loc on loc.id = rih.location_id
@@ -176,7 +189,8 @@ export const onhandInventoriesResolver = {
           palletId: itm.pallet_id,
           batchId: itm.batch_id,
           packingType: itm.packing_type,
-          remainQty: itm.qty
+          remainQty: itm.qty,
+          initialInboundAt: timezoneOffset ? itm.initial_inbound_at : itm.initial_inbound_at
         }
       })
 
