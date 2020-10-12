@@ -29,5 +29,6 @@ export const Inventory = gql`
     updater: User
     createdAt: String
     updatedAt: String
+    initialInboundAt: String
   }
 `
