@@ -99,11 +99,6 @@ export const onhandInventoriesResolver = {
       )`
     }
 
-    let timeoffset = `min(ih.created_at)`
-    if (timezoneOffset) {
-      timeoffset = `${timeoffset} + '${-timezoneOffset.value} minutes'::interval`
-    }
-
     if (batchId) queryFilter = queryFilter + ` and lower(rih.batch_id) like '${batchId.value.toLowerCase()}' `
 
     if (palletId) queryFilter = queryFilter + ` and rih.pallet_id like '${palletId.value}' `
@@ -129,7 +124,7 @@ export const onhandInventoriesResolver = {
         create temp table tmp_data as (
           select dt.*, rih.batch_id, rih.product_id, rih.packing_type, rih.bizplace_id, rih.location_id from(
             select ih.domain_id, ih.pallet_id, sum(ih.qty) as qty, sum(ih.weight) as weight, max(ih.seq) as last_seq, max(ih.created_at) as created_at,
-            ${timeoffset} as initial_inbound_at
+            min(ih.created_at) as initial_inbound_at
             from tmp_src ih
             group by ih.domain_id, ih.pallet_id
           ) dt
