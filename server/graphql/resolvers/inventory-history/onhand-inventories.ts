@@ -99,6 +99,27 @@ export const onhandInventoriesResolver = {
       )`
     }
 
+    // default sorting
+    let queryOrder = 'order by created_at desc'
+    if (sortings && sortings.length > 0) {
+      const arrObjectMap = [
+        { name: 'palletId', value: 'rih.pallet_id' },
+        { name: 'batchId', value: 'rih.batch_id' },
+        { name: 'initialInboundAt', value: 'rih.initial_inbound_at' },
+        { name: 'bizplace', value: 'bz.name' },
+        { name: 'product', value: 'prd.name' },
+        { name: 'remainQty', value: 'rih.qty' },
+        { name: 'location', value: 'loc.name' }
+      ]
+      sortings.forEach((sorting, idx) => {
+        let itmIndex = arrObjectMap.findIndex(x => x.name === sorting.name)
+
+        queryOrder = `${idx === 0 ? 'order by' : queryOrder + ','} ${
+          itmIndex >= 0 ? arrObjectMap[itmIndex].value : sorting.name
+        } ${sorting.desc ? 'DESC' : 'ASC'}`
+      })
+    }
+
     if (batchId) queryFilter = queryFilter + ` and lower(rih.batch_id) like '${batchId.value.toLowerCase()}' `
 
     if (palletId) queryFilter = queryFilter + ` and rih.pallet_id like '${palletId.value}' `
@@ -139,23 +160,24 @@ export const onhandInventoriesResolver = {
 
       const result: any = await trxMgr.query(
         ` 
-        select 
-        rih.domain_id, rih.pallet_id, rih.qty, rih.weight, rih.last_seq, rih.created_at,
-        rih.initial_inbound_at,
-        case when iv.reusable_pallet_id is not null then concat(rih.batch_id, ' (', plt.name, ')') else rih.batch_id end as batch_id,
-        rih.product_id, rih.packing_type, rih.bizplace_id, rih.location_id,
-        prd.name as product_name, prd.sku as product_sku, prd.description as product_description,
-        bz.name as bizplace_name,
-        loc.name as location_name, loc."zone" as location_zone, loc."row" as location_row, loc."column" as location_column, loc.shelf as location_shelf,
-        wh.name as warehouse_name, plt.name as reusable_pallet_name
-        from tmp_data rih
-        inner join inventories iv on iv.domain_id = rih.domain_id and iv.pallet_id = rih.pallet_id
-        left join pallets plt on plt.id = iv.reusable_pallet_id
-        inner join products prd on prd.id = rih.product_id
-        inner join bizplaces bz on bz.id = rih.bizplace_id
-        inner join locations loc on loc.id = rih.location_id
-        inner join warehouses wh on wh.id = loc.warehouse_id
-        order by created_at desc OFFSET $1 LIMIT $2
+          select 
+          rih.domain_id, rih.pallet_id, rih.qty, rih.weight, rih.last_seq, rih.created_at,
+          rih.initial_inbound_at,
+          case when iv.reusable_pallet_id is not null then concat(rih.batch_id, ' (', plt.name, ')') else rih.batch_id end as batch_id,
+          rih.product_id, rih.packing_type, rih.bizplace_id, rih.location_id,
+          prd.name as product_name, prd.sku as product_sku, prd.description as product_description,
+          bz.name as bizplace_name,
+          loc.name as location_name, loc."zone" as location_zone, loc."row" as location_row, loc."column" as location_column, loc.shelf as location_shelf,
+          wh.name as warehouse_name, plt.name as reusable_pallet_name
+          from tmp_data rih
+          inner join inventories iv on iv.domain_id = rih.domain_id and iv.pallet_id = rih.pallet_id
+          left join pallets plt on plt.id = iv.reusable_pallet_id
+          inner join products prd on prd.id = rih.product_id
+          inner join bizplaces bz on bz.id = rih.bizplace_id
+          inner join locations loc on loc.id = rih.location_id
+          inner join warehouses wh on wh.id = loc.warehouse_id
+          ${queryOrder}
+          OFFSET $1 LIMIT $2
       `,
         [(pagination.page - 1) * pagination.limit, pagination.limit]
       )
@@ -185,7 +207,7 @@ export const onhandInventoriesResolver = {
           batchId: itm.batch_id,
           packingType: itm.packing_type,
           remainQty: itm.qty,
-          initialInboundAt: timezoneOffset ? itm.initial_inbound_at : itm.initial_inbound_at
+          initialInboundAt: itm.initial_inbound_at
         }
       })
 
