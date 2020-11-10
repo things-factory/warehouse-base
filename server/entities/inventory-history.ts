@@ -2,7 +2,7 @@ import { User } from '@things-factory/auth-base'
 import { Bizplace } from '@things-factory/biz-base'
 import { Domain } from '@things-factory/shell'
 import { Column, CreateDateColumn, Entity, Index, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm'
-import { Pallet } from '.'
+import { Pallet, Inventory } from '.'
 
 @Entity()
 @Index(
@@ -100,6 +100,11 @@ export class InventoryHistory {
 
   @Column()
   transactionType: String
+
+  @ManyToOne(type => Inventory, {
+    nullable: true
+  })
+  inventory: Inventory
 
   @ManyToOne(type => User, {
     nullable: true
