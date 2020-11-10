@@ -57,6 +57,7 @@ export async function generateInventoryHistory(
 
   let inventoryHistory: InventoryHistory = {
     ...inventory,
+    inventory: inventory,
     name: InventoryNoGenerator.inventoryHistoryName(),
     seq,
     transactionType,
