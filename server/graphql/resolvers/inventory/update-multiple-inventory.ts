@@ -92,7 +92,7 @@ export const updateMultipleInventory = {
             relations: ['warehouse', 'location', 'product', 'bizplace']
           })
           newHistoryRecord.openingQty = inventory.qty
-          newHistoryRecord.openingWeight = inventory.weight
+          newHistoryRecord.openingStdUnitValue = inventory.stdUnitValue
 
           // Get last sequence from InventoryHistory
           let latestEntry = await trxMgr.getRepository(InventoryHistory).find({
@@ -119,7 +119,7 @@ export const updateMultipleInventory = {
             transactionType = 'RELOCATE'
           }
 
-          // Condition 2: Change of qty or weight.
+          // Condition 2: Change of qty or stdUnitValue.
           // Set qty movement for inventory history
           if (typeof newRecord.qty != 'undefined') {
             transactionType = 'ADJUSTMENT'
@@ -127,20 +127,20 @@ export const updateMultipleInventory = {
             if (newRecord.qty < 1) {
               newRecord.status = 'TERMINATED'
               newRecord.qty = 0
-              newRecord.weight = 0
+              newRecord.stdUnitValue = 0
             }
           } else {
             newHistoryRecord.qty = 0
           }
-          // Set weight movement for inventory history
-          if (typeof newRecord.weight != 'undefined') {
+          // Set stdUnitValue movement for inventory history
+          if (typeof newRecord.stdUnitValue != 'undefined') {
             transactionType = 'ADJUSTMENT'
-            newHistoryRecord.weight = newRecord.weight - inventory.weight
-            if (newRecord.weight < 1) {
-              newRecord.weight = 0
+            newHistoryRecord.stdUnitValue = newRecord.stdUnitValue - inventory.stdUnitValue
+            if (newRecord.stdUnitValue < 1) {
+              newRecord.stdUnitValue = 0
             }
           } else {
-            newHistoryRecord.weight = 0
+            newHistoryRecord.stdUnitValue = 0
           }
 
           // Condition 3: Change of bizplace or product or batch id or packing type
@@ -171,9 +171,9 @@ export const updateMultipleInventory = {
                 domain: context.state.domain,
                 bizplace: inventory.bizplace.id,
                 openingQty: inventory.qty,
-                openingWeight: inventory.weight,
+                openingStdUnitValue: inventory.stdUnitValue,
                 qty: -inventory.qty || 0,
-                weight: -inventory.weight || 0,
+                stdUnitValue: -inventory.stdUnitValue || 0,
                 name: InventoryNoGenerator.inventoryHistoryName(),
                 seq: lastSeq,
                 transactionType: transactionType,
@@ -189,9 +189,9 @@ export const updateMultipleInventory = {
               await trxMgr.getRepository(InventoryHistory).save(inventoryHistory)
 
               newHistoryRecord.qty = newRecord.qty || inventory.qty
-              newHistoryRecord.weight = newRecord.weight || inventory.weight || 0
+              newHistoryRecord.stdUnitValue = newRecord.stdUnitValue || inventory.stdUnitValue || 0
               newHistoryRecord.openingQty = 0
-              newHistoryRecord.openingWeight = 0
+              newHistoryRecord.openingStdUnitValue = 0
               newHistoryRecord.batchId = newRecord.batchId || inventory.batchId || '-'
             }
           }

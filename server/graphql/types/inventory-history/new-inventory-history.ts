@@ -14,8 +14,9 @@ export const NewInventoryHistory = gql`
     zone: String
     packingType: String
     weight: Float
-    unit: String
+    stdUnitValue: Float
     qty: Int
+    stdUnit: String
     status: String
     transactionType: String
     description: String

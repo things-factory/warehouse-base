@@ -67,6 +67,11 @@ export class InventoryChange {
   @Column('float', {
     nullable: true
   })
+  stdUnitValue: number
+
+  @Column('float', {
+    nullable: true
+  })
   qty: number
 
   @Column()

@@ -14,7 +14,8 @@ export const NewInventory = gql`
     otherRef: String
     qty: Int
     weight: Float
-    unit: String
+    stdUnit: String
+    stdUnitValue: Float
     status: String
     description: String
   }

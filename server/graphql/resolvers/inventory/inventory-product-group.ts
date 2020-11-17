@@ -27,7 +27,7 @@ function getSelectQuery(whereClause: string): string {
       WITH oi as (
         SELECT
           SUM(oi.release_qty) as release_qty,
-          SUM(oi.release_weight) as release_weight,
+          SUM(oi.release_std_unit_value) as release_std_unit_value,
           oi.batch_id,
           p.name as product_name,
           oi.packing_type
@@ -55,7 +55,7 @@ function getSelectQuery(whereClause: string): string {
         concat(p.name, ' (', p.description, ')') as "productName",
         p.id as "productId",
         SUM(COALESCE(i.qty, 0)) - SUM(COALESCE(i.locked_qty, 0)) - MAX(COALESCE(oi.release_qty, 0)) as "remainQty",
-        SUM(COALESCE(i.weight, 0)) - SUM(COALESCE(i.locked_weight, 0)) - MAX(COALESCE(oi.release_weight, 0)) as "remainWeight"
+        SUM(COALESCE(i.std_unit_value, 0)) - SUM(COALESCE(i.locked_std_unit_value, 0)) - MAX(COALESCE(oi.release_std_unit_value, 0)) as "remainStdUnitValue"
       FROM
         inventories i
         LEFT JOIN products p on i.product_id = p.id
@@ -77,7 +77,7 @@ function getCountQuery(whereClause: string): string {
       WITH oi as (
         SELECT
           SUM(oi.release_qty) as release_qty,
-          SUM(oi.release_weight) as release_weight,
+          SUM(oi.release_std_unit_value) as release_std_unit_value,
           oi.batch_id,
           p.name as product_name,
           oi.packing_type
@@ -105,7 +105,7 @@ function getCountQuery(whereClause: string): string {
         concat(p.name, ' (', p.description, ')') as "productName",
         p.id as "productId",
         SUM(COALESCE(i.qty, 0)) - SUM(COALESCE(i.locked_qty, 0)) - MAX(COALESCE(oi.release_qty, 0)) as "remainQty",
-        SUM(COALESCE(i.weight, 0)) - SUM(COALESCE(i.locked_weight, 0)) - MAX(COALESCE(oi.release_weight, 0)) as "remainWeight"
+        SUM(COALESCE(i.std_unit_value, 0)) - SUM(COALESCE(i.locked_std_unit_value, 0)) - MAX(COALESCE(oi.release_std_unit_value, 0)) as "remainStdUnitValue"
       FROM
         inventories i
         LEFT JOIN products p on i.product_id = p.id

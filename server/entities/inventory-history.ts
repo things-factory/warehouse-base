@@ -73,9 +73,6 @@ export class InventoryHistory {
   @Column()
   packingType: string
 
-  @Column({ nullable: true })
-  unit: string
-
   @Column('float')
   qty: number
 
@@ -89,6 +86,20 @@ export class InventoryHistory {
 
   @Column('float', { default: 0, nullable: true })
   openingWeight: number
+
+  @Column({
+    nullable: true
+  })
+  stdUnit: string
+
+  @Column('float', {
+    nullable: true
+  })
+  stdUnitValue: number
+
+  @Column('float', { default: 0, nullable: true })
+  openingStdUnitValue: number
+
 
   @Column({
     nullable: true
