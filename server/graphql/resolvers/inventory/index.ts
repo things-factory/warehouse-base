@@ -1,4 +1,5 @@
 import { checkProductIdenticalityResolver } from './check-product-identicality'
+import { checkInventoryOwnerResolver } from './check-inventory-owner'
 import { createInventory } from './create-inventory'
 import { deleteInventories } from './delete-inventories'
 import { deleteInventory } from './delete-inventory'
@@ -19,6 +20,7 @@ export const Query = {
   ...inventoryProductGroupResolver,
   ...inventoriesByStrategyResolver,
   ...checkProductIdenticalityResolver,
+  ...checkInventoryOwnerResolver,
   ...inventoryByPalletResolver
 }
 
