@@ -24,6 +24,7 @@ export const Inventory = gql`
     remainWeight: Float
     uom: String
     uomValue: Float
+    lockedUomValue: Int
     remainUomValue: Float
     status: String
     description: String
