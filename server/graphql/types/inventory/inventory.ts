@@ -22,9 +22,9 @@ export const Inventory = gql`
     lastSeq: Int
     weight: Float
     remainWeight: Float
-    stdUnit: String
-    stdUnitValue: Float
-    remainStdUnitValue: Float
+    uom: String
+    uomValue: Float
+    remainUomValue: Float
     status: String
     description: String
     creator: User

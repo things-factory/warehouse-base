@@ -68,13 +68,13 @@ export class ReducedInventoryHistory {
   packingType: string
 
   @ViewColumn()
-  stdUnit: string
+  uom: string
 
   @ViewColumn()
-  stdUnitValue: number
+  uomValue: number
 
   @ViewColumn()
-  openingStdUnitValue: number
+  openingUomValue: number
 
   @ViewColumn()
   qty: number

@@ -89,13 +89,13 @@ export const inventoriesResolver = {
         })
 
         const selectedQty = item.lockedQty ? item.lockedQty : 0
-        const selectedStdUnitValue = item.lockedStdUnitValue ? item.lockedStdUnitValue : 0
+        const selectedUomValue = item.lockedUomValue ? item.lockedUomValue : 0
 
         return {
           ...item,
           changeCount: inventoryChangeCount,
           remainQty: item.qty - selectedQty,
-          remainStdUnitValue: item.stdUnitValue - selectedStdUnitValue
+          remainUomValue: item.uomValue - selectedUomValue
         }
       })
     )

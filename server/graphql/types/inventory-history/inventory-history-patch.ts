@@ -22,8 +22,8 @@ export const InventoryHistoryPatch = gql`
     packingType: String
     weight: Float
     qty: Int
-    stdUnit: String
-    stdUnitValue: Float
+    uom: String
+    uomValue: Float
     status: String
     transactionType: String
     description: String

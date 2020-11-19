@@ -90,15 +90,15 @@ export class InventoryHistory {
   @Column({
     nullable: true
   })
-  stdUnit: string
+  uom: string
 
   @Column('float', {
     nullable: true
   })
-  stdUnitValue: number
+  uomValue: number
 
   @Column('float', { default: 0, nullable: true })
-  openingStdUnitValue: number
+  openingUomValue: number
 
 
   @Column({

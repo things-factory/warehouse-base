@@ -67,7 +67,7 @@ export class InventoryChange {
   @Column('float', {
     nullable: true
   })
-  stdUnitValue: number
+  uomValue: number
 
   @Column('float', {
     nullable: true

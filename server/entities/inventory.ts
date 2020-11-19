@@ -92,17 +92,17 @@ export class Inventory {
   @Column({
     nullable: true
   })
-  stdUnit: string
+  uom: string
 
   @Column('float', {
     nullable: true
   })
-  stdUnitValue: number
+  uomValue: number
 
   @Column('float', {
     nullable: true
   })
-  lockedStdUnitValue: number
+  lockedUomValue: number
 
   @Column('float', {
     nullable: true

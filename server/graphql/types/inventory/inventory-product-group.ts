@@ -8,7 +8,7 @@ export const InventoryProductGroup = gql`
     packingType: String
     remainQty: Float
     remainWeight: Float
-    remainStdUnitValue: Float
+    remainUomValue: Float
     
   }
 `
