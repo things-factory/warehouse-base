@@ -168,7 +168,8 @@ export const onhandInventoriesResolver = {
           prd.name as product_name, prd.sku as product_sku, prd.description as product_description,
           bz.name as bizplace_name, 
           loc.name as location_name, loc."zone" as location_zone, loc."row" as location_row, loc."column" as location_column, loc.shelf as location_shelf,
-          wh.name as warehouse_name, plt.name as reusable_pallet_name
+          wh.name as warehouse_name, plt.name as reusable_pallet_name,
+          iv.remark
           from tmp_data rih
           inner join inventories iv on iv.domain_id = rih.domain_id and iv.pallet_id = rih.pallet_id
           left join pallets plt on plt.id = iv.reusable_pallet_id
