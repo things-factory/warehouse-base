@@ -138,6 +138,11 @@ export class Inventory {
   })
   otherRef: string
 
+  @Column({
+    nullable: true
+  })
+  remark: string
+
   @OneToMany(type => InventoryChange, inventoryChanges => inventoryChanges.inventory)
   inventoryChanges: InventoryChange[]
 

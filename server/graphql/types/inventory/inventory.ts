@@ -28,6 +28,7 @@ export const Inventory = gql`
     remainUomValue: Float
     status: String
     description: String
+    remark: String
     creator: User
     updater: User
     createdAt: String

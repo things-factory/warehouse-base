@@ -18,5 +18,6 @@ export const NewInventory = gql`
     uomValue: Float
     status: String
     description: String
+    remark: String
   }
 `
