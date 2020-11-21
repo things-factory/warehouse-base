@@ -21,6 +21,6 @@ export const checkInventoryOwnerResolver = {
 
     const foundBizplace: Bizplace = inventory.bizplace
 
-    return (ownerBizplace === foundBizplace)
+    return Boolean(ownerBizplace.id === foundBizplace.id)
   }
 }
