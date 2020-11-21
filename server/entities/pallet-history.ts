@@ -1,17 +1,14 @@
-import {
-  CreateDateColumn,
-  UpdateDateColumn,
-  Entity,
-  Index,
-  Column,
-  OneToMany,
-  ManyToOne,
-  PrimaryGeneratedColumn
-} from 'typeorm'
-import { Domain } from '@things-factory/shell'
 import { User } from '@things-factory/auth-base'
 import { Bizplace } from '@things-factory/biz-base'
-import { Pallet } from '.'
+import { Domain } from '@things-factory/shell'
+import {
+  Column, CreateDateColumn,
+  Entity,
+  Index,
+  ManyToOne,
+  PrimaryGeneratedColumn, UpdateDateColumn
+} from 'typeorm'
+import { Pallet } from '../entities'
 
 @Entity()
 @Index('ix_pallet-history_0', (palletHistory: PalletHistory) => [palletHistory.domain, palletHistory.id], {

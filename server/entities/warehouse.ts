@@ -11,7 +11,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn
 } from 'typeorm'
-import { Location } from './location'
+import { Location } from '../entities'
 
 @Entity('warehouses')
 @Index('ix_warehouse_0', (warehouse: Warehouse) => [warehouse.domain, warehouse.name], { unique: true })

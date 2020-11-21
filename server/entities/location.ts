@@ -1,7 +1,7 @@
 import { User } from '@things-factory/auth-base'
 import { Domain } from '@things-factory/shell'
 import { Column, CreateDateColumn, Entity, Index, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm'
-import { Warehouse } from './warehouse'
+import { Warehouse } from '../entities'
 
 @Entity('locations')
 @Index('ix_location_0', (location: Location) => [location.domain, location.name], { unique: true })

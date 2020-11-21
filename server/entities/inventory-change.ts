@@ -3,10 +3,7 @@ import { Bizplace } from '@things-factory/biz-base'
 import { Product } from '@things-factory/product-base'
 import { Domain } from '@things-factory/shell'
 import { Column, CreateDateColumn, Entity, Index, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm'
-import { Location } from './location'
-import { Inventory } from './inventory'
-import { InventoryHistory } from './inventory-history'
-
+import { Location, Inventory, InventoryHistory } from '../entities'
 @Entity()
 @Index('ix_inventory-change_0', (inventoryChange: InventoryChange) => [inventoryChange.domain, inventoryChange.id], {
   unique: true

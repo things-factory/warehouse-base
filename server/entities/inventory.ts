@@ -12,11 +12,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn
 } from 'typeorm'
-import { Location } from './location'
-import { Warehouse } from './warehouse'
-import { InventoryChange } from './inventory-change'
-import { Pallet } from '.'
-
+import { Location, Warehouse, InventoryChange, Pallet } from '../entities'
 @Entity('inventories')
 @Index('ix_inventory_0', (inventory: Inventory) => [inventory.domain, inventory.id, inventory.palletId], {
   unique: true
