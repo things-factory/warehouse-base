@@ -16,7 +16,7 @@ export const checkInventoryOwnerResolver = {
     if (!inventory) throw new Error('This inventory has been terminated in the system.')
 
     const ownerBizplace: Bizplace = await bizRepo.findOne({
-      where: { domain: context.state.domain, name: bizplaceName }
+      where: { name: bizplaceName }
     })
 
     const foundBizplace: Bizplace = inventory.bizplace
