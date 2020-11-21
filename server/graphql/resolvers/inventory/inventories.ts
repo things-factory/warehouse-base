@@ -84,61 +84,22 @@ export const inventoriesResolver = {
 
     items = await Promise.all(
       items.map(async (item: Inventory) => {
-        // const { remainQty, remainWeight } = await getRemainAmount(item)
-
         let inventoryChangeCount = await getRepository(InventoryChange).count({
           where: { inventory: item.id }
         })
 
         const selectedQty = item.lockedQty ? item.lockedQty : 0
-        const selectedWeight = item.lockedWeight ? item.lockedWeight : 0
+        const selectedUomValue = item.lockedUomValue ? item.lockedUomValue : 0
 
         return {
           ...item,
           changeCount: inventoryChangeCount,
           remainQty: item.qty - selectedQty,
-          remainWeight: item.weight - selectedWeight
+          remainUomValue: item.uomValue - selectedUomValue
         }
       })
     )
 
-    // items = items.map((item: Inventory) => {
-    //   const remainQty: number = item.qty && item.lockedQty ? item.qty - item.lockedQty : item.qty || 0
-    //   const remainWeight: number = item.weight && item.lockedWeight ? item.weight - item.lockedWeight : item.weight || 0
-
-    //   return {
-    //     ...item,
-    //     remainQty,
-    //     remainWeight
-    //   }
-    // })
-
     return { items, total }
   }
 }
-
-// async function getRemainAmount(inventory: Inventory): Promise<{ remainQty: number; remainWeight: number }> {
-//   const orderInventories: OrderInventory = await getRepository(OrderInventory).find({
-//     where: {
-//       inventory,
-//       status: In([
-//         ORDER_INVENTORY_STATUS.PENDING,
-//         ORDER_INVENTORY_STATUS.PENDING_RECEIVE,
-//         ORDER_INVENTORY_STATUS.READY_TO_PICK,
-//         ORDER_INVENTORY_STATUS.PICKING,
-//         ORDER_INVENTORY_STATUS.PENDING_SPLIT
-//       ])
-//     }
-//   })
-
-//   const { releaseQty, releaseWeight } = orderInventories.reduce(
-//     (releaseAmount: { releaseQty: number; releaseWeight: number }, orderInv: OrderInventory) => {
-//       releaseAmount.releaseQty += orderInv.releaseQty
-//       releaseAmount.releaseWeight += orderInv.releaseWeight
-//       return releaseAmount
-//     },
-//     { releaseQty: 0, releaseWeight: 0 }
-//   )
-
-//   return { remainQty: inventory.qty - releaseQty, remainWeight: inventory.weight - releaseWeight }
-// }

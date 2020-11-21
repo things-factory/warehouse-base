@@ -19,7 +19,7 @@ export const inventoriesByStrategyResolver = {
       )
       .addSelect(subQuery =>
         subQuery
-          .select('COALESCE(SUM(release_weight), 0)', 'releaseWeight')
+          .select('COALESCE(SUM(release_uom_value), 0)', 'releaseUomValue')
           .from('order_inventories', 'OI')
           .where('"OI"."inventory_id" = "INV"."id"')
           .andWhere("\"OI\".\"status\" IN ('PENDING', 'PENDING_RECEIVE', 'READY_TO_PICK', 'PICKING', 'PENDING_SPLIT')")
@@ -61,15 +61,15 @@ export const inventoriesByStrategyResolver = {
       .map((inv: Inventory, idx: number) => {
         const qty: number = inv.qty || 0
         // const lockedQty: number = inv.lockedQty || 0
-        const weight: number = inv.weight || 0
-        // const lockedWeight: number = inv.lockedWeight || 0
+        const uomValue: number = inv.uomValue || 0
+        // const lockedUomValue: number = inv.lockedUomValue || 0
         const releaseQty: number = parseInt(raw[idx].releaseQty) || 0
-        const releaseWeight: number = parseFloat(raw[idx].releaseWeight) || 0
+        const releaseUomValue: number = parseFloat(raw[idx].releaseUomValue) || 0
 
         return {
           ...inv,
           qty: qty - releaseQty,
-          weight: weight - releaseWeight
+          uomValue: uomValue - releaseUomValue
         }
       })
       .filter((inv: Inventory) => inv.qty)

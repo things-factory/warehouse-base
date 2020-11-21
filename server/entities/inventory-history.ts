@@ -2,7 +2,7 @@ import { User } from '@things-factory/auth-base'
 import { Bizplace } from '@things-factory/biz-base'
 import { Domain } from '@things-factory/shell'
 import { Column, CreateDateColumn, Entity, Index, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm'
-import { Pallet } from '.'
+import { Pallet, Inventory } from '.'
 
 @Entity()
 @Index(
@@ -73,9 +73,6 @@ export class InventoryHistory {
   @Column()
   packingType: string
 
-  @Column({ nullable: true })
-  unit: string
-
   @Column('float')
   qty: number
 
@@ -93,6 +90,20 @@ export class InventoryHistory {
   @Column({
     nullable: true
   })
+  uom: string
+
+  @Column('float', {
+    nullable: true
+  })
+  uomValue: number
+
+  @Column('float', { default: 0, nullable: true })
+  openingUomValue: number
+
+
+  @Column({
+    nullable: true
+  })
   description: string
 
   @Column()
@@ -100,6 +111,11 @@ export class InventoryHistory {
 
   @Column()
   transactionType: String
+
+  @ManyToOne(type => Inventory, {
+    nullable: true
+  })
+  inventory: Inventory
 
   @ManyToOne(type => User, {
     nullable: true

@@ -92,7 +92,17 @@ export class Inventory {
   @Column({
     nullable: true
   })
-  unit: string
+  uom: string
+
+  @Column('float', {
+    nullable: true
+  })
+  uomValue: number
+
+  @Column('float', {
+    nullable: true
+  })
+  lockedUomValue: number
 
   @Column('float', {
     nullable: true
@@ -127,6 +137,11 @@ export class Inventory {
     nullable: true
   })
   otherRef: string
+
+  @Column({
+    nullable: true
+  })
+  remark: string
 
   @OneToMany(type => InventoryChange, inventoryChanges => inventoryChanges.inventory)
   inventoryChanges: InventoryChange[]

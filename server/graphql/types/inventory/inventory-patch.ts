@@ -21,10 +21,12 @@ export const InventoryPatch = gql`
     otherRef: String
     zone: String
     weight: Float
-    unit: String
+    uom: String
+    uomValue: Float
     qty: Int
     status: String
     description: String
+    remark: String
     updatedAt: String
     updater: String
     cuFlag: String

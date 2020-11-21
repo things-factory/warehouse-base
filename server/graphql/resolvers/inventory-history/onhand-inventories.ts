@@ -131,7 +131,7 @@ export const onhandInventoriesResolver = {
       await trxMgr.query(
         `
         create temp table tmp_src as (
-          select domain_id, pallet_id, seq, qty, weight, packing_type, batch_id, created_at, status,
+          select domain_id, pallet_id, seq, qty, uom_value, packing_type, batch_id, created_at, status,
           product_id::uuid as product_id, bizplace_id::uuid as bizplace_id, location_id::uuid as location_id 
           from reduced_inventory_histories rih 
           where domain_id = $1 and created_at::date <=$2::date
@@ -144,7 +144,7 @@ export const onhandInventoriesResolver = {
         `          
         create temp table tmp_data as (
           select dt.*, rih.batch_id, rih.product_id, rih.packing_type, rih.bizplace_id, rih.location_id from(
-            select ih.domain_id, ih.pallet_id, sum(ih.qty) as qty, sum(ih.weight) as weight, max(ih.seq) as last_seq, max(ih.created_at) as created_at,
+            select ih.domain_id, ih.pallet_id, sum(ih.qty) as qty, sum(ih.uom_value) as uom_value, max(ih.seq) as last_seq, max(ih.created_at) as created_at,
             min(ih.created_at) as initial_inbound_at
             from tmp_src ih
             group by ih.domain_id, ih.pallet_id
@@ -161,14 +161,15 @@ export const onhandInventoriesResolver = {
       const result: any = await trxMgr.query(
         ` 
           select 
-          rih.domain_id, rih.pallet_id, rih.qty, rih.weight, rih.last_seq, rih.created_at,
-          rih.initial_inbound_at,
-          case when iv.reusable_pallet_id is not null then concat(rih.batch_id, ' (', plt.name, ')') else rih.batch_id end as batch_id,
-          rih.product_id, rih.packing_type, rih.bizplace_id, rih.location_id,
+          rih.domain_id, rih.pallet_id as "palletId", rih.qty as "remainQty", rih.uom_value as "uomValue", iv.uom, rih.last_seq, rih.created_at,
+          rih.initial_inbound_at as "initialInboundAt",
+          case when iv.reusable_pallet_id is not null then concat(rih.batch_id, ' (', plt.name, ')') else rih.batch_id end as "batchId",
+          rih.product_id, rih.packing_type as "packingType", rih.bizplace_id, rih.location_id,
           prd.name as product_name, prd.sku as product_sku, prd.description as product_description,
-          bz.name as bizplace_name,
+          bz.name as bizplace_name, 
           loc.name as location_name, loc."zone" as location_zone, loc."row" as location_row, loc."column" as location_column, loc.shelf as location_shelf,
-          wh.name as warehouse_name, plt.name as reusable_pallet_name
+          wh.name as warehouse_name, plt.name as reusable_pallet_name,
+          iv.remark
           from tmp_data rih
           inner join inventories iv on iv.domain_id = rih.domain_id and iv.pallet_id = rih.pallet_id
           left join pallets plt on plt.id = iv.reusable_pallet_id
@@ -202,12 +203,7 @@ export const onhandInventoriesResolver = {
             name: itm.product_name,
             description: itm.product_description,
             sku: itm.product_sku
-          },
-          palletId: itm.pallet_id,
-          batchId: itm.batch_id,
-          packingType: itm.packing_type,
-          remainQty: itm.qty,
-          initialInboundAt: itm.initial_inbound_at
+          }
         }
       })
 

@@ -36,12 +36,13 @@ export const Mutation = /* GraphQL */ `
 
 export const Query = /* GraphQL */ `
   inventories(filters: [Filter], pagination: Pagination, sortings: [Sorting], locationSortingRules: [Sorting]): InventoryList @priviledge(category: "inventory", priviledge: "query")
-  inventory(id: String!): Inventory @priviledge(category: "inventory", priviledge: "query")
+  inventory(palletId: String!): Inventory @priviledge(category: "inventory", priviledge: "query")
   inventoryByPallet(palletId: String!): Inventory @priviledge(category: "inventory", priviledge: "query")
   inventoriesByProduct(filters: [Filter], pagination: Pagination, sortings: [Sorting]): InventoryList @priviledge(category: "inventory", priviledge: "query")
   inventoryProductGroup(filters: [Filter], pagination: Pagination, sortings: [Sorting], locationSortingRules: [Sorting]): InventoryProductGroupList @priviledge(category: "inventory", priviledge: "query")
   inventoriesByStrategy(batchId: String!, bizplaceId: String!, productName: String!, packingType: String!, pickingStrategy: String! locationSortingRules: [Sorting]): InventoryList
   checkProductIdenticality(palletA: String!, palletB: String!): Boolean
+  checkInventoryOwner(palletId: String!, bizplaceName: String!): Boolean
   onhandInventories(filters: [Filter], pagination: Pagination, sortings: [Sorting], locationSortingRules: [Sorting]): InventoryList @priviledge(category: "inventory", priviledge: "query")
 `
 
