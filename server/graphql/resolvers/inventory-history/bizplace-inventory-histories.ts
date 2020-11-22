@@ -64,9 +64,10 @@ export const bizplaceInventoryHistories = {
           orderRefNo: item.orderRefNo || '',
           orderNo: item.orderNo,
           openingQty: item.openingQty,
-          openingWeight: item.openingWeight,
+          openingUomValue: item.openingUomValue,
           qty: item.qty,
-          weight: item.weight,
+          uomValue: item.uomValue,
+          uom: item.uom,
           status: item.status,
           transactionType: item.transactionType,
           product: await getRepository(Product).findOne({
