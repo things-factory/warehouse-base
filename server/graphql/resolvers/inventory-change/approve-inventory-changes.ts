@@ -139,7 +139,8 @@ export const approveInventoryChanges = {
                 locationId: inventory.location.id,
                 packingType: inventory.packingType,
                 creator: context.state.user,
-                updater: context.state.user
+                updater: context.state.user,
+                inventory: inventory
               }
               delete inventoryHistory.id
               await trxMgr.getRepository(InventoryHistory).save(inventoryHistory)
@@ -167,7 +168,8 @@ export const approveInventoryChanges = {
               locationId:
                 newRecord.location && newRecord.location.id != inventory.location.id
                   ? newRecord.location.id
-                  : inventory.location.id
+                  : inventory.location.id,
+              inventory: inventory
             }
             delete inventoryHistory.id
             await trxMgr.getRepository(InventoryHistory).save(inventoryHistory)
@@ -184,7 +186,8 @@ export const approveInventoryChanges = {
                 openingUomValue: 0,
                 seq: lastSeq,
                 transactionType: 'TERMINATED',
-                status: 'TERMINATED'
+                status: 'TERMINATED',
+                inventory: inventory
               }
 
               await trxMgr.getRepository(InventoryHistory).save(inventoryHistory)
@@ -280,7 +283,8 @@ export const approveInventoryChanges = {
               transactionType: 'NEW',
               productId: newRecord.product.id,
               warehouseId: newRecord.warehouse.id,
-              locationId: newRecord.location.id
+              locationId: newRecord.location.id,
+              inventory: savedInventory
             })
 
             await trxMgr.getRepository(Location).save({
