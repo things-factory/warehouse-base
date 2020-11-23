@@ -1,9 +1,8 @@
 import { Bizplace } from '@things-factory/biz-base'
 import { Product } from '@things-factory/product-base'
-import { getManager, MoreThan } from 'typeorm'
-import { Inventory, InventoryHistory, Location, InventoryChange } from '../../../entities'
+import { getManager } from 'typeorm'
+import { Inventory, InventoryChange, Location } from '../../../entities'
 import { InventoryNoGenerator } from '../../../utils'
-import { INVENTORY_STATUS } from '../../../constants'
 
 export const submitInventoryChanges = {
   async submitInventoryChanges(_: any, { patches }, context: any) {
