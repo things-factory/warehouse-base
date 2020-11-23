@@ -57,7 +57,7 @@ export const approveInventoryChanges = {
             let transactionType = ''
 
             newHistoryRecord.openingQty = inventory.qty
-            newHistoryRecord.openingWeight = inventory.weight
+            newHistoryRecord.openingUomValue = inventory.uomValue
 
             // Get last row of InventoryHistory
             let latestEntry = await trxMgr.getRepository(InventoryHistory).find({
@@ -94,23 +94,23 @@ export const approveInventoryChanges = {
               newHistoryRecord.qty = newRecord.qty - inventory.qty
               if (newRecord.qty < 1) {
                 newRecord.qty = 0
-                newRecord.weight = 0
+                newRecord.uomValue = 0
               }
               transactionType = 'ADJUSTMENT'
             } else {
               newHistoryRecord.qty = 0
             }
 
-            // Check Change of existing inventory weight
-            if (newRecord.weight != null && newRecord.weight != inventory.weight) {
-              newHistoryRecord.weight = newRecord.weight - inventory.weight
-              Math.round(newHistoryRecord.weight * 100) / 100
-              if (newRecord.weight < 1) {
-                newRecord.weight = 0
+            // Check Change of existing inventory uomValue
+            if (newRecord.uomValue != null && newRecord.uomValue != inventory.uomValue) {
+              newHistoryRecord.uomValue = newRecord.uomValue - inventory.uomValue
+              Math.round(newHistoryRecord.uomValue * 100) / 100
+              if (newRecord.uomValue < 1) {
+                newRecord.uomValue = 0
               }
               transactionType = 'ADJUSTMENT'
             } else {
-              newHistoryRecord.weight = 0
+              newHistoryRecord.uomValue = 0
             }
 
             // Terminate current inventory history if there is change of bizplace, product, batchId, or packingType
@@ -127,9 +127,9 @@ export const approveInventoryChanges = {
                 domain: context.state.domain,
                 bizplace: inventory.bizplace.id,
                 openingQty: inventory.qty,
-                openingWeight: inventory.weight,
+                openingUomValue: inventory.uomValue,
                 qty: -inventory.qty || 0,
-                weight: -inventory.weight || 0,
+                uomValue: -inventory.uomValue || 0,
                 name: InventoryNoGenerator.inventoryHistoryName(),
                 seq: lastSeq,
                 transactionType: transactionType,
@@ -144,9 +144,9 @@ export const approveInventoryChanges = {
               delete inventoryHistory.id
               await trxMgr.getRepository(InventoryHistory).save(inventoryHistory)
               newHistoryRecord.qty = newRecord.qty != null ? newRecord.qty : inventory.qty || 0
-              newHistoryRecord.weight = newRecord.weight != null ? newRecord.weight : inventory.weight || 0
+              newHistoryRecord.uomValue = newRecord.uomValue != null ? newRecord.uomValue : inventory.uomValue || 0
               newHistoryRecord.openingQty = 0
-              newHistoryRecord.openingWeight = 0
+              newHistoryRecord.openingUomValue = 0
             }
 
             // Set and update inventory and inventory history data
@@ -179,9 +179,9 @@ export const approveInventoryChanges = {
                 ...inventoryHistory,
                 name: InventoryNoGenerator.inventoryHistoryName(),
                 qty: 0,
-                weight: 0,
+                uomValue: 0,
                 openingQty: 0,
-                openingWeight: 0,
+                openingUomValue: 0,
                 seq: lastSeq,
                 transactionType: 'TERMINATED',
                 status: 'TERMINATED'

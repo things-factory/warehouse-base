@@ -1,8 +1,8 @@
-import { ListParam, convertListParams } from '@things-factory/shell'
 import { getPermittedBizplaceIds } from '@things-factory/biz-base'
-import { getRepository, SelectQueryBuilder } from 'typeorm'
 import { Product } from '@things-factory/product-base'
-import { InventoryChange, Warehouse, Location } from '../../../entities'
+import { convertListParams, ListParam } from '@things-factory/shell'
+import { getRepository } from 'typeorm'
+import { InventoryChange, Location, Warehouse } from '../../../entities'
 
 export const inventoryChangesResolver = {
   async inventoryChanges(_: any, params: ListParam, context: any) {
