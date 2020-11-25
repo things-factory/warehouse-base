@@ -13,7 +13,7 @@ export const checkInventoryOwnerResolver = {
       relations: ['bizplace']
     })
 
-    if (!inventory) throw new Error('This inventory has been terminated in the system.')
+    if (!inventory) throw new Error('This inventory status is not stored.')
 
     const ownerBizplace: Bizplace = await bizRepo.findOne({
       where: { name: bizplaceName }
