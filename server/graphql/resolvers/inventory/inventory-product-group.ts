@@ -52,10 +52,12 @@ function getSelectQuery(whereClause: string): string {
       SELECT
         i.batch_id as "batchId",
         i.packing_type as "packingType",
+        i.uom as "uom",
         concat(p.name, ' (', p.description, ')') as "productName",
         p.id as "productId",
         SUM(COALESCE(i.qty, 0)) - SUM(COALESCE(i.locked_qty, 0)) - MAX(COALESCE(oi.release_qty, 0)) as "remainQty",
-        SUM(COALESCE(i.uom_value, 0)) - SUM(COALESCE(i.locked_uom_value, 0)) - MAX(COALESCE(oi.release_uom_value, 0)) as "remainUomValue"
+        SUM(COALESCE(i.uom_value, 0)) - SUM(COALESCE(i.locked_uom_value, 0)) - MAX(COALESCE(oi.release_uom_value, 0)) as "remainUomValue",
+        concat(SUM(COALESCE(i.uom_value, 0)) - SUM(COALESCE(i.locked_uom_value, 0)) - MAX(COALESCE(oi.release_uom_value, 0)), ' ', i.uom) as "remainUomValueWithUom"
       FROM
         inventories i
         LEFT JOIN products p on i.product_id = p.id
@@ -64,7 +66,8 @@ function getSelectQuery(whereClause: string): string {
       GROUP BY
         i.batch_id,
         p.id,
-        i.packing_type
+        i.packing_type,
+        i.uom
     ) AS inv_prod_grp
     WHERE
       "inv_prod_grp"."remainQty" > 0
@@ -105,7 +108,8 @@ function getCountQuery(whereClause: string): string {
         concat(p.name, ' (', p.description, ')') as "productName",
         p.id as "productId",
         SUM(COALESCE(i.qty, 0)) - SUM(COALESCE(i.locked_qty, 0)) - MAX(COALESCE(oi.release_qty, 0)) as "remainQty",
-        SUM(COALESCE(i.uom_value, 0)) - SUM(COALESCE(i.locked_uom_value, 0)) - MAX(COALESCE(oi.release_uom_value, 0)) as "remainUomValue"
+        SUM(COALESCE(i.uom_value, 0)) - SUM(COALESCE(i.locked_uom_value, 0)) - MAX(COALESCE(oi.release_uom_value, 0)) as "remainUomValue",
+        concat(SUM(COALESCE(i.uom_value, 0)) - SUM(COALESCE(i.locked_uom_value, 0)) - MAX(COALESCE(oi.release_uom_value, 0)), i.uom) as "remainUomValueWithUom"
       FROM
         inventories i
         LEFT JOIN products p on i.product_id = p.id
@@ -114,7 +118,8 @@ function getCountQuery(whereClause: string): string {
       GROUP BY
         i.batch_id,
         p.id,
-        i.packing_type
+        i.packing_type,
+        i.uom
     ) AS inv_prod_grp
     WHERE
       "inv_prod_grp"."remainQty" > 0

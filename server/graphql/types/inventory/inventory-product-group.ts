@@ -9,6 +9,7 @@ export const InventoryProductGroup = gql`
     remainQty: Float
     remainWeight: Float
     remainUomValue: Float
-    
+    remainUomValueWithUom: String
+    uom: String
   }
 `

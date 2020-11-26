@@ -34,5 +34,6 @@ export const Inventory = gql`
     createdAt: String
     updatedAt: String
     initialInboundAt: String
+    remainUomValueWithUom: String
   }
 `

@@ -1,5 +1,5 @@
 import { convertListParams, ListParam } from '@things-factory/shell'
-import { getRepository } from 'typeorm'
+import { getRepository, getManager, EntityManager } from 'typeorm'
 import { User } from '@things-factory/auth-base'
 import { Bizplace, BizplaceUser } from '@things-factory/biz-base'
 import { InventoryHistory } from '../../../entities'
@@ -63,74 +63,123 @@ export const inventoryHistoryPalletReport = {
           productValue
       }
 
-      const result = await getRepository(InventoryHistory).query(`
-        with invHistory as (
-          select i2.pallet_id, ih.seq, ih.status, ih.transaction_type, i2.product_id, prd.name as product_name,
-          prd.description as product_description,	ih.id as inventory_history_id, ih.packing_type, ih.qty, ih.opening_qty,
-          ih.weight, ih.opening_weight, ih.created_at
-          from inventories i2 
-          inner join reduced_inventory_histories ih on ih.pallet_id = i2.pallet_id and ih.domain_id = i2.domain_id
-          inner join products prd on prd.id = i2.product_id
-          where 
-          i2.domain_id = '${context.state.domain.id}'
-          AND i2.bizplace_id = '${bizplace.id}'
-          and (
-            (ih.status = 'STORED' and ih.transaction_type = 'NEW') 
-            or (ih.status = 'STORED' and ih.transaction_type = 'CANCEL_ORDER')
-            or (ih.status = 'STORED' and ih.transaction_type = 'RETURN')
-            or (ih.status = 'STORED' and ih.transaction_type = 'PUTAWAY') 
-            or (ih.status = 'TERMINATED' and ih.transaction_type = 'TERMINATED')
-          )
+
+
+      return await getManager().transaction(async (trxMgr: EntityManager) => {
+        await trxMgr.query(
+        `create temp table temp_products AS (
+          select * from products prd where 
+          prd.bizplace_id = $1
           ${productQuery}
-          order by ih.pallet_id, ih.seq
-        ), inventoryHistoriesByPallet as (
-          select invHistory.product_name, invHistory.product_description,
-          SUM(case when invHistory.created_at <= '${new Date(fromDate.value).toLocaleDateString()} 00:00:00' then 
-              case when invHistory.status = 'STORED' then 1 else -1 end
-            else 0 end) as opening_balance,
-          SUM(case when invHistory.created_at >= '${new Date(fromDate.value).toLocaleDateString()} 00:00:00' 
-                and invHistory.created_at <= '${new Date(toDate.value).toLocaleDateString()} 23:59:59' then 
-              case when invHistory.status = 'STORED' then 1 else 0 end
-            else 0 end) as in_balance,
-          SUM(case when invHistory.created_at >= '${new Date(fromDate.value).toLocaleDateString()} 00:00:00' 
-                and invHistory.created_at <= '${new Date(toDate.value).toLocaleDateString()} 23:59:59' then 
-              case when invHistory.status = 'TERMINATED' then 1 else 0 end
-            else 0 end) as out_balance
-          from(
-            select pallet_id, seq, status, transaction_type, product_id, product_name, product_description,
-            inventory_history_id, packing_type, qty, opening_qty, weight, opening_weight, created_at from (
-              select row_number() over(partition by pallet_id order by created_at asc) as rn, *  from invHistory where status = 'STORED'
-            )as invIn where rn = 1
-            union all
-            select pallet_id, seq, status, transaction_type, product_id, product_name, product_description,
-            inventory_history_id, packing_type, qty, opening_qty, weight, opening_weight, created_at from (
-              select row_number() over(partition by pallet_id order by created_at desc) as rn, *  from invHistory
-            )as invOut where rn = 1 and status = 'TERMINATED'
-          ) as invHistory group by product_name, product_description
+        )`,[bizplace.id])
+
+        await trxMgr.query(
+          `
+          create temp table temp_inv_history as (
+            select i2.pallet_id, i2.product_id, i2.packing_type, i2.batch_id,
+            ih.id as inventory_history_id, ih.seq, ih.status, ih.transaction_type, ih.qty, ih.opening_qty, ih.weight, ih.opening_weight, ih.created_at
+            from inventories i2
+            inner join reduced_inventory_histories ih on ih.pallet_id = i2.pallet_id and ih.domain_id = i2.domain_id
+            where
+            i2.domain_id = $1
+            and i2.bizplace_id = $2
+            and ih.created_at <= $3
+          )
+        `,
+          [context.state.domain.id, bizplace.id, toDate.value]
+        )        
+
+        await trxMgr.query(
+          `
+          create temp table temp_inventory_pallet_summary as (
+            select invh.*,
+            invh.opening_qty + invh.total_in_qty + invh.total_out_qty as closing_qty from (
+              select product_id, product_name, product_description,
+              SUM(case when invHistory.created_at < $1 then
+              case when invHistory.status = 'STORED' then 1 
+              when invhistory.status = 'TERMINATED' then -1
+              else 0 end
+              else 0 end) as opening_qty,
+              SUM(case when invHistory.created_at >= $1 and invHistory.created_at <= $2 then 
+              case when (invHistory.transaction_type = 'UNLOADING' or invHistory.transaction_type = 'NEW') then 1 else 0 end
+              else 0 end) as total_in_qty,
+              SUM(case when invHistory.created_at >= $1 and invHistory.created_at <= $2 then 
+              case when invHistory.status = 'TERMINATED' then -1 else 0 end
+              else 0 end) as total_out_qty,
+              0 as adjustment_qty
+              from(
+                  select pallet_id, seq, status, transaction_type, product_id, product_name, product_description,
+                  inventory_history_id, packing_type, qty, opening_qty, weight, opening_weight, created_at from (
+                    select row_number() over(partition by invh.pallet_id order by invh.created_at asc) as rn, invh.* ,
+                    prd.name as product_name, prd.description as product_description 
+                    from temp_inv_history invh
+                    inner join temp_products prd on prd.id = invh.product_id
+                    where (transaction_type = 'UNLOADING' or invh.transaction_type = 'NEW')
+                      and invh.created_at >= $1
+                  ) as invIn where rn = 1
+                  union all
+                  select pallet_id, seq, status, transaction_type, product_id, product_name, product_description,
+                  inventory_history_id, packing_type, qty, opening_qty, weight, opening_weight, created_at from (
+                    select row_number() over(partition by invh.pallet_id order by invh.seq asc) as rn, invh.* ,
+                    prd.name as product_name, prd.description as product_description 
+                    from temp_inv_history invh
+                    inner join temp_products prd on prd.id = invh.product_id
+                    where status = 'STORED' and invh.created_at < $1
+                  ) as invStored  where rn = 1
+                  union all
+                  select pallet_id, seq, status, transaction_type, product_id, product_name, product_description,
+                  inventory_history_id, packing_type, qty, opening_qty, weight, opening_weight, started_at as created_at from (
+                    select row_number() over(partition by invh.pallet_id order by invh.seq desc) as rn, invh.*,
+                    prd.name as product_name, prd.description as product_description, repeatedGroup.started_at
+                    from temp_inv_history invh
+                    inner join (
+                      select pallet_id, min(created_at) as started_at, max(created_at) as ended_at, min(seq) as min_seq, max(seq) as max_seq, status from (
+                        select startData.*, sum(startflag) over (partition by pallet_id order by seq) as grp from (
+                          select s.*,  
+                          (case when lag(status) over (partition by pallet_id order by seq) = status then 0 else 1 end) as startflag
+                          from temp_inv_history s
+                        ) startData
+                      ) endData
+                      group by pallet_id, grp, status
+                    ) repeatedGroup on repeatedGroup.pallet_id = invh.pallet_id and repeatedGroup.min_seq <= invh.seq and repeatedGroup.max_seq >= invh.seq
+                    inner join temp_products prd on prd.id = invh.product_id
+                  ) as invOut where rn = 1 and status ='TERMINATED'
+              ) as invHistory         
+              group by product_id, product_name, product_description
+            ) invh
+            where 1=1 
+            and (opening_qty > 0 or total_in_qty > 0)
+          )
+        `,
+          [fromDate.value, toDate.value]
         )
-        select invh.*, invh.opening_balance + invh.in_balance - invh.out_balance as closing_balance from inventoryHistoriesByPallet invh
-        where invh.opening_balance >= 0
-        and invh.in_balance >= 0
-        and invh.out_balance >= 0
-        and (invh.opening_balance > 0 or invh.in_balance > 0)
-        order by invh.product_name;
-      `)
+        
 
-      let items = result as any
-      items = items.map(item => {
-        return {
-          bizplace: bizplace,
-          product: {
-            name: item.product_name.trim() + ' ( ' + item.product_description.trim() + ' )'
-          },
-          openingBalance: item.opening_balance,
-          inBalance: item.in_balance,
-          outBalance: item.out_balance,
-          closingBalance: item.closing_balance
-        }
-      })
+        const result: any = await trxMgr.query(`select *, 'PALLET' as packing_type from temp_inventory_pallet_summary ORDER BY product_name, product_description`)
 
-      return items
+        trxMgr.query(`drop table temp_products, temp_inv_history, temp_inventory_pallet_summary`)
+
+        let items = result 
+        items = items.map(itm => {
+          return {
+            bizplace: bizplace,
+            batchId: itm.batch_id,
+            packingType: itm.packing_type,
+            openingBalance: itm.opening_qty,
+            adjustmentQty: itm.adjustment_qty,
+            closingBalance: itm.closing_qty,
+            inBalance: itm.total_in_qty,
+            outBalance: itm.total_out_qty,
+            product: {
+              id: itm.product_id,
+              name: itm.product_name.trim() + ' ( ' + itm.product_description.trim() + ' )',
+              description: itm.product_description
+            }
+          }
+        })
+
+        return items
+      })      
     } catch (error) {
       throw error
     }
