@@ -7,8 +7,16 @@ import { Pallet, Inventory } from '.'
 @Entity()
 @Index(
   'ix_inventory-history_0',
-  (inventoryHistory: InventoryHistory) => [inventoryHistory.domain, inventoryHistory.name],
+  (inventoryHistory: InventoryHistory) => [inventoryHistory.id],
   { unique: true }
+)
+@Index(
+  'ix_inventory-history_1',
+  (inventoryHistory: InventoryHistory) => [inventoryHistory.domain, inventoryHistory.palletId]
+)
+@Index(
+  'ix_inventory-history_3',
+  (inventoryHistory: InventoryHistory) => [inventoryHistory.domain, inventoryHistory.inventory]
 )
 export class InventoryHistory {
   @PrimaryGeneratedColumn('uuid')

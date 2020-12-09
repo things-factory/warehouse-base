@@ -1,6 +1,7 @@
 import { ViewEntity, ViewColumn, Index } from 'typeorm'
 import { Bizplace } from '@things-factory/biz-base'
 import { Domain } from '@things-factory/shell'
+import { Inventory } from '.'
 
 @ViewEntity({
   expression: `
@@ -93,4 +94,7 @@ export class ReducedInventoryHistory {
 
   @ViewColumn()
   transactionType: String
+
+  @ViewColumn()
+  inventory: Inventory
 }
