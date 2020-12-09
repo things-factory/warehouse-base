@@ -3,6 +3,9 @@ import { Bizplace } from '@things-factory/biz-base'
 import { Domain } from '@things-factory/shell'
 import { Inventory } from '.'
 
+@Index('ix_reducedInventoryHistory_0', (ReducedInventoryHistory: ReducedInventoryHistory) => [ReducedInventoryHistory.domain, ReducedInventoryHistory.palletId])
+@Index('ix_reducedInventoryHistory_1', (ReducedInventoryHistory: ReducedInventoryHistory) => [ReducedInventoryHistory.domain, ReducedInventoryHistory.inventory])
+@Index('ix_reducedInventoryHistory_2', (ReducedInventoryHistory: ReducedInventoryHistory) => [ReducedInventoryHistory.domain, ReducedInventoryHistory.palletId, ReducedInventoryHistory.seq],{unique:true})
 @ViewEntity({
   expression: `
     select ih.* from inventory_histories ih 
