@@ -3,15 +3,12 @@ import { Bizplace } from '@things-factory/biz-base'
 import { Domain } from '@things-factory/shell'
 import { Inventory } from '.'
 
-@Index('ix_reducedInventoryHistory_0', (ReducedInventoryHistory: ReducedInventoryHistory) => [ReducedInventoryHistory.domain, ReducedInventoryHistory.palletId])
-@Index('ix_reducedInventoryHistory_1', (ReducedInventoryHistory: ReducedInventoryHistory) => [ReducedInventoryHistory.domain, ReducedInventoryHistory.inventory])
-@Index('ix_reducedInventoryHistory_2', (ReducedInventoryHistory: ReducedInventoryHistory) => [ReducedInventoryHistory.domain, ReducedInventoryHistory.palletId, ReducedInventoryHistory.seq],{unique:true})
 @ViewEntity({
   expression: `
     select ih.* from inventory_histories ih 
     where not exists (
       select ih2.id from inventory_histories ih2 
-      where (ih2.transaction_type ='RETURN' or ih2.transaction_type ='CANCEL_ORDER') and
+      where ih2.transaction_type ='CANCEL_ORDER' and
       ih2.domain_id = ih.domain_id and
       ih2.pallet_id = ih.pallet_id and
       ih2.ref_order_id = ih.ref_order_id
@@ -22,6 +19,14 @@ import { Inventory } from '.'
       ih3.pallet_id = ih.pallet_id and 
       (ih3.seq = ih.seq + 1 or ih3.seq = ih.seq) and 
       ih3.transaction_type ='UNDO_UNLOADING'
+    ) and not exists 
+    (
+      select ih4.id from inventory_histories ih4 
+      where ih4.transaction_type ='RETURN' and
+      ih4.domain_id = ih.domain_id and
+      ih4.pallet_id = ih.pallet_id and
+      ih4.ref_order_id = ih.ref_order_id and
+      ih.status = 'TERMINATED'
     )
     `
 })
