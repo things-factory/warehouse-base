@@ -56,6 +56,7 @@ export const inventoryHistorySummaryReport = {
             closingQty: itm.closing_qty,
             totalInQty: itm.total_in_qty,
             totalOutQty: itm.total_out_qty,
+            totalReturnQty: itm.total_return_qty,
             product: {
               id: itm.product_id,
               name: itm.product_name + '( ' + itm.product_description + ' )',
@@ -79,7 +80,7 @@ export const inventoryHistorySummaryReport = {
 
 async function massageInventorySummary(trxMgr: EntityManager, params: ListParam, bizplace: Bizplace, context: any) {
   await productsQuery(trxMgr, params, bizplace)
-  await filterInventoryQuery(trxMgr, params, bizplace, context)
+  await filterInventorySummaryQuery(trxMgr, params, bizplace, context)
 
   let fromDate = params.filters.find(data => data.name === 'fromDate')
   let hasTransactionOrBalanceFilter = params.filters.find(data => data.name === 'hasTransactionOrBalance')
@@ -92,15 +93,17 @@ async function massageInventorySummary(trxMgr: EntityManager, params: ListParam,
     `
     create temp table temp_inventory_summary as (
       select prd.name as product_name, prd.description as product_description , src.*,
-      opening_qty + adjustment_qty + total_in_qty + total_out_qty as closing_qty
+      opening_qty + adjustment_qty + total_in_qty + total_out_qty + total_return_qty as closing_qty
       from (
         select ih.packing_type,
         sum(case when ih.created_at >= $1 and ih.transaction_type = 'ADJUSTMENT' then ih.qty else 0 end) as adjustment_qty,
         sum(case when ih.created_at < $1 then qty else 0 end) as opening_qty,
-        sum(case when ih.created_at >= $1 then case when ih.qty > 0 and ih.transaction_type <> 'ADJUSTMENT' then ih.qty else 0 end else 0 end) as total_in_qty,
-        sum(case when ih.created_at >= $1 then case when ih.qty < 0 and ih.transaction_type <> 'ADJUSTMENT' then ih.qty else 0 end else 0 end) as total_out_qty,
-        ih.product_id
+        sum(case when ih.created_at > $1 then case when ih.qty > 0 and ih.transaction_type <> 'ADJUSTMENT' and ih.transaction_type <> 'RETURN' and rtn.id is null then ih.qty else 0 end else 0 end) as total_in_qty,
+        sum(case when ih.created_at > $1 then case when (ih.qty < 0 and ih.transaction_type <> 'ADJUSTMENT')  or ih.transaction_type = 'RETURN' then ih.qty else 0 end else 0 end) as total_out_qty,
+        ih.product_id,
+        sum(case when rtn.id is not null then qty else 0 end) as total_return_qty
         from temp_inv_history ih
+        left join return_orders rtn on rtn.id = ih.ref_order_id
         group by ih.product_id, ih.packing_type
       ) src
       inner join temp_products prd on prd.id = src.product_id
@@ -134,7 +137,7 @@ async function massageInventoryPalletSummary(
   context: any
 ) {
   await productsQuery(trxMgr, params, bizplace)
-  await filterInventoryQuery(trxMgr, params, bizplace, context)
+  await filterInventoryPalletQuery(trxMgr, params, bizplace, context)
 
   let fromDate = params.filters.find(data => data.name === 'fromDate')
   let toDate = params.filters.find(data => data.name === 'toDate')
@@ -267,7 +270,43 @@ async function productsQuery(trxMgr: EntityManager, params: ListParam, bizplace:
   )
 }
 
-async function filterInventoryQuery(trxMgr: EntityManager, params: ListParam, bizplace: Bizplace, context: any) {
+async function filterInventorySummaryQuery(trxMgr: EntityManager, params: ListParam, bizplace: Bizplace, context: any) {
+  let toDate = params.filters.find(data => data.name === 'toDate')
+  let batchNo = params.filters.find(data => data.name === 'batchNo')
+
+  let batchNoQuery = ''
+  if (batchNo) {
+    batchNoQuery =
+      'AND Lower(ih.batch_id) LIKE ANY(ARRAY[' +
+      batchNo.value
+        .toLowerCase()
+        .split(',')
+        .map(prod => {
+          return "'%" + prod.trim().replace(/'/g, "''") + "%'"
+        })
+        .join(',') +
+      '])'
+  }
+
+  await trxMgr.query(
+    `
+    create temp table temp_inv_history as (
+      select ih.pallet_id, ih.product_id::uuid, ih.packing_type, ih.batch_id,
+      ih.id as inventory_history_id, ih.seq, ih.status, ih.transaction_type, ih.qty, ih.opening_qty, ih.weight, ih.opening_weight, ih.created_at,
+      ih.ref_order_id::uuid as ref_order_id
+      from reduced_inventory_histories ih
+      where
+      ih.domain_id = $1
+      and ih.bizplace_id = $2
+      and ih.created_at <= $3
+      ${batchNoQuery}
+    )
+  `,
+    [context.state.domain.id, bizplace.id, toDate.value]
+  )
+}
+
+async function filterInventoryPalletQuery(trxMgr: EntityManager, params: ListParam, bizplace: Bizplace, context: any) {
   let toDate = params.filters.find(data => data.name === 'toDate')
   let batchNo = params.filters.find(data => data.name === 'batchNo')
 
@@ -289,7 +328,8 @@ async function filterInventoryQuery(trxMgr: EntityManager, params: ListParam, bi
     `
     create temp table temp_inv_history as (
       select i2.pallet_id, i2.product_id, i2.packing_type, i2.batch_id,
-      ih.id as inventory_history_id, ih.seq, ih.status, ih.transaction_type, ih.qty, ih.opening_qty, ih.weight, ih.opening_weight, ih.created_at
+      ih.id as inventory_history_id, ih.seq, ih.status, ih.transaction_type, ih.qty, ih.opening_qty, ih.weight, ih.opening_weight, ih.created_at,
+      ih.ref_order_id::uuid as ref_order_id
       from inventories i2
       inner join reduced_inventory_histories ih on ih.pallet_id = i2.pallet_id and ih.domain_id = i2.domain_id
       where
