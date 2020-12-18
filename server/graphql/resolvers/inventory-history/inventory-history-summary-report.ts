@@ -80,7 +80,7 @@ export const inventoryHistorySummaryReport = {
 
 async function massageInventorySummary(trxMgr: EntityManager, params: ListParam, bizplace: Bizplace, context: any) {
   await productsQuery(trxMgr, params, bizplace)
-  await filterInventoryQuery(trxMgr, params, bizplace, context)
+  await filterInventorySummaryQuery(trxMgr, params, bizplace, context)
 
   let fromDate = params.filters.find(data => data.name === 'fromDate')
   let hasTransactionOrBalanceFilter = params.filters.find(data => data.name === 'hasTransactionOrBalance')
@@ -137,7 +137,7 @@ async function massageInventoryPalletSummary(
   context: any
 ) {
   await productsQuery(trxMgr, params, bizplace)
-  await filterInventoryQuery(trxMgr, params, bizplace, context)
+  await filterInventoryPalletQuery(trxMgr, params, bizplace, context)
 
   let fromDate = params.filters.find(data => data.name === 'fromDate')
   let toDate = params.filters.find(data => data.name === 'toDate')
@@ -270,7 +270,43 @@ async function productsQuery(trxMgr: EntityManager, params: ListParam, bizplace:
   )
 }
 
-async function filterInventoryQuery(trxMgr: EntityManager, params: ListParam, bizplace: Bizplace, context: any) {
+async function filterInventorySummaryQuery(trxMgr: EntityManager, params: ListParam, bizplace: Bizplace, context: any) {
+  let toDate = params.filters.find(data => data.name === 'toDate')
+  let batchNo = params.filters.find(data => data.name === 'batchNo')
+
+  let batchNoQuery = ''
+  if (batchNo) {
+    batchNoQuery =
+      'AND Lower(ih.batch_id) LIKE ANY(ARRAY[' +
+      batchNo.value
+        .toLowerCase()
+        .split(',')
+        .map(prod => {
+          return "'%" + prod.trim().replace(/'/g, "''") + "%'"
+        })
+        .join(',') +
+      '])'
+  }
+
+  await trxMgr.query(
+    `
+    create temp table temp_inv_history as (
+      select ih.pallet_id, ih.product_id::uuid, ih.packing_type, ih.batch_id,
+      ih.id as inventory_history_id, ih.seq, ih.status, ih.transaction_type, ih.qty, ih.opening_qty, ih.weight, ih.opening_weight, ih.created_at,
+      ih.ref_order_id::uuid as ref_order_id
+      from reduced_inventory_histories ih
+      where
+      ih.domain_id = $1
+      and ih.bizplace_id = $2
+      and ih.created_at <= $3
+      ${batchNoQuery}
+    )
+  `,
+    [context.state.domain.id, bizplace.id, toDate.value]
+  )
+}
+
+async function filterInventoryPalletQuery(trxMgr: EntityManager, params: ListParam, bizplace: Bizplace, context: any) {
   let toDate = params.filters.find(data => data.name === 'toDate')
   let batchNo = params.filters.find(data => data.name === 'batchNo')
 
