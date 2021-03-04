@@ -166,42 +166,45 @@ async function massageInventoryPalletSummary(
             else 0 end) as total_out_qty,
         0 as adjustment_qty
         from(
-        select pallet_id, seq, status, transaction_type, product_id, product_name, product_description,
-        inventory_history_id, packing_type, qty, opening_qty, weight, opening_weight, created_at from (
-          select row_number() over(partition by invh.pallet_id order by invh.created_at asc) as rn, invh.* ,
-          prd.name as product_name, prd.description as product_description 
-          from temp_inv_history invh
-          inner join temp_products prd on prd.id = invh.product_id
-          where (transaction_type = 'UNLOADING' or invh.transaction_type = 'NEW')
-            and invh.created_at >= $1
-        ) as invIn where rn = 1
-        union all
-        select pallet_id, seq, status, transaction_type, product_id, product_name, product_description,
-        inventory_history_id, packing_type, qty, opening_qty, weight, opening_weight, created_at from (
-          select row_number() over(partition by invh.pallet_id order by invh.seq asc) as rn, invh.* ,
-          prd.name as product_name, prd.description as product_description 
-          from temp_inv_history invh
-          inner join temp_products prd on prd.id = invh.product_id
-          where status = 'STORED' and invh.created_at < $1
-        ) as invStored  where rn = 1
-        union all
-        select pallet_id, seq, status, transaction_type, product_id, product_name, product_description,
-        inventory_history_id, packing_type, qty, opening_qty, weight, opening_weight, started_at as created_at from (
-          select row_number() over(partition by invh.pallet_id order by invh.seq desc) as rn, invh.*,
-          prd.name as product_name, prd.description as product_description, repeatedGroup.started_at
-          from temp_inv_history invh
-          inner join (
-            select pallet_id, min(created_at) as started_at, max(created_at) as ended_at, min(seq) as min_seq, max(seq) as max_seq, status from (
-              select startData.*, sum(startflag) over (partition by pallet_id order by seq) as grp from (
-                select s.*,  
-                (case when lag(status) over (partition by pallet_id order by seq) = status then 0 else 1 end) as startflag
-                from temp_inv_history s
-              ) startData
-            ) endData
-            group by pallet_id, grp, status
-          ) repeatedGroup on repeatedGroup.pallet_id = invh.pallet_id and repeatedGroup.min_seq <= invh.seq and repeatedGroup.max_seq >= invh.seq
-          inner join temp_products prd on prd.id = invh.product_id
-        ) as invOut where rn = 1 and status ='TERMINATED'
+          select pallet_id, seq, status, transaction_type, product_id, product_name, product_description,
+          inventory_history_id, packing_type, qty, opening_qty, weight, opening_weight, created_at from (
+            select row_number() over(partition by invh.pallet_id order by invh.created_at asc) as rn, invh.* ,
+            prd.name as product_name, prd.description as product_description 
+            from temp_inv_history invh
+            inner join temp_products prd on prd.id = invh.product_id
+            where (transaction_type = 'UNLOADING' or invh.transaction_type = 'NEW')
+              and invh.created_at >= $1
+          ) as invIn where rn = 1
+          union all
+          select pallet_id, seq, status, transaction_type, product_id, product_name, product_description,
+          inventory_history_id, packing_type, qty, opening_qty, weight, opening_weight, created_at from (
+            select row_number() over(partition by invh.pallet_id order by invh.seq asc) as rn, invh.pallet_id, invh.product_id, invh.packing_type, 
+            invh.batch_id, invh.inventory_history_id, 
+            invh.seq, invh.status, invh.transaction_type, invh.qty, invh.opening_qty, invh.weight, invh.opening_weight, invhUnload.created_at, 
+            prd.sku as product_sku, prd.name as product_name, prd.description as product_description 
+            from temp_inv_history invh
+            inner join temp_inv_history invhUnload ON invhUnload.pallet_id = invh.pallet_id AND invhUnload.seq = invh.seq - 1
+            inner join temp_products prd on prd.id = invh.product_id
+            where status = 'STORED' and invh.created_at < $1
+          ) as invStored  where rn = 1
+          union all
+          select pallet_id, seq, status, transaction_type, product_id, product_name, product_description,
+          inventory_history_id, packing_type, qty, opening_qty, weight, opening_weight, started_at as created_at from (
+            select row_number() over(partition by invh.pallet_id order by invh.seq desc) as rn, invh.*,
+            prd.name as product_name, prd.description as product_description, repeatedGroup.started_at
+            from temp_inv_history invh
+            inner join (
+              select pallet_id, min(created_at) as started_at, max(created_at) as ended_at, min(seq) as min_seq, max(seq) as max_seq, status from (
+                select startData.*, sum(startflag) over (partition by pallet_id order by seq) as grp from (
+                  select s.*,  
+                  (case when lag(status) over (partition by pallet_id order by seq) = status then 0 else 1 end) as startflag
+                  from temp_inv_history s
+                ) startData
+              ) endData
+              group by pallet_id, grp, status
+            ) repeatedGroup on repeatedGroup.pallet_id = invh.pallet_id and repeatedGroup.min_seq <= invh.seq and repeatedGroup.max_seq >= invh.seq
+            inner join temp_products prd on prd.id = invh.product_id
+          ) as invOut where rn = 1 and status ='TERMINATED'
         ) as invHistory         
         group by product_id, product_name, product_description
       ) invh
