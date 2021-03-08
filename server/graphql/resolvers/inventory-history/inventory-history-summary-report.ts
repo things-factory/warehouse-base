@@ -185,7 +185,7 @@ async function massageInventoryPalletSummary(
             from temp_inv_history invh
             inner join temp_inv_history invhUnload ON invhUnload.pallet_id = invh.pallet_id AND invhUnload.seq = invh.seq - 1
             inner join temp_products prd on prd.id = invh.product_id
-            where status = 'STORED' and invh.created_at < $1
+            where invh.status = 'STORED' and invh.created_at < $1
           ) as invStored  where rn = 1
           union all
           select pallet_id, seq, status, transaction_type, product_id, product_name, product_description,
