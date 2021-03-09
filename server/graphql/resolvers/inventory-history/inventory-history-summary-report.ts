@@ -176,14 +176,14 @@ async function massageInventoryPalletSummary(
               and invh.created_at >= $1
           ) as invIn where rn = 1
           union all
-          select pallet_id, seq, status, transaction_type, product_sku, product_id, product_name, product_description,
+          select pallet_id, seq, status, transaction_type, product_id, product_name, product_description,
           inventory_history_id, packing_type, qty, opening_qty, weight, opening_weight, created_at from (
             SELECT row_number() over(partition by pallet_id order by seq asc) as rn, 
             invh.pallet_id, invh.product_id, invh.packing_type, 
             invh.batch_id, invh.inventory_history_id, 
             invh.seq, 'STORED' AS status, invh.transaction_type, invh.qty, invh.opening_qty, invh.weight, invh.opening_weight,
             invh.created_at,
-            prd.sku as product_sku, prd.name as product_name, prd.description as product_description 
+            prd.name as product_name, prd.description as product_description 
             from temp_inv_history invh
             inner join temp_products prd on prd.id = invh.product_id
             where invh.created_at < $1
