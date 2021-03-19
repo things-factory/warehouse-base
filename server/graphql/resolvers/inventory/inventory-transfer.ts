@@ -35,10 +35,7 @@ export const inventoryTransfer = {
           zone: toLocation.zone,
           updater: context.state.user
         })
-
-        //Update fromLocation status
-        await switchLocationStatus(context.state.domain, fromLocation, context.state.user, trxMgr)
-
+        
         // Generate inventory history
         await generateInventoryHistory(
           inventory,
